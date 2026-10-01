@@ -1,0 +1,27 @@
+# 実機・シミュレーション共通のFoxglove Bridge設定。
+# addressとportはrobot.envからlaunch引数として上書きする。
+koko_foxglove_bridge:
+  ros__parameters:
+    topic_whitelist: [".*"]
+    param_whitelist: [".*"]
+    service_whitelist: [".*"]
+    client_topic_whitelist: [".*"]
+    min_qos_depth: 1
+    max_qos_depth: 10
+    num_threads: 0
+    send_buffer_limit: 10000000
+    capabilities:
+      - clientPublish
+      - parameters
+      - parametersSubscribe
+      - services
+      - connectionGraph
+      - assets
+    include_hidden: false
+    publish_client_count: true
+    sysinfo: true
+    sysinfo_topic: /foxglove_bridge/sysinfo
+    sysinfo_refresh_interval: 500
+    message_backlog_size: 1024
+    ignore_unresponsive_param_nodes: true
+    remote_access: false

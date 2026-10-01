@@ -1,0 +1,7 @@
+free_thresh: 0.25
+image: nakanosima_0919_2(1)
+mode: trinary
+negate: 0
+occupied_thresh: 0.65
+origin: [-120.45, -211.9, 0]
+resolution: 0.05

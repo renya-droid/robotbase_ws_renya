@@ -1,0 +1,7 @@
+image: 0919_15f_2.pgm
+mode: trinary
+resolution: 0.050
+origin: [-29.594, -47.694, 0]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196

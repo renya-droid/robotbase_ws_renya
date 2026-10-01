@@ -1,0 +1,10 @@
+# GazeboのVLP-16相当点群から複数リング合成/scan3を生成する設定。
+vlp16_to_scan:
+  ros__parameters:
+    use_sim_time: true  # Gazeboの/clockを使用する
+    ring: 8  # 単一リング版/scan用（SLAM/Nav2ではscan3を使用）
+    resolution: 0.008726646  # 角度刻み[rad]（0.5度）
+    use_multi_rings: true  # 複数リングを合成した/scan3を配信する
+    ring_ids: [1, 2, 3, 4, 5, 6, 8]  # 実機と同じリング構成
+    # 各ringの採用上限[m]。下向きリングが遠方の床を拾わないよう制限する。
+    ring_max_distances: [1.25, 1.50, 1.75, 2.00, 2.50, 3.50, 100.0]

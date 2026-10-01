@@ -1,0 +1,113 @@
+{
+  "axis": "linear",
+  "model": "first-order plus dead time, measured at /cmd_vel -> /odom",
+  "steady_gain_median": 0.7736124663195856,
+  "delay_s_median": 0.10213584150005772,
+  "time_constant_s_median": 0.10210745450058312,
+  "phases": [
+    {
+      "name": "settle",
+      "requested": 0.0,
+      "actual_command": 0.0,
+      "steady_output": 0.0,
+      "gain": null,
+      "wheel_left": 0.0,
+      "wheel_right": 0.0
+    },
+    {
+      "name": "forward_1",
+      "requested": 0.15,
+      "actual_command": 0.15,
+      "steady_output": 0.11211627319134565,
+      "gain": 0.7474418212756377,
+      "wheel_left": 0.11112761235893406,
+      "wheel_right": 0.11099134620516013
+    },
+    {
+      "name": "stop_1",
+      "requested": 0.0,
+      "actual_command": 0.0,
+      "steady_output": 0.0,
+      "gain": null,
+      "wheel_left": 0.0,
+      "wheel_right": 0.0
+    },
+    {
+      "name": "reverse_1",
+      "requested": -0.15,
+      "actual_command": -0.15,
+      "steady_output": -0.11347501439391988,
+      "gain": 0.7565000959594659,
+      "wheel_left": -0.11547794823090668,
+      "wheel_right": -0.11543094099254037
+    },
+    {
+      "name": "stop_2",
+      "requested": 0.0,
+      "actual_command": 0.0,
+      "steady_output": 0.0,
+      "gain": null,
+      "wheel_left": 0.0,
+      "wheel_right": 0.0
+    },
+    {
+      "name": "forward_2",
+      "requested": 0.3,
+      "actual_command": 0.3,
+      "steady_output": 0.2405605642098808,
+      "gain": 0.8018685473662694,
+      "wheel_left": 0.24356412012809708,
+      "wheel_right": 0.23713575786248237
+    },
+    {
+      "name": "stop_3",
+      "requested": 0.0,
+      "actual_command": 0.0,
+      "steady_output": 0.0,
+      "gain": null,
+      "wheel_left": 0.0,
+      "wheel_right": 0.0
+    },
+    {
+      "name": "reverse_2",
+      "requested": -0.3,
+      "actual_command": -0.3,
+      "steady_output": -0.23721745100391162,
+      "gain": 0.7907248366797054,
+      "wheel_left": -0.2371340372206943,
+      "wheel_right": -0.23721745100391162
+    },
+    {
+      "name": "final_stop",
+      "requested": 0.0,
+      "actual_command": 0.0,
+      "steady_output": 0.0,
+      "gain": null,
+      "wheel_left": 0.0,
+      "wheel_right": 0.0
+    }
+  ],
+  "dynamics": [
+    {
+      "phase": "forward_1",
+      "delay_s": 0.10197610999966855,
+      "time_constant_s": 0.05227803799971298
+    },
+    {
+      "phase": "reverse_1",
+      "delay_s": 0.051435105999189545,
+      "time_constant_s": 0.10233036800127593
+    },
+    {
+      "phase": "forward_2",
+      "delay_s": 0.1022955730004469,
+      "time_constant_s": 0.10259907599902363
+    },
+    {
+      "phase": "reverse_2",
+      "delay_s": 0.10287623300064297,
+      "time_constant_s": 0.1018845409998903
+    }
+  ],
+  "right_left_speed_asymmetry_median": -0.0008170576012729909
+}

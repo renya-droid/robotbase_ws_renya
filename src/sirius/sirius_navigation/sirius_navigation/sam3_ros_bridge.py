@@ -1,0 +1,267 @@
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import PointCloud2, PointField
+import sensor_msgs_py.point_cloud2 as pc2
+from std_msgs.msg import Header, String
+import json
+import websocket
+import threading
+import numpy as np
+import time
+import struct
+from rclpy.qos import QoSProfile, DurabilityPolicy
+
+class SAM3ROSBridge(Node):
+    def __init__(self):
+        super().__init__('sam3_ros_bridge')
+        
+        # Parameters
+        self.declare_parameter('server_url', 'ws://localhost:8080/ws_3d')
+        self.declare_parameter('frame_id', 'sirius3/zed_camera_link')
+        self.declare_parameter('mask_threshold', 0.5)
+        self.declare_parameter('downsample_factor', 4)
+        self.declare_parameter('publish_full_cloud', True)
+        if not self.has_parameter('use_sim_time'):
+            self.declare_parameter('use_sim_time', True)
+        
+        self.url = self.get_parameter('server_url').get_parameter_value().string_value
+        self.frame_id = self.get_parameter('frame_id').get_parameter_value().string_value
+        self.mask_threshold = self.get_parameter('mask_threshold').get_parameter_value().double_value
+        self.downsample_factor = self.get_parameter('downsample_factor').get_parameter_value().integer_value
+        self.publish_full_cloud = self.get_parameter('publish_full_cloud').get_parameter_value().bool_value
+        self.use_sim_time = self.get_parameter('use_sim_time').get_parameter_value().bool_value
+        
+        # Simulation Time State
+        self.latest_sim_time = None
+        self.last_published_sim_time = -1.0
+        
+        # Publishers
+        self.pub_obstacles = self.create_publisher(PointCloud2, '/sam3/obstacles', 10)
+        self.pub_background = self.create_publisher(PointCloud2, '/sam3/background', 10)
+        self.pub_full_cloud = self.create_publisher(PointCloud2, '/sam3/full_cloud', 10)
+        self.pub_full_cloud_semantic = self.create_publisher(PointCloud2, '/sam3/full_cloud_semantic', 10)
+        
+        # Latched publisher for dynamic class colors config
+        qos_latched = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
+        self.pub_class_colors = self.create_publisher(String, '/sam3/class_colors', qos_latched)
+
+        
+        # WebSocket setup
+        self.running = True
+        self.ws = None
+        self.ws_thread = threading.Thread(target=self._ws_loop, daemon=True)
+        self.ws_thread.start()
+        
+        self.get_logger().info(f'SAM3 ROS Bridge started. Connecting to {self.url}...')
+
+    def _ws_loop(self):
+        while self.running:
+            try:
+                # websocket-client uses a different callback signature for on_close in newer versions
+                self.ws = websocket.WebSocketApp(
+                    self.url,
+                    on_message=self._on_message,
+                    on_error=self._on_error,
+                    on_close=self._on_close
+                )
+                self.ws.run_forever()
+            except Exception as e:
+                self.get_logger().error(f'WebSocket run_forever error: {e}')
+            
+            if self.running:
+                self.get_logger().info('Attempting to reconnect in 3 seconds...')
+                time.sleep(3)
+
+    def _on_message(self, ws, message):
+        # self.get_logger().debug("Received message from server")
+        # Stats message is JSON (str), Point Cloud is binary (bytes)
+        if isinstance(message, str):
+            try:
+                stats = json.loads(message)
+                if 'sim_time' in stats:
+                    self.latest_sim_time = stats['sim_time']
+                if 'class_colors' in stats and stats['class_colors']:
+                    colors_json = json.dumps(stats['class_colors'])
+                    if not hasattr(self, '_last_colors_json') or self._last_colors_json != colors_json:
+                        self._last_colors_json = colors_json
+                        msg = String()
+                        msg.data = colors_json
+                        self.pub_class_colors.publish(msg)
+                        self.get_logger().info(f"Published updated class colors to /sam3/class_colors: {colors_json}")
+            except Exception as e:
+                self.get_logger().error(f"Error parsing JSON message: {e}")
+            return
+
+        
+        # Binary data decoding
+        # Format v2: [x, y, z, r, g, b, is_masked, semantic_id] (8 * float32)
+        # Format v1: [x, y, z, r, g, b, is_masked] (7 * float32)
+        try:
+            raw_data = np.frombuffer(message, dtype=np.float32)
+            point_stride = 8 if len(raw_data) % 8 == 0 else 7 if len(raw_data) % 7 == 0 else 0
+            if point_stride == 0:
+                return
+                
+            data = raw_data.reshape(-1, point_stride)
+            
+            # Filter for masked points (segmented objects) vs background
+            is_masked = data[:, 6] > self.mask_threshold
+            masked_data = data[is_masked]
+            background_data = data[~is_masked]
+
+            # --- Optimization: Downsample background ---
+            if self.downsample_factor > 1:
+                background_data = background_data[::self.downsample_factor]
+            
+            # --- Prepare PointCloud2 Header ---
+            header = Header()
+            header.frame_id = self.frame_id
+            
+            # Use sim_time if available and use_sim_time is True
+            if self.use_sim_time and self.latest_sim_time is not None:
+                if self.latest_sim_time <= self.last_published_sim_time:
+                    # self.get_logger().warn(f"Skipping duplicate/old timestamp: {self.latest_sim_time}")
+                    return
+                header.stamp = self._float_to_time(self.latest_sim_time)
+                self.last_published_sim_time = self.latest_sim_time
+                self.get_logger().info(f"Bridge Sync: Published cloud at sim_time {self.latest_sim_time:.3f}", once=False)
+            else:
+                header.stamp = self.get_clock().now().to_msg()
+            
+            # RTAB-Map/RViz compatibility: keep the public mapping clouds as plain XYZRGB.
+            fields_xyzrgb = [
+                PointField(name='x', offset=0, datatype=PointField.FLOAT32, count=1),
+                PointField(name='y', offset=4, datatype=PointField.FLOAT32, count=1),
+                PointField(name='z', offset=8, datatype=PointField.FLOAT32, count=1),
+                PointField(name='rgb', offset=12, datatype=PointField.FLOAT32, count=1),
+            ]
+            fields_semantic = [
+                PointField(name='x', offset=0, datatype=PointField.FLOAT32, count=1),
+                PointField(name='y', offset=4, datatype=PointField.FLOAT32, count=1),
+                PointField(name='z', offset=8, datatype=PointField.FLOAT32, count=1),
+                PointField(name='rgb', offset=12, datatype=PointField.FLOAT32, count=1),
+                PointField(name='semantic_id', offset=16, datatype=PointField.UINT16, count=1),
+                PointField(name='is_masked', offset=18, datatype=PointField.UINT8, count=1),
+            ]
+            
+            # Vectorized packing function using Numpy structured arrays
+            def pack_cloud_data_fast(points, include_semantic=False):
+                if len(points) == 0:
+                    return None
+                
+                N = len(points)
+                if include_semantic:
+                    # x/y/z/rgb + semantic_id + is_masked + padding = 20 bytes.
+                    cloud_arr = np.empty(N, dtype=[
+                        ('x', 'f4'),
+                        ('y', 'f4'),
+                        ('z', 'f4'),
+                        ('rgb', 'f4'),
+                        ('semantic_id', 'u2'),
+                        ('is_masked', 'u1'),
+                        ('_pad', 'u1'),
+                    ])
+                else:
+                    cloud_arr = np.empty(N, dtype=[
+                        ('x', 'f4'),
+                        ('y', 'f4'),
+                        ('z', 'f4'),
+                        ('rgb', 'f4'),
+                    ])
+                
+                # Vectorized axis conversion: X=-Z, Y=-X, Z=Y
+                cloud_arr['x'] = -points[:, 2]
+                cloud_arr['y'] = -points[:, 0]
+                cloud_arr['z'] =  points[:, 1]
+                
+                # Vectorized color packing
+                r = (points[:, 3] * 255).astype(np.uint32)
+                g = (points[:, 4] * 255).astype(np.uint32)
+                b = (points[:, 5] * 255).astype(np.uint32)
+                
+                # Pack into 00RRGGBB.
+                rgb = (r << 16) | (g << 8) | b
+                cloud_arr['rgb'] = rgb.view(np.float32)
+                if include_semantic:
+                    if points.shape[1] >= 8:
+                        semantic_id = np.clip(np.round(points[:, 7]), 0, 65535).astype(np.uint16)
+                    else:
+                        semantic_id = np.zeros(N, dtype=np.uint16)
+                    cloud_arr['semantic_id'] = semantic_id
+                    cloud_arr['is_masked'] = (points[:, 6] > self.mask_threshold).astype(np.uint8)
+                    cloud_arr['_pad'] = 0
+                
+                return cloud_arr
+
+            def create_cloud_from_arr(header, fields, arr, point_step):
+                if arr is None or len(arr) == 0:
+                    return pc2.create_cloud(header, fields, [])
+                
+                # Direct buffer to PointCloud2 message for performance
+                msg = PointCloud2()
+                msg.header = header
+                msg.height = 1
+                msg.width = len(arr)
+                msg.fields = fields
+                msg.is_bigendian = False
+                msg.point_step = point_step
+                msg.row_step = msg.point_step * msg.width
+                msg.is_dense = False
+                msg.data = arr.tobytes()
+                return msg
+
+            # Publish Obstacles
+            masked_arr = pack_cloud_data_fast(masked_data)
+            cloud_msg_obs = create_cloud_from_arr(header, fields_xyzrgb, masked_arr, 16)
+            self.pub_obstacles.publish(cloud_msg_obs)
+                
+            # Publish Background
+            background_arr = pack_cloud_data_fast(background_data)
+            cloud_msg_bg = create_cloud_from_arr(header, fields_xyzrgb, background_arr, 16)
+            self.pub_background.publish(cloud_msg_bg)
+            
+            # Publish Full Cloud (Combined) if requested
+            if self.publish_full_cloud:
+                full_arr = pack_cloud_data_fast(data)
+                cloud_msg_full = create_cloud_from_arr(header, fields_xyzrgb, full_arr, 16)
+                self.pub_full_cloud.publish(cloud_msg_full)
+                semantic_arr = pack_cloud_data_fast(data, include_semantic=True)
+                cloud_msg_semantic = create_cloud_from_arr(header, fields_semantic, semantic_arr, 20)
+                self.pub_full_cloud_semantic.publish(cloud_msg_semantic)
+            
+        except Exception as e:
+            self.get_logger().error(f'Error processing point cloud: {e}')
+
+    def _on_error(self, ws, error):
+        self.get_logger().error(f'WebSocket Error: {error}')
+
+    def _on_close(self, ws, close_status_code, close_msg):
+        self.get_logger().warn(f'WebSocket connection closed: {close_status_code} - {close_msg}')
+
+    def _float_to_time(self, t_float):
+        from builtin_interfaces.msg import Time
+        t = Time()
+        t.sec = int(t_float)
+        t.nanosec = int((t_float - t.sec) * 1e9)
+        return t
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = SAM3ROSBridge()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    except Exception as e:
+        print(f'Runtime error: {e}')
+    finally:
+        if 'node' in locals():
+            node.running = False
+            if hasattr(node, 'ws') and node.ws:
+                node.ws.close()
+            node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()

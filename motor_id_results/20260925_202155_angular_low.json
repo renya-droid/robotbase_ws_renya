@@ -1,0 +1,204 @@
+{
+  "axis": "angular_low",
+  "model": "first-order plus dead time, measured at /cmd_vel -> /odom",
+  "steady_gain_median": 1.3197999394165225,
+  "delay_s_median": 0.25725107850121276,
+  "time_constant_s_median": 0.30667914649984596,
+  "phases": [
+    {
+      "name": "settle",
+      "requested": 0.0,
+      "actual_command": 0.0,
+      "steady_output": -0.0,
+      "gain": null,
+      "wheel_left": 0.0,
+      "wheel_right": 0.0
+    },
+    {
+      "name": "left_010",
+      "requested": 0.1,
+      "actual_command": 0.1,
+      "steady_output": 0.31683251121025613,
+      "gain": 3.1683251121025613,
+      "wheel_left": -0.06679933483199302,
+      "wheel_right": 0.07020200375761965
+    },
+    {
+      "name": "stop_010a",
+      "requested": 0.0,
+      "actual_command": 0.0,
+      "steady_output": -0.0,
+      "gain": null,
+      "wheel_left": 0.0,
+      "wheel_right": 0.0
+    },
+    {
+      "name": "right_010",
+      "requested": -0.1,
+      "actual_command": -0.1,
+      "steady_output": -0.3186563219372016,
+      "gain": 3.186563219372016,
+      "wheel_left": 0.068042118194055,
+      "wheel_right": -0.066730427456698
+    },
+    {
+      "name": "stop_010b",
+      "requested": 0.0,
+      "actual_command": 0.0,
+      "steady_output": -0.0,
+      "gain": null,
+      "wheel_left": 0.0,
+      "wheel_right": 0.0
+    },
+    {
+      "name": "left_020",
+      "requested": 0.2,
+      "actual_command": 0.2,
+      "steady_output": 0.31775044951676223,
+      "gain": 1.5887522475838112,
+      "wheel_left": -0.0667979446554566,
+      "wheel_right": 0.07161006506492765
+    },
+    {
+      "name": "stop_020a",
+      "requested": 0.0,
+      "actual_command": 0.0,
+      "steady_output": -0.0,
+      "gain": null,
+      "wheel_left": 0.0,
+      "wheel_right": 0.0
+    },
+    {
+      "name": "right_020",
+      "requested": -0.2,
+      "actual_command": -0.2,
+      "steady_output": -0.31660351307435936,
+      "gain": 1.5830175653717966,
+      "wheel_left": 0.06955565610987868,
+      "wheel_right": -0.06666428570755101
+    },
+    {
+      "name": "stop_020b",
+      "requested": 0.0,
+      "actual_command": 0.0,
+      "steady_output": -0.0,
+      "gain": null,
+      "wheel_left": 0.0,
+      "wheel_right": 0.0
+    },
+    {
+      "name": "left_030",
+      "requested": 0.3,
+      "actual_command": 0.3,
+      "steady_output": 0.3169746940383745,
+      "gain": 1.0565823134612484,
+      "wheel_left": -0.06633298418544485,
+      "wheel_right": 0.07151043159325551
+    },
+    {
+      "name": "stop_030a",
+      "requested": 0.0,
+      "actual_command": 0.0,
+      "steady_output": -0.0,
+      "gain": null,
+      "wheel_left": 0.0,
+      "wheel_right": 0.0
+    },
+    {
+      "name": "right_030",
+      "requested": -0.3,
+      "actual_command": -0.3,
+      "steady_output": -0.316814967737301,
+      "gain": 1.05604989245767,
+      "wheel_left": 0.06963928877879955,
+      "wheel_right": -0.06624798992870609
+    },
+    {
+      "name": "stop_030b",
+      "requested": 0.0,
+      "actual_command": 0.0,
+      "steady_output": -0.0,
+      "gain": null,
+      "wheel_left": 0.0,
+      "wheel_right": 0.0
+    },
+    {
+      "name": "left_040",
+      "requested": 0.4,
+      "actual_command": 0.4,
+      "steady_output": 0.31710775569243826,
+      "gain": 0.7927693892310956,
+      "wheel_left": -0.06624607138802069,
+      "wheel_right": 0.07147470457623525
+    },
+    {
+      "name": "stop_040a",
+      "requested": 0.0,
+      "actual_command": 0.0,
+      "steady_output": -0.0,
+      "gain": null,
+      "wheel_left": 0.0,
+      "wheel_right": 0.0
+    },
+    {
+      "name": "right_040",
+      "requested": -0.4,
+      "actual_command": -0.4,
+      "steady_output": -0.317724497931431,
+      "gain": 0.7943112448285774,
+      "wheel_left": 0.07076022185249853,
+      "wheel_right": -0.06698245788227794
+    },
+    {
+      "name": "final_stop",
+      "requested": 0.0,
+      "actual_command": 0.0,
+      "steady_output": -0.0,
+      "gain": null,
+      "wheel_left": 0.0,
+      "wheel_right": 0.0
+    }
+  ],
+  "dynamics": [
+    {
+      "phase": "left_010",
+      "delay_s": 0.25677722900036315,
+      "time_constant_s": 0.3071866769987537
+    },
+    {
+      "phase": "right_010",
+      "delay_s": 0.3070699939999031,
+      "time_constant_s": 0.2553741209994769
+    },
+    {
+      "phase": "left_020",
+      "delay_s": 0.20471057199938514,
+      "time_constant_s": 0.30651615300121193
+    },
+    {
+      "phase": "right_020",
+      "delay_s": 0.3072218649995193,
+      "time_constant_s": 0.30687021700032346
+    },
+    {
+      "phase": "left_030",
+      "delay_s": 0.2550380580014462,
+      "time_constant_s": 0.30684213999848
+    },
+    {
+      "phase": "right_030",
+      "delay_s": 0.2577117270011513,
+      "time_constant_s": 0.3090913050000381
+    },
+    {
+      "phase": "left_040",
+      "delay_s": 0.2567904300012742,
+      "time_constant_s": 0.2555766549994587
+    },
+    {
+      "phase": "right_040",
+      "delay_s": 0.35756549799953063,
+      "time_constant_s": 0.15336016100081906
+    }
+  ]
+}

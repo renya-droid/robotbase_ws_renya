@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=@DISPLAY_NAME@ ランチャー
+Comment=@DISPLAY_NAME@用 ROS 2 ノード・シミュレータ起動UI
+Exec=/usr/bin/python3 @WORKSPACE@/other_programs/sirius_launcher/robot_launcher.py
+Icon=system-run
+Terminal=false
+Categories=Science;Robotics;
+StartupNotify=true

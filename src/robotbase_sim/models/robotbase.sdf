@@ -1,0 +1,192 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="ROBOTBASE_TF_PREFIX">
+    <link name="base_footprint"/>
+
+    <link name="base_link">
+      <pose relative_to="base_footprint">-0.025 0 0.24 0 0 0</pose>
+      <inertial>
+        <mass>40.0</mass>
+        <inertia>
+          <ixx>1.30</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>2.60</iyy>
+          <iyz>0.0</iyz>
+          <izz>3.20</izz>
+        </inertia>
+      </inertial>
+      <visual name="body_visual">
+        <geometry><box><size>0.90 0.66 0.28</size></box></geometry>
+        <material>
+          <ambient>0.08 0.25 0.55 1</ambient>
+          <diffuse>0.10 0.35 0.80 1</diffuse>
+          <specular>0.20 0.20 0.20 1</specular>
+        </material>
+      </visual>
+      <collision name="body_collision">
+        <geometry><box><size>0.90 0.66 0.28</size></box></geometry>
+      </collision>
+    </link>
+
+    <link name="left_wheel">
+      <pose relative_to="base_footprint">0 0.2175 0.10 0 0 0</pose>
+      <inertial>
+        <mass>2.0</mass>
+        <inertia>
+          <ixx>0.011</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.020</iyy><iyz>0</iyz><izz>0.011</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <pose>0 0 0 1.5707963 0 0</pose>
+        <geometry><cylinder><radius>0.10</radius><length>0.045</length></cylinder></geometry>
+        <material><ambient>0.06 0.06 0.06 1</ambient><diffuse>0.10 0.10 0.10 1</diffuse></material>
+      </visual>
+      <collision name="collision">
+        <pose>0 0 0 1.5707963 0 0</pose>
+        <geometry><cylinder><radius>0.10</radius><length>0.045</length></cylinder></geometry>
+        <surface><friction><ode><mu>1.5</mu><mu2>1.5</mu2></ode></friction></surface>
+      </collision>
+    </link>
+
+    <link name="right_wheel">
+      <pose relative_to="base_footprint">0 -0.2175 0.10 0 0 0</pose>
+      <inertial>
+        <mass>2.0</mass>
+        <inertia>
+          <ixx>0.011</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.020</iyy><iyz>0</iyz><izz>0.011</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <pose>0 0 0 1.5707963 0 0</pose>
+        <geometry><cylinder><radius>0.10</radius><length>0.045</length></cylinder></geometry>
+        <material><ambient>0.06 0.06 0.06 1</ambient><diffuse>0.10 0.10 0.10 1</diffuse></material>
+      </visual>
+      <collision name="collision">
+        <pose>0 0 0 1.5707963 0 0</pose>
+        <geometry><cylinder><radius>0.10</radius><length>0.045</length></cylinder></geometry>
+        <surface><friction><ode><mu>1.5</mu><mu2>1.5</mu2></ode></friction></surface>
+      </collision>
+    </link>
+
+    <link name="front_caster">
+      <pose relative_to="base_footprint">0.30 0 0.055 0 0 0</pose>
+      <inertial><mass>0.5</mass><inertia><ixx>0.001</ixx><iyy>0.001</iyy><izz>0.001</izz></inertia></inertial>
+      <visual name="visual"><geometry><sphere><radius>0.055</radius></sphere></geometry></visual>
+      <collision name="collision">
+        <geometry><sphere><radius>0.055</radius></sphere></geometry>
+        <surface><friction><ode><mu>0.02</mu><mu2>0.02</mu2></ode></friction></surface>
+      </collision>
+    </link>
+
+    <link name="rear_caster">
+      <pose relative_to="base_footprint">-0.35 0 0.055 0 0 0</pose>
+      <inertial><mass>0.5</mass><inertia><ixx>0.001</ixx><iyy>0.001</iyy><izz>0.001</izz></inertia></inertial>
+      <visual name="visual"><geometry><sphere><radius>0.055</radius></sphere></geometry></visual>
+      <collision name="collision">
+        <geometry><sphere><radius>0.055</radius></sphere></geometry>
+        <surface><friction><ode><mu>0.02</mu><mu2>0.02</mu2></ode></friction></surface>
+      </collision>
+    </link>
+
+    <link name="lidar_link">
+      <pose relative_to="base_footprint">0 0 0.72 0 0 0</pose>
+      <inertial><mass>0.85</mass><inertia><ixx>0.003</ixx><iyy>0.003</iyy><izz>0.003</izz></inertia></inertial>
+      <visual name="visual">
+        <geometry><cylinder><radius>0.052</radius><length>0.072</length></cylinder></geometry>
+        <material><ambient>0.12 0.12 0.12 1</ambient><diffuse>0.18 0.18 0.18 1</diffuse></material>
+      </visual>
+      <collision name="collision"><geometry><cylinder><radius>0.052</radius><length>0.072</length></cylinder></geometry></collision>
+      <sensor name="vlp16" type="gpu_lidar">
+        <topic>/ROBOTBASE_TF_PREFIX/velodyne_points</topic>
+        <update_rate>10</update_rate>
+        <gz_frame_id>ROBOTBASE_TF_PREFIX/lidar_link</gz_frame_id>
+        <lidar>
+          <scan>
+            <horizontal>
+              <samples>720</samples><resolution>1</resolution>
+              <min_angle>-3.14159265</min_angle><max_angle>3.14159265</max_angle>
+            </horizontal>
+            <vertical>
+              <samples>16</samples><resolution>1</resolution>
+              <min_angle>-0.261799</min_angle><max_angle>0.261799</max_angle>
+            </vertical>
+          </scan>
+          <range><min>0.20</min><max>30.0</max><resolution>0.01</resolution></range>
+          <noise><type>gaussian</type><mean>0.0</mean><stddev>0.01</stddev></noise>
+        </lidar>
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+      </sensor>
+    </link>
+
+    <link name="imu_link">
+      <pose relative_to="base_footprint">0 0 0.28 0 0 0</pose>
+      <inertial><mass>0.02</mass><inertia><ixx>0.0001</ixx><iyy>0.0001</iyy><izz>0.0001</izz></inertia></inertial>
+      <visual name="visual">
+        <geometry><box><size>0.05 0.04 0.015</size></box></geometry>
+        <material><ambient>0.05 0.55 0.15 1</ambient><diffuse>0.05 0.75 0.20 1</diffuse></material>
+      </visual>
+      <sensor name="imu" type="imu">
+        <topic>/ROBOTBASE_TF_PREFIX/imu</topic>
+        <update_rate>100</update_rate>
+        <gz_frame_id>ROBOTBASE_TF_PREFIX/imu_link</gz_frame_id>
+        <imu>
+          <angular_velocity>
+            <x><noise type="gaussian"><mean>0</mean><stddev>0.0002</stddev></noise></x>
+            <y><noise type="gaussian"><mean>0</mean><stddev>0.0002</stddev></noise></y>
+            <z><noise type="gaussian"><mean>0</mean><stddev>0.0002</stddev></noise></z>
+          </angular_velocity>
+          <linear_acceleration>
+            <x><noise type="gaussian"><mean>0</mean><stddev>0.017</stddev></noise></x>
+            <y><noise type="gaussian"><mean>0</mean><stddev>0.017</stddev></noise></y>
+            <z><noise type="gaussian"><mean>0</mean><stddev>0.017</stddev></noise></z>
+          </linear_acceleration>
+        </imu>
+        <always_on>true</always_on>
+      </sensor>
+    </link>
+
+    <joint name="footprint_to_base" type="fixed"><parent>base_footprint</parent><child>base_link</child></joint>
+    <joint name="left_wheel_joint" type="revolute">
+      <parent>base_footprint</parent><child>left_wheel</child>
+      <axis><xyz expressed_in="base_footprint">0 1 0</xyz><limit><lower>-1e16</lower><upper>1e16</upper><effort>200</effort><velocity>40</velocity></limit></axis>
+    </joint>
+    <joint name="right_wheel_joint" type="revolute">
+      <parent>base_footprint</parent><child>right_wheel</child>
+      <axis><xyz expressed_in="base_footprint">0 1 0</xyz><limit><lower>-1e16</lower><upper>1e16</upper><effort>200</effort><velocity>40</velocity></limit></axis>
+    </joint>
+    <joint name="front_caster_joint" type="ball"><parent>base_footprint</parent><child>front_caster</child></joint>
+    <joint name="rear_caster_joint" type="ball"><parent>base_footprint</parent><child>rear_caster</child></joint>
+    <joint name="lidar_joint" type="fixed"><parent>base_footprint</parent><child>lidar_link</child></joint>
+    <joint name="imu_joint" type="fixed"><parent>base_footprint</parent><child>imu_link</child></joint>
+
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
+    <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
+      <left_joint>left_wheel_joint</left_joint>
+      <right_joint>right_wheel_joint</right_joint>
+      <wheel_separation>0.435</wheel_separation>
+      <wheel_radius>0.10</wheel_radius>
+      <topic>/ROBOTBASE_TF_PREFIX/cmd_vel</topic>
+      <odom_topic>/ROBOTBASE_TF_PREFIX/odom</odom_topic>
+      <tf_topic>/ROBOTBASE_TF_PREFIX/tf</tf_topic>
+      <child_frame_id>ROBOTBASE_TF_PREFIX/base_footprint</child_frame_id>
+      <odom_publish_frequency>50</odom_publish_frequency>
+      <max_linear_acceleration>0.9</max_linear_acceleration>
+      <min_linear_acceleration>-0.9</min_linear_acceleration>
+      <max_angular_acceleration>1.5</max_angular_acceleration>
+      <min_angular_acceleration>-1.5</min_angular_acceleration>
+      <max_linear_velocity>0.9</max_linear_velocity>
+      <min_linear_velocity>-0.6</min_linear_velocity>
+      <max_angular_velocity>0.9</max_angular_velocity>
+      <min_angular_velocity>-0.9</min_angular_velocity>
+    </plugin>
+    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+      <topic>/ROBOTBASE_TF_PREFIX/joint_states</topic>
+      <joint_name>left_wheel_joint</joint_name>
+      <joint_name>right_wheel_joint</joint_name>
+    </plugin>
+  </model>
+</sdf>

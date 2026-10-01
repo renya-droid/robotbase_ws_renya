@@ -1,0 +1,28 @@
+# ROS 2 Build directories
+build/
+install/
+log/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+
+# Editor / IDE settings
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Rosbag / Recording data
+*.bag
+*.db3
+*.mcap
+rosbag2_*/
+
+# Knowledge graph
+graphify-out/

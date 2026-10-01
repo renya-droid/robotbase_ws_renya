@@ -1,0 +1,6 @@
+# twist_muxへ停止時のゼロ速度を供給するシミュレーション専用設定。
+idle_twist_publisher:
+  ros__parameters:
+    use_sim_time: true
+    publish_rate: 10.0
+

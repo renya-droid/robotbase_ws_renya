@@ -1,0 +1,25 @@
+# Local, view-only Foxglove Bridge profile.
+# Bind the launch to 127.0.0.1 so this ROS graph is not exposed to the LAN.
+koko_foxglove_bridge:
+  ros__parameters:
+    topic_whitelist: [".*"]
+    param_whitelist: [".*"]
+    # Typed non-matching regexes keep these parameters valid while disabling
+    # service calls and client publications.
+    service_whitelist: ["^$"]
+    client_topic_whitelist: ["^$"]
+    min_qos_depth: 1
+    max_qos_depth: 10
+    num_threads: 0
+    send_buffer_limit: 10000000
+    capabilities:
+      - connectionGraph
+      - assets
+    include_hidden: false
+    publish_client_count: true
+    sysinfo: true
+    sysinfo_topic: /foxglove_bridge/sysinfo
+    sysinfo_refresh_interval: 500
+    message_backlog_size: 1024
+    ignore_unresponsive_param_nodes: true
+    remote_access: false

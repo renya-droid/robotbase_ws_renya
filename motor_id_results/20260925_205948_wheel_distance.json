@@ -1,0 +1,9 @@
+{
+  "target_odom_m": 2.4,
+  "odom_path_m": 2.408855043855964,
+  "odom_displacement_m": 2.4083155062115633,
+  "command_speed_mps": 0.2,
+  "elapsed_s": 16.335202756999934,
+  "actual_distance_m": null,
+  "wheel_circumference_m": 0.60024
+}

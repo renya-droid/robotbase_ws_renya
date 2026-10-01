@@ -1,0 +1,12 @@
+# 実機・シミュレーション共通のキーボード手動操作設定。
+robotbase_keyop_v2:
+  ros__parameters:
+    linear_step: 0.1
+    angular_step: 0.1
+    max_linear_velocity: 1.0
+    max_angular_velocity: 1.5
+    manual_override_grace_period: 1.0
+    stop_release_duration: 0.5
+    reset_topic: /robotbase/reset
+    pause_waypoint_topic: /waypoint_record/pause
+

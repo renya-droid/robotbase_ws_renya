@@ -1,0 +1,28 @@
+roboteq_ros2_driver:
+  ros__parameters:
+    pub_odom_tf: true
+    odom_frame: "robot/odom"
+    base_frame: "robot/base_footprint"
+    cmdvel_topic: "cmd_vel"
+    odom_topic: "odom"
+    port: "/dev/roboteq"
+    baud: 230400
+    open_loop: false
+    wheel_circumference: 0.6283 # 車輪直径200mm -> 0.200 * pi = 0.6283m
+    track_width: 0.435          # トレッド幅435mm -> 0.435m
+    max_amps: 12.0
+    max_rpm: 58
+    gear_ratio: 1.0  # pulseが既に車輪1回転あたりのカウント数を表す場合は1.0に設定
+    pulse: 950  # エンコーダのパルス数（車輪1回転あたり: 50:1モーター用に475*2=950）
+    max_speed: 1.5  # m/s
+    odom_stream_interval_ms: 10
+    odom_publish_hz: 50.0
+    speed_scale: 0.52 # 速度指令のスケーリング係数: 0.50 でほぼ司令した通りの速度になる
+    right_speed_scale: 1.0
+    left_speed_scale: 1.0
+    # 55% はやすぎる
+    # 45% おそすぎる
+    kp_soft: 0.3  # ソフトウェアP制御用のゲイン (0.6 -> 0.3 に減衰させて急激なトルク変化を防止)
+    min_speed_threshold: 0.18  # 低速時の底上げしきい値 (0.18 * speed_scale = 0.094 m/s -> モーター出力約117となり静止摩擦を突破可能)
+    encoder_sign_r: -1.0  # 右エンコーダの極性反転設定 (-1.0: 前進で正)
+    encoder_sign_l: 1.0   # 左エンコーダの極性反転設定 (1.0: 前進で正)

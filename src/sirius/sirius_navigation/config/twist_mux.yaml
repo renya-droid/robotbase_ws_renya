@@ -1,0 +1,36 @@
+# Sirius用 走行指令統合設定 (twist_mux)
+# ---------------------------------------------------------
+# 優先順位の考え方:
+# 1. 最優先 (Priority 255): 停止指令 (/stop) ➡ ロックがかかり、すべて停止
+# 2. 次点   (Priority 100): 直通手動操作 ➡ Nav2より優先して操縦可能
+# 3. 最後に (Priority 10) : 自動走行 (Nav2)  ➡ 他の入力がない時のみ有効
+# ---------------------------------------------------------
+
+twist_mux:
+  ros__parameters:
+    use_stamped: false
+    # トピックの定義
+    topics:
+      teleop:
+        topic: "cmd_vel_teleop"
+        timeout: 0.5
+        priority: 100
+      direct:
+        topic: "cmd_vel_direct"
+        timeout: 0.5
+        priority: 90
+      navigation:
+        topic: "cmd_vel_smoothed"  # velocity_smootherの出力を受ける（deadband適用済み）
+        timeout: 0.5
+        priority: 10
+      idle:
+        topic: "cmd_vel_idle"
+        timeout: 0.5
+        priority: 0
+
+    # ロックの定義
+    locks:
+      stop:
+        topic: "/stop"
+        timeout: 0.0
+        priority: 255
