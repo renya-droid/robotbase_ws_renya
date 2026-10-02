@@ -3,7 +3,7 @@
 # -------------------------------------------------------------
 trap 'echo ""; echo "PCL Object Detection を終了しました。"' SIGINT
 
-cd ~/robotbase_ws
+cd "/home/ren/robotbase_ws_renya"
 source /opt/ros/jazzy/setup.bash
 source install/setup.bash
 

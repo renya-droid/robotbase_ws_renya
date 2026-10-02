@@ -1,0 +1,3 @@
+[submodule "other_programs/keepout-editor"]
+	path = other_programs/keepout-editor
+	url = https://github.com/renya-droid/keepout-editor.git

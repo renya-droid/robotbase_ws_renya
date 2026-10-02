@@ -1,6 +1,6 @@
 #!/bin/bash
 trap 'echo ""; echo "Ctrl + Cが押されましたが、ウィンドウは閉じません"' 2
-cd ~/robotbase_ws
+cd "/home/ren/robotbase_ws_renya"
 while : ;do
     read -p "Press [Enter] key to start get_position_enter..."
     source install/setup.bash

@@ -5,11 +5,11 @@
 
 trap 'echo ""; echo "Ctrl + Cが押されましたが、ウィンドウは閉じません"' 2
 
-MAPS_DIR="${HOME}/robotbase_ws/maps_waypoints/maps"
+MAPS_DIR="/home/ren/robotbase_ws_renya/maps_waypoints/maps"
 
 # 地図ファイル一覧を取得
 get_map_list() {
-    find "$MAPS_DIR" -name "*.yaml" -type f | sort
+    find "$MAPS_DIR" -type d -name .keepout -prune -o -name "*.yaml" -type f -print | sort
 }
 
 # 地図を選択
@@ -53,6 +53,11 @@ change_map() {
     echo ""
     
     # map_server サービスを呼び出し（出力を簡潔に）
+    if ros2 node list 2>/dev/null | rg -q '/filter_mask_server$'; then
+        echo "Keepout が有効です。地図を変更するには Nav2 を停止し、新しい地図で起動し直してください。"
+        return 1
+    fi
+
     result=$(ros2 service call /map_server/load_map nav2_msgs/srv/LoadMap "{map_url: '$map_path'}" 2>&1)
     exit_code=$?
     
@@ -67,7 +72,7 @@ change_map() {
 }
 
 # メイン処理（ループ）
-cd ~/robotbase_ws
+cd "/home/ren/robotbase_ws_renya"
 source install/setup.bash
 
 while : ; do

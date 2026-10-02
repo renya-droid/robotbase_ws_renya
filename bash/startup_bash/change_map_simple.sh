@@ -12,7 +12,7 @@
 #   2 - 地図ファイルが見つからない
 #   3 - サービス呼び出し失敗
 
-MAPS_DIR="${HOME}/robotbase_ws/maps_waypoints/maps"
+MAPS_DIR="/home/ren/robotbase_ws_renya/maps_waypoints/maps"
 
 # 引数チェック
 if [ -z "$1" ]; then
@@ -20,7 +20,7 @@ if [ -z "$1" ]; then
     echo "使い方: $0 <地図名>"
     echo ""
     echo "利用可能な地図:"
-    find "$MAPS_DIR" -name "*.yaml" -type f | sort | while read f; do
+    find "$MAPS_DIR" -type d -name .keepout -prune -o -name "*.yaml" -type f -print | sort | while read f; do
         echo "  - $(basename "$f" .yaml)"
     done
     exit 1
@@ -36,6 +36,11 @@ if [ ! -f "$map_path" ]; then
 fi
 
 # 地図を切り替え
+if ros2 node list 2>/dev/null | rg -q '/filter_mask_server$'; then
+    echo "Keepout が有効です。地図を変更するには Nav2 を停止し、新しい地図で起動し直してください。"
+    exit 1
+fi
+
 result=$(ros2 service call /map_server/load_map nav2_msgs/srv/LoadMap "{map_url: '$map_path'}" 2>&1)
 exit_code=$?
 

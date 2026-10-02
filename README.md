@@ -1,12 +1,20 @@
-# robotbase_ws
+# robotbase_ws_renya
 
 SIRIUS用の [`sirius_jazzy_ws`](../sirius_jazzy_ws) を基に、新しい差動二輪ロボット向けに調整している ROS 2 Jazzy ワークスペースです。車輪径、トレッド幅、エンコーダ、車体寸法、センサー構成がSIRIUSと異なります。
 
-新機体の仮称は「ココちゃん」です。表示名、ROS Domain、Gazebo識別子は [`robot.env`](robot.env) で変更できます。この開発PC上のSIRIUSと競合しないよう、Bashコマンドは `koko_*`、ROSは実機Domain 57・シミュレーションDomain 58、Gazeboはpartition `koko`へ分離しています。
+新機体の仮称は「ココちゃん」です。表示名、ROS Domain、Gazebo識別子は [`robot.env`](robot.env) で変更できます。この開発PC上のSIRIUSと競合しないよう、Bashコマンドは `koko_*`、ROSは実機Domain 54・シミュレーションDomain 67、Gazeboはpartition `koko`へ分離しています。
 
 Foxglove Bridgeは実機では `koko_foxglove`、シミュレーションでは `koko_foxglove_sim` から起動できます。Siriusの既定ポート8765と競合しないよう、ココちゃんは8766を使います。
 
-## 現在の状況（2026-08-19）
+## このPCへの切り替え（2026-10-01）
+
+`robotbase_ws_renya` を使用します。59パッケージのビルド、ランチャーテスト4件、デスクトップ／アプリメニューのショートカットと `.bashrc` の切り替えは完了しました。ランチャーの子端末は、このワークスペースのaliasを明示的に読み込みます。旧 `robotbase_ws` とSiriusの検索パスは `koko_env` で除去します。
+
+今回の実機接続・走行とGazebo起動は未確認です。接続設定と確認結果は [環境構築状況](DOCS/SETUP_RENYA.md) を参照してください。
+
+## 移植元での確認履歴（2026-08-19）
+
+以下は移植元の履歴です。今回のPCでの実機・Gazebo動作確認を意味しません。
 
 - 実機の手動操作: 動作確認済み
 - `keyop2`: 動作確認済み
@@ -32,7 +40,7 @@ Foxglove Bridgeは実機では `koko_foxglove`、シミュレーションでは 
 `robotbase_sim` パッケージに、差動二輪・Velodyne VLP-16・IMUだけを持つ簡易 Gazebo Sim 環境を追加しています。TFは既定で `robot/*` を使います。
 
 ```bash
-cd ~/robotbase_ws
+cd ~/robotbase_ws_renya
 source install/setup.bash
 
 # 端末1: Gazeboのみ
@@ -54,7 +62,7 @@ koko_waypoint_record_sim
 
 `koko_nav2_sim_map` は同梱・保存済み地図を端末の一覧から選択し、AMCLを起動します。RVizの `2D Pose Estimate` で初期姿勢を指定できます。`koko_nav2_sim_slam` は地図なしでSLAM ToolboxとNav2を同時に使います。GazeboとRVizはどちらのモードでも別起動です。`twist_mux` は `koko_sim` に含まれるため、シミュレーションで別起動する必要はありません。
 
-実機ROS graphはDomain 57、シミュレーションは既定Domain 58に分離しています。ランチャーの「シミュレーション ROS_DOMAIN_ID」で0〜232を選んで保存でき、`robot.env`へ永続化されます。`koko_*_sim`コマンドは保存値を自動的に使うため、実機や別PCの`/clock`がRVizへ混入しません。Gazeboを再起動するときは、ランチャー上部の赤い「シミュレーション一式を終了」ボタンで旧Gazebo・RViz・Nav2・SLAMを終了してください。`koko_sim`は二重起動や残存ノードを検出すると、安全のため起動を拒否します。
+実機ROS graphはDomain 54、シミュレーションは既定Domain 67に分離しています。ランチャーの「シミュレーション ROS_DOMAIN_ID」で0〜232を選んで保存でき、`robot.env`へ永続化されます。`koko_*_sim`コマンドは保存値を自動的に使うため、実機や別PCの`/clock`がRVizへ混入しません。Gazeboを再起動するときは、ランチャー上部の赤い「シミュレーション一式を終了」ボタンで旧Gazebo・RViz・Nav2・SLAMを終了してください。`koko_sim`は二重起動や残存ノードを検出すると、安全のため起動を拒否します。
 
 ## 速度指令の経路
 
@@ -81,14 +89,15 @@ Nav2 controller_server
 | トレッド幅 | 0.435 m |
 | エンコーダ | 950 pulse/車輪1回転 |
 | Roboteq odom配信 | 50 Hz（速度は約100 msのencoder窓で推定） |
-| Nav2フットプリント | 前0.425 m、後0.475 m、左右0.33 m（全長0.90 x 全幅0.66 m） |
+| Nav2フットプリント | 前後0.30 m、左右0.29 m（全長0.60 x 全幅0.58 m） |
 | Nav2前進基準（上限） | 0.60 m/s |
-| Nav2最大角速度 | 0.90 rad/s |
+| Nav2最大角速度 | 0.65 rad/s |
 | 実機の前後速度不感帯 | 0.10 m/s（MPPI・odom判定・速度平滑化へ反映） |
 | Nav2 controller | MPPI (`DiffDrive`、2.8秒予測、footprint全体を衝突評価) |
 | 後退方針 | 後退可能、MPPI `PreferForwardCritic`で前進を優先 |
 | Nav2 costmap入力LaserScan | `/scan3`、`/hokuyo_scan` |
-| 制御用オドメトリ | `/odom/filtered` |
+| 制御用オドメトリ | `/odom/filtered`（車輪前進速度＋IMUヨー角速度のEKF融合） |
+| 標準回復動作 | Spinなし（コストマップ消去・待機・後退）。Spinサーバーの登録は残る |
 
 値の出典とSIRIUSとの差分は [構成資料](DOCS/ARCHITECTURE.md) にまとめています。
 
@@ -97,8 +106,8 @@ Nav2 controller_server
 `.bashrc` から次を読み込んでいる前提です。
 
 ```bash
-source ~/robotbase_ws/bash/bash_alias1.sh
-source ~/robotbase_ws/bash/bash_alias2.sh
+source ~/robotbase_ws_renya/bash/bash_alias1.sh
+source ~/robotbase_ws_renya/bash/bash_alias2.sh
 ```
 
 各コマンドは別ターミナルで起動します。
@@ -193,7 +202,7 @@ Failed to make progress
 ## ビルド
 
 ```bash
-cd ~/robotbase_ws
+cd ~/robotbase_ws_renya
 source /opt/ros/jazzy/setup.bash
 rosdep install --from-paths src --ignore-src -riy
 colcon build --symlink-install --executor sequential --allow-overriding nav2_costmap_2d

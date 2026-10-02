@@ -121,26 +121,26 @@ controller_server:
       vx_min: -0.30
       vy_max: 0.0
       vy_min: 0.0
-      # 実機の急旋回を抑えるため、まず保守的な角速度上限から調整する。
-      wz_max: 0.65
-      wz_min: -0.65
+      # robotbase_wsと同じ角速度上限を使用する。
+      wz_max: 0.90
+      wz_min: -0.90
       # 実機では探索ノイズを抑え、周期的な前後加速を減らす。
       vx_std: 0.30
       vy_std: 0.0
       wz_std: 0.30
-      # 0.60 m/sへ約1秒で到達させ、急な加速の繰り返しを抑える。
-      ax_max: 0.60
+      # robotbase_wsと同じ前進加速度上限を使用する。
+      ax_max: 0.90
       ax_min: -0.90
       ay_max: 0.0
       ay_min: 0.0
-      # 停止状態から最大角速度まで約1秒かけ、急な回転開始を抑える。
-      az_max: 0.65
-      az_min: -0.65
+      # robotbase_wsと同じ角加速度制限を使用する。
+      az_max: 1.50
+      az_min: -1.50
       iteration_count: 1
       prune_distance: 3.0
       transform_tolerance: 0.10
       temperature: 0.30
-      # 操作列の滑らかさを優先する。速度上限は別のvx_maxで0.60 m/sを維持する。
+      # 操作列の滑らかさを優先する。前進速度上限はvx_maxで0.90 m/sに設定する。
       gamma: 0.050
       motion_model: DiffDrive
       # 実機では候補軌道描画を止め、controller周期の計算負荷を安定させる。
@@ -181,7 +181,7 @@ controller_server:
       PathAlignCritic:
         enabled: true
         cost_power: 1
-        cost_weight: 12.0
+        cost_weight: 8.0 #12.0
         max_path_occupancy_ratio: 0.10
         trajectory_point_step: 4
         threshold_to_consider: 0.5
@@ -191,7 +191,7 @@ controller_server:
         enabled: true
         cost_power: 1
         # 障害物回避を維持しつつ、経路上を前へ進む軌道を強く評価する。
-        cost_weight: 12.0
+        cost_weight: 8.0 #12.0 めっちゃ効くらしいからsiriusに合わせた
         # 0.05 m間隔の経路で約0.55 m先。1.68 m予測距離のおよそ1/3。
         offset_from_furthest: 11
         threshold_to_consider: 1.0
@@ -312,10 +312,10 @@ velocity_smoother:
     smoothing_frequency: 20.0
     scale_velocities: false
     feedback: OPEN_LOOP
-    max_velocity: [0.60, 0.0, 0.65]
-    min_velocity: [-0.30, 0.0, -0.65]
-    max_accel: [0.60, 0.0, 0.65]
-    max_decel: [-0.90, 0.0, -0.65]
+    max_velocity: [0.90, 0.0, 0.90]
+    min_velocity: [-0.30, 0.0, -0.90]
+    max_accel: [0.90, 0.0, 1.50]
+    max_decel: [-0.90, 0.0, -1.50]
     odom_topic: /odom/filtered
     odom_duration: 0.3
     # モータが反応しない微小な前後速度はRoboteqへ送らず、明示的な停止にする。

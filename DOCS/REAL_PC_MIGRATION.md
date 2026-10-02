@@ -26,7 +26,7 @@
 Gitは未コミットファイルを転送しない。開発PCで次を確認する。
 
 ```bash
-cd ~/robotbase_ws
+cd ~/robotbase_ws_renya
 git status --short
 git diff --check
 ```
@@ -53,14 +53,14 @@ git rev-parse --short HEAD
 - Ubuntu 24.04
 - ROS 2 Jazzy
 - RMW: `rmw_fastrtps_cpp`
-- ワークスペース: `~/robotbase_ws`
+- ワークスペース: `~/robotbase_ws_renya`
 
-一部のBash補助スクリプトは `~/robotbase_ws` を前提にするため、実機PCでもこのパスへcloneする。
+現在のBash補助スクリプトは `~/robotbase_ws_renya` を使用します。このPCへの適用結果は [環境構築状況](SETUP_RENYA.md) を参照してください。
 
 ```bash
 cd ~
-git clone git@github.com:YakiFrog/robotbase_ws.git
-cd ~/robotbase_ws
+git clone git@github.com:YakiFrog/robotbase_ws.git robotbase_ws_renya
+cd ~/robotbase_ws_renya
 git checkout master
 ```
 
@@ -79,26 +79,26 @@ sudo apt install -y \
   python3-rosdep \
   libqt5serialport5-dev \
   ros-jazzy-foxglove-bridge \
-  xterm
+  xterm terminator
 
 sudo rosdep init 2>/dev/null || true
 rosdep update
 
-cd ~/robotbase_ws
-source ~/robotbase_ws/bash/activate_koko_env.sh
+cd ~/robotbase_ws_renya
+source ~/robotbase_ws_renya/bash/activate_koko_env.sh
 source /opt/ros/jazzy/setup.bash
 rosdep install --from-paths src --ignore-src -r -y
 ```
 
-`ros-jazzy-foxglove-bridge` を含む上記依存を導入した後、`rosdep check --from-paths src --ignore-src` が成功することを確認する。この開発PCではFoxglove追加前の依存確認は成功済みだが、Foxglove本体の導入だけsudo実行待ち。
+`ros-jazzy-foxglove-bridge` を含む上記依存を導入した後、`rosdep check --from-paths src --ignore-src` が成功することを確認する。このPCでは2026-10-01にFoxglove本体の導入済みと依存検査の成功を確認しました。
 
 ## 3. ビルド
 
 実機とシミュレーションに必要なパッケージと、そのワークスペース内依存だけをビルドする。
 
 ```bash
-cd ~/robotbase_ws
-source ~/robotbase_ws/bash/activate_koko_env.sh
+cd ~/robotbase_ws_renya
+source ~/robotbase_ws_renya/bash/activate_koko_env.sh
 source /opt/ros/jazzy/setup.bash
 colcon build --symlink-install --executor sequential \
   --packages-up-to robotbase_bringup robotbase_keyop robotbase_waypoint robotbase_sim \
@@ -116,15 +116,15 @@ for package in \
 done
 ```
 
-すべて `~/robotbase_ws/install/` 配下を指すこと。
+ワークスペースでビルドしたパッケージは `~/robotbase_ws_renya/install/` 配下を指すこと。システム導入の依存（例: `foxglove_bridge`）は `/opt/ros/jazzy/` 配下で構いません。
 
 ## 4. Bashとランチャー
 
 `~/.bashrc` の末尾へ追加する。
 
 ```bash
-source ~/robotbase_ws/bash/bash_alias1.sh
-source ~/robotbase_ws/bash/bash_alias2.sh
+source ~/robotbase_ws_renya/bash/bash_alias1.sh
+source ~/robotbase_ws_renya/bash/bash_alias2.sh
 ```
 
 反映と確認:
@@ -132,15 +132,15 @@ source ~/robotbase_ws/bash/bash_alias2.sh
 ```bash
 source ~/.bashrc
 koko_env
-echo "$ROS_DOMAIN_ID"           # 57
+echo "$ROS_DOMAIN_ID"           # 54
 echo "$ROBOTBASE_TF_PREFIX"     # robot
-echo "$ROBOTBASE_PARAMS_DIR"    # ~/robotbase_ws/params
+echo "$ROBOTBASE_PARAMS_DIR"    # ~/robotbase_ws_renya/params
 ```
 
 デスクトップランチャー:
 
 ```bash
-~/robotbase_ws/bash/install_launcher_shortcut.sh
+~/robotbase_ws_renya/bash/install_launcher_shortcut.sh
 ```
 
 機体名、ROS Domain、Gazebo partition、TF接頭辞は `robot.env` が正本。
@@ -163,13 +163,13 @@ udev設定:
 
 ```bash
 sudo install -m 0644 \
-  ~/robotbase_ws/src/roboteq_ros2_jazzy_driver/udev_rule/99-roboteq-serial.rules \
+  ~/robotbase_ws_renya/src/roboteq_ros2_jazzy_driver/udev_rule/99-roboteq-serial.rules \
   /etc/udev/rules.d/99-roboteq-serial.rules
 sudo udevadm control --reload-rules
 sudo udevadm trigger
 ```
 
-USBを挿し直して確認する。
+対象機器のUSB VID/PIDが上記と一致することを確認してからruleを適用し、USBを挿し直して確認する。
 
 ```bash
 ls -l /dev/roboteq
@@ -315,7 +315,7 @@ ros2 topic hz /scan3
 - `koko_get_pos_dis`
 - `koko_get_pos_ent`
 
-必要なら後で `robotbase_*` パッケージへ切り出し、`robot/*` TFと `~/robotbase_ws` の保存先へ変更する。SIRIUSソースを再度有効化して回避しない。
+必要なら後で `robotbase_*` パッケージへ切り出し、`robot/*` TFと `~/robotbase_ws_renya` の保存先へ変更する。SIRIUSソースを再度有効化して回避しない。
 
 ## 11. 次の担当者・AIへ渡す情報
 

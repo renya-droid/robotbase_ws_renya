@@ -1,14 +1,14 @@
 #!/bin/bash
 trap 'echo ""; echo "Ctrl + Cが押されましたが、ウィンドウは閉じません"' 2
-cd ~/robotbase_ws
+cd "/home/ren/robotbase_ws_renya"
 
-MAPS_DIR="${HOME}/robotbase_ws/maps_waypoints/maps"
-LANDMARKS_DIR="${HOME}/robotbase_ws/maps_waypoints/landmarks"
+MAPS_DIR="/home/ren/robotbase_ws_renya/maps_waypoints/maps"
+LANDMARKS_DIR="/home/ren/robotbase_ws_renya/maps_waypoints/landmarks"
 CURRENT_MAP_STATE="${HOME}/.koko_nav2_current_map.yaml"
 
 # 地図ファイル一覧を取得
 get_map_list() {
-    find "$MAPS_DIR" -name "*.yaml" -type f | sort
+    find "$MAPS_DIR" -type d -name .keepout -prune -o -name "*.yaml" -type f -print | sort
 }
 
 # 地図を選択

@@ -15,7 +15,7 @@ _koko_remove_sirius_entries() {
     for entry in "${_koko_entries[@]}"; do
         [ -z "${entry}" ] && continue
         case "${entry}" in
-            */sirius_jazzy_ws/*) continue ;;
+            */sirius_jazzy_ws/*|*/robotbase_ws/*) continue ;;
         esac
         if [ -z "${cleaned}" ]; then
             cleaned="${entry}"

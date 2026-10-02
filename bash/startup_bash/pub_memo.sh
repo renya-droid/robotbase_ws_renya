@@ -7,8 +7,8 @@ if [ -z "$1" ]; then
 fi
 
 # ROS2 ワークスペースのセットアップ
-if [ -f ~/robotbase_ws/install/setup.bash ]; then
-    source ~/robotbase_ws/install/setup.bash
+if [ -f "/home/ren/robotbase_ws_renya"/install/setup.bash ]; then
+    source "/home/ren/robotbase_ws_renya"/install/setup.bash
 fi
 
 # トピックのパブリッシュ

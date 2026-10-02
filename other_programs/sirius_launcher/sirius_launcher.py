@@ -6,9 +6,10 @@ import signal
 import subprocess
 import sys
 import psutil
-from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QPushButton
 from PySide6.QtCore import QTimer, QEvent
 
+from keepout_editor import KeepoutEditor
 from alias_parser import parse_bash_aliases
 from ui_components import LaunchButtonUI, MainWindowUI
 from process_manager import ProcessManager
@@ -185,6 +186,9 @@ class RobotLauncher(QMainWindow):
         self.stop_simulation_btn.clicked.connect(self.stop_all_simulation)
         self.save_sim_domain_btn.clicked.connect(self.save_simulation_domain)
 
+    def open_keepout_editor(self):
+        KeepoutEditor(self, WORKSPACE).exec()
+
     def simulation_processes_running(self):
         """Return True if the currently saved simulation graph still exists."""
         partition_prefix = f'{GZ_PARTITION}_sim_'
@@ -325,6 +329,10 @@ class RobotLauncher(QMainWindow):
         if not groups:
             QMessageBox.warning(self, "警告", "エイリアスが見つかりませんでした。")
             return
+
+        keepout_btn = QPushButton("進入禁止領域を編集")
+        keepout_btn.clicked.connect(self.open_keepout_editor)
+        self.preset_layout.addWidget(keepout_btn)
 
         # プリセットボタンを作成
         for preset_name, items in presets:

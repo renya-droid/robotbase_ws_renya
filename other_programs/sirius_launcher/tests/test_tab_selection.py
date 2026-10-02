@@ -26,7 +26,7 @@ class TestTabSelection(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         os.environ["QT_QPA_PLATFORM"] = "offscreen"
-        cls.app = QApplication([])
+        cls.app = QApplication.instance() or QApplication([])
 
     def test_select_tab_on_click_running(self):
         window = RobotLauncher()
@@ -108,8 +108,8 @@ class TestTabSelection(unittest.TestCase):
             self.assertNotIn('koko_sim_env &&', command)
 
         preset_names = [name for name, _ in presets]
-        self.assertIn('自律移動（シミュレーション）', preset_names)
-        self.assertIn('SLAMしながら自律移動（シミュレーション）', preset_names)
+        self.assertIn('自律移動（sim）', preset_names)
+        self.assertIn('SLAMしながら自律移動（sim）', preset_names)
         self.assertIn('SLAMしながら自律移動（実機）', preset_names)
 
 

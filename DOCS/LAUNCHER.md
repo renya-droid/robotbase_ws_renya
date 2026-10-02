@@ -2,17 +2,17 @@
 
 ## 目的
 
-この開発PCにはSIRIUS用の `sirius_jazzy_ws` と新機体用の `robotbase_ws` が共存します。コマンド名、ROSグラフ、Gazebo Transport、ランチャーのPIDを分離し、誤って別機体を操作しない構成にしています。
+この開発PCにはSIRIUS用の `sirius_jazzy_ws` と新機体用の `robotbase_ws_renya` が共存します。コマンド名、ROSグラフ、Gazebo Transport、ランチャーのPIDを分離し、誤って別機体を操作しない構成にしています。
 
 ## 設定の正本
 
-`~/robotbase_ws/robot.env`:
+`~/robotbase_ws_renya/robot.env`:
 
 ```bash
 ROBOTBASE_DISPLAY_NAME="ココちゃん"
 ROBOTBASE_ID="koko"
-ROBOTBASE_ROS_DOMAIN_ID="57"
-ROBOTBASE_SIM_ROS_DOMAIN_ID="58"
+ROBOTBASE_ROS_DOMAIN_ID="54"
+ROBOTBASE_SIM_ROS_DOMAIN_ID="67"
 ROBOTBASE_GZ_PARTITION="koko"
 ROBOTBASE_TF_PREFIX="robot"
 ROBOTBASE_FOXGLOVE_ADDRESS="0.0.0.0"
@@ -30,7 +30,7 @@ ROBOTBASE_FOXGLOVE_PORT="8766"
 正式名称が決まったときは、通常 `ROBOTBASE_DISPLAY_NAME` だけを変更します。その後ランチャーを再起動し、次を実行してください。
 
 ```bash
-~/robotbase_ws/bash/install_launcher_shortcut.sh
+~/robotbase_ws_renya/bash/install_launcher_shortcut.sh
 ```
 
 `ROBOTBASE_ID`を変更するとalias名も変更が必要になるため、表示名変更だけでは変更しません。
@@ -40,17 +40,17 @@ ROBOTBASE_FOXGLOVE_PORT="8766"
 `.bashrc`にはSIRIUSのaliasに加えて次を設定済みです。
 
 ```bash
-source ~/robotbase_ws/bash/bash_alias1.sh
-source ~/robotbase_ws/bash/bash_alias2.sh
+source ~/robotbase_ws_renya/bash/bash_alias1.sh
+source ~/robotbase_ws_renya/bash/bash_alias2.sh
 ```
 
 すべて `koko_*` 接頭辞なので、SIRIUSの `nav2`、`roboteq`、`src`などと名前が衝突しません。
 
 | コマンド | 用途 |
 |---|---|
-| `koko_src` | Domain 57を設定してrobotbase_wsをsource |
-| `koko_sim_src` | Domain 58を設定してrobotbase_wsをsource |
-| `koko_build` | robotbase_wsをビルド |
+| `koko_src` | Domain 54を設定してrobotbase_ws_renyaをsource |
+| `koko_sim_src` | Domain 67を設定してrobotbase_ws_renyaをsource |
+| `koko_build` | robotbase_ws_renyaをビルド |
 | `koko_sim` | Gazebo単体 |
 | `koko_rviz_sim` | シミュレーション用RViz単体 |
 | `koko_slamtoolbox_sim` | シミュレーション用SLAM単体 |
@@ -69,7 +69,7 @@ source ~/robotbase_ws/bash/bash_alias2.sh
 | `koko_foxglove_sim` | シミュレーションDomainのFoxglove Bridge（8766） |
 | `koko_launcher` | GUIランチャー |
 
-aliasファイルをsourceしただけでは、SIRIUS端末のDomain 56を変更しません。`koko_src`または`koko_env`で実機Domain 57、`koko_sim_src`または`koko_sim_env`でシミュレーションDomain 58になります。同じターミナルでSIRIUSへ戻る場合は新しいターミナルを開くのが安全です。
+aliasファイルをsourceしただけでは、SIRIUS端末のDomain 56を変更しません。`koko_src`または`koko_env`で実機Domain 54、`koko_sim_src`または`koko_sim_env`でシミュレーションDomain 67になります。同じターミナルでSIRIUSへ戻る場合は新しいターミナルを開くのが安全です。
 
 ## UIランチャー
 
@@ -81,10 +81,10 @@ koko_launcher
 
 またはデスクトップの「ココちゃん ランチャー」を開きます。
 
-ランチャーは `robotbase_ws/bash/bash_alias2.sh` のみを読み、SIRIUSのaliasファイルへフォールバックしません。子ターミナルでは `.bashrc` 読み込み後に、ココちゃん用の次の値を必ず再設定します。
+ランチャーは `robotbase_ws_renya/bash/bash_alias2.sh` のみを読み、SIRIUSのaliasファイルへフォールバックしません。子ターミナルでは `.bashrc` 読み込み後に、ココちゃん用の次の値を必ず再設定します。
 
 ```text
-ROS_DOMAIN_ID=57  # 実機。シミュレーションボタンでは58
+ROS_DOMAIN_ID=54  # 実機。シミュレーションボタンでは67
 GZ_PARTITION=koko
 ROBOTBASE_TF_PREFIX=robot
 ```
@@ -99,18 +99,18 @@ ROBOTBASE_TF_PREFIX=robot
 Terminator tab: [ココちゃん] <alias>
 ```
 
-UIは5タブです。Gazebo、RViz、シミュレーション地図作成、2種類のシミュレーションNav2は「シミュレーション」タブに集約し、すべてDomain 58で起動します。実機用 `twist_mux` と `koko_nav2_real_slam` は「リアル実験」タブです。実機用`koko_foxglove`とシミュレーション用`koko_foxglove_sim`は「ユーティリティ」タブにあります。外部連携タブ、LLM、ZED/SAM3関連ボタンはありません。
+UIは5タブです。Gazebo、RViz、シミュレーション地図作成、2種類のシミュレーションNav2は「シミュレーション」タブに集約し、すべてDomain 67で起動します。実機用 `twist_mux` と `koko_nav2_real_slam` は「リアル実験」タブです。実機用`koko_foxglove`とシミュレーション用`koko_foxglove_sim`は「ユーティリティ」タブにあります。外部連携タブ、LLM、ZED/SAM3関連ボタンはありません。
 
-ランチャー上部の赤い「シミュレーション一式を終了」ボタンは、確認後に`ROBOTBASE_SIM_ROS_DOMAIN_ID`（既定58）またはココちゃん用Gazebo partitionに属するプロセスをまとめて終了する。SIGINTで正常終了を試し、残ったものだけSIGTERM、最終的にSIGKILLを使う。実機Domain 57とSIRIUSのプロセスは対象にしない。`/clock publisherが既にあります`と表示された場合や、Gazeboを最初から起動し直す場合に使用する。
+ランチャー上部の赤い「シミュレーション一式を終了」ボタンは、確認後に`ROBOTBASE_SIM_ROS_DOMAIN_ID`（既定67）またはココちゃん用Gazebo partitionに属するプロセスをまとめて終了する。SIGINTで正常終了を試し、残ったものだけSIGTERM、最終的にSIGKILLを使う。実機Domain 54とSIRIUSのプロセスは対象にしない。`/clock publisherが既にあります`と表示された場合や、Gazeboを最初から起動し直す場合に使用する。
 
-上部の「シミュレーション ROS_DOMAIN_ID」は0〜232から選択でき、「Domainを保存」で`robot.env`の`ROBOTBASE_SIM_ROS_DOMAIN_ID`へ保存する。初期値は58で、次に起動するGazebo、シミュレーションRViz、Nav2、SLAM、Keyop、Waypoint、Foxgloveへ共通反映される。実機Domain 57と同じ値は保存できない。
+上部の「シミュレーション ROS_DOMAIN_ID」は0〜232から選択でき、「Domainを保存」で`robot.env`の`ROBOTBASE_SIM_ROS_DOMAIN_ID`へ保存する。初期値は67で、次に起動するGazebo、シミュレーションRViz、Nav2、SLAM、Keyop、Waypoint、Foxgloveへ共通反映される。実機Domain 54と同じ値は保存できない。
 
 古いDomainのプロセスを残したまま値だけ変えると、画面上は衝突を回避しても古いGazeboがバックグラウンドで動き続ける。このため、現在のシミュレーションDomainまたはGazebo partitionのプロセスが見つかった場合は保存を拒否する。赤い終了ボタンを先に押してから保存する。YAMLやPythonのビルドは不要で、保存後に新しく起動するプロセスから反映される。
 
 UIを起動できない場合は、同じ処理を端末から直接実行できる。
 
 ```bash
-bash ~/robotbase_ws/bash/startup_bash/stop_simulation.sh
+bash ~/robotbase_ws_renya/bash/startup_bash/stop_simulation.sh
 ```
 
 `koko_rviz_sim` と `koko_rviz_real` は `rviz/robotbase_<TF接頭辞>.rviz` を読み込む。RVizの通常の `File -> Save Config` で保存した表示構成は、次回の起動でもそのまま使われる。
@@ -136,7 +136,7 @@ alias nav2              # SIRIUS
 alias koko_nav2_sim_map # ココちゃん・既存地図
 
 koko_env
-echo "$ROS_DOMAIN_ID"  # 57
+echo "$ROS_DOMAIN_ID"  # 54
 echo "$GZ_PARTITION"   # koko
 echo "$ROBOTBASE_TF_PREFIX" # robot
 ```

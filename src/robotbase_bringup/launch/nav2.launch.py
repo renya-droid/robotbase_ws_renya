@@ -1,15 +1,73 @@
 #!/usr/bin/env python3
 
 import os
+import json
+import tempfile
+from pathlib import Path
+import yaml
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, OpaqueFunction, SetLaunchConfiguration
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
 from launch_ros.actions import Node
 from launch_ros.descriptions import ParameterFile
 from nav2_common.launch import RewrittenYaml
+
+
+def configure_keepout(context):
+    """Load only the saved keepout belonging to the selected map."""
+    map_name = LaunchConfiguration('map').perform(context)
+    if not map_name or LaunchConfiguration('localization').perform(context) == 'slam':
+        return []
+    map_path = Path(map_name).resolve()
+    state_path = map_path.parent / '.keepout' / map_path.stem / 'settings.json'
+    if not state_path.exists():
+        return []
+    state = json.loads(state_path.read_text())
+    if not state.get('enabled', False):
+        return []
+    if state.get('source_map') != str(map_path):
+        raise RuntimeError('Keepout mask belongs to a different map.')
+    meta = yaml.safe_load(map_path.read_text())
+    # Match geometry before activating a previously saved mask.
+    from PIL import Image
+    with Image.open(map_path.parent / meta['image']) as image:
+        geometry = dict(resolution=meta['resolution'], origin=meta['origin'], size=list(image.size))
+    if state.get('map_metadata') != geometry:
+        raise RuntimeError('Keepout geometry does not match the selected map. Re-save it in the editor.')
+    mask = state_path.parent / 'mask.yaml'
+    if not mask.exists():
+        raise RuntimeError('Enabled keepout mask is missing: ' + str(mask))
+    params = yaml.safe_load(Path(LaunchConfiguration('params_file').perform(context)).read_text())
+    for name in ('global_costmap', 'local_costmap'):
+        block = params[name][name]['ros__parameters']
+        filters = block.setdefault('filters', [])
+        if 'keepout_filter' not in filters:
+            filters.append('keepout_filter')
+        block['keepout_filter'] = dict(plugin='nav2_costmap_2d::KeepoutFilter', enabled=True,
+                                     filter_info_topic='/costmap_filter_info')
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', prefix='robotbase_keepout_', delete=False) as f:
+        yaml.safe_dump(params, f)
+        params_path = f.name
+    import atexit
+    atexit.register(lambda: os.path.exists(params_path) and os.unlink(params_path))
+    sim_time = LaunchConfiguration('use_sim_time').perform(context).lower() == 'true'
+    return [
+        SetLaunchConfiguration('params_file', params_path),
+        Node(package='nav2_map_server', executable='map_server', name='filter_mask_server',
+             output='screen', parameters=[dict(use_sim_time=sim_time, frame_id='map',
+                 topic_name='/keepout_filter_mask', yaml_filename=str(mask))]),
+        Node(package='nav2_map_server', executable='costmap_filter_info_server',
+             name='costmap_filter_info_server', output='screen',
+             parameters=[dict(use_sim_time=sim_time, type=0, filter_info_topic='/costmap_filter_info',
+                              mask_topic='/keepout_filter_mask', base=0.0, multiplier=1.0)]),
+        Node(package='nav2_lifecycle_manager', executable='lifecycle_manager',
+             name='lifecycle_manager_keepout', output='screen',
+             parameters=[dict(use_sim_time=sim_time, autostart=True,
+                              node_names=['filter_mask_server', 'costmap_filter_info_server'])]),
+    ]
 
 
 def generate_launch_description():
@@ -156,6 +214,7 @@ def generate_launch_description():
         DeclareLaunchArgument('params_file', default_value=default_params),
         DeclareLaunchArgument('tf_prefix', default_value='robot'),
         DeclareLaunchArgument('odom_topic', default_value='/odom/filtered'),
+        OpaqueFunction(function=configure_keepout),
         map_server,
         amcl,
         static_localization,

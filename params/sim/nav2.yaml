@@ -103,14 +103,14 @@ controller_server:
       time_steps: 28
       model_dt: 0.10
       batch_size: 2000
-      # MPPIに固定の巡航速度はないため、運用上の前進基準を上限0.60 m/sで定義する。
-      vx_max: 0.60
+      # MPPIに固定の巡航速度はないため、運用上の前進基準を上限0.90 m/sで定義する。
+      vx_max: 0.90
       vx_min: -0.30
       vy_max: 0.0
       vy_min: 0.0
       wz_max: 0.90
       wz_min: -0.90
-      # 0.60 m/s付近までの候補軌道を十分に生成する。
+      # 0.90 m/s付近までの候補軌道を十分に生成する。
       vx_std: 0.30
       vy_std: 0.0
       wz_std: 0.30
@@ -125,10 +125,10 @@ controller_server:
       transform_tolerance: 0.10
       temperature: 0.30
       # 操作量を抑えるコスト。Nav2標準値へ戻し、加速を過度に抑えない。
-      gamma: 0.015
+      gamma: 0.050
       motion_model: DiffDrive
-      visualize: true
-      regenerate_noises: true
+      visualize: false
+      regenerate_noises: false
       TrajectoryVisualizer:
         trajectory_step: 5
         time_step: 3
@@ -163,7 +163,7 @@ controller_server:
       PathAlignCritic:
         enabled: true
         cost_power: 1
-        cost_weight: 12.0
+        cost_weight: 8.0
         max_path_occupancy_ratio: 0.10
         trajectory_point_step: 4
         threshold_to_consider: 0.5
@@ -173,7 +173,7 @@ controller_server:
         enabled: true
         cost_power: 1
         # 障害物回避を維持しつつ、経路上を前へ進む軌道を強く評価する。
-        cost_weight: 12.0
+        cost_weight: 8.0
         # 0.05 m間隔の経路で約0.55 m先。1.68 m予測距離のおよそ1/3。
         offset_from_furthest: 11
         threshold_to_consider: 1.0
@@ -189,14 +189,14 @@ controller_server:
         enabled: true
         cost_power: 1
         # 後退は禁止せず、通常は向き直って前進する軌道を強く優先する。
-        cost_weight: 10.0
+        cost_weight: 40.0
         threshold_to_consider: 0.5
       VelocityDeadbandCritic:
         enabled: true
         cost_power: 1
         # 0.1 m/s付近に留まらず、動き出せる軌道を選ばせる。
         cost_weight: 35.0
-        deadband_velocities: [0.12, 0.0, 0.0]
+        deadband_velocities: [0.10, 0.0, 0.0]
 
 local_costmap:
   local_costmap:
@@ -283,7 +283,7 @@ velocity_smoother:
     smoothing_frequency: 20.0
     scale_velocities: false
     feedback: OPEN_LOOP
-    max_velocity: [0.60, 0.0, 0.90]
+    max_velocity: [0.90, 0.0, 0.90]
     min_velocity: [-0.30, 0.0, -0.90]
     max_accel: [0.90, 0.0, 1.50]
     max_decel: [-0.90, 0.0, -1.50]

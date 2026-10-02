@@ -10,7 +10,7 @@ fi
 foxglove_address="${ROBOTBASE_FOXGLOVE_ADDRESS:-0.0.0.0}"
 foxglove_port="${ROBOTBASE_FOXGLOVE_PORT:-8766}"
 foxglove_profile="${ROBOTBASE_FOXGLOVE_PROFILE:-foxglove.yaml}"
-foxglove_params_root="${ROBOTBASE_PARAMS_DIR:-${HOME}/robotbase_ws/params}"
+foxglove_params_root="${ROBOTBASE_PARAMS_DIR:-/home/ren/robotbase_ws_renya/params}"
 foxglove_params_file="${foxglove_params_root}/common/${foxglove_profile}"
 
 echo "========================================="

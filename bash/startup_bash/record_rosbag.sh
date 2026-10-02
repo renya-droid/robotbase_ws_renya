@@ -34,7 +34,7 @@ show_result() {
         if [ -n "$mcap_file" ] && [ -f "$mcap_file" ]; then
             echo "  [MCAP] インデックスの整合性を自動チェック・修復中..."
             local tmp_mcap="${mcap_file}.tmp"
-            if "${HOME}/robotbase_ws/mcap" recover "$mcap_file" -o "$tmp_mcap" >/dev/null 2>&1; then
+            if "/home/ren/robotbase_ws_renya/mcap" recover "$mcap_file" -o "$tmp_mcap" >/dev/null 2>&1; then
                 mv "$tmp_mcap" "$mcap_file"
                 echo "  [MCAP] ✓ インデックス処理が正常に完了しました（Foxgloveで開けます）"
             else
@@ -168,7 +168,7 @@ start_recording() {
 }
 
 # メイン処理（ループ）
-cd ~/robotbase_ws
+cd "/home/ren/robotbase_ws_renya"
 source install/setup.bash
 
 while : ; do

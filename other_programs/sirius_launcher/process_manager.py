@@ -51,6 +51,10 @@ class ProcessManager:
                 f.write('  # shellcheck disable=SC1090\n')
                 f.write('  source "$HOME/.bashrc" >/dev/null 2>&1\n')
                 f.write('fi\n')
+                workspace = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+                for alias_file in ("bash_alias1.sh", "bash_alias2.sh"):
+                    alias_path = os.path.join(workspace, "bash", alias_file)
+                    f.write(f"source {shlex.quote(alias_path)}\n")
                 # Re-apply robot isolation after ~/.bashrc, which may source
                 # the Sirius workspace and set its ROS_DOMAIN_ID.
                 f.write(f'export ROS_DOMAIN_ID={shlex.quote(ROS_DOMAIN_ID)}\n')
