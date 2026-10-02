@@ -76,14 +76,16 @@ def generate_launch_description():
         'ROBOTBASE_PARAMS_DIR',
         os.path.join(os.path.expanduser('~'), 'robotbase_ws', 'params'))
     default_params = os.path.join(params_root, 'real', 'nav2.yaml')
-    nav_to_pose_bt = os.path.join(
-        bringup_share, 'behavior_trees',
-        'navigate_to_pose_w_replanning_and_recovery_no_spin.xml')
-    nav_through_poses_bt = os.path.join(
-        bringup_share, 'behavior_trees',
-        'navigate_through_poses_w_replanning_and_recovery_no_spin.xml')
-
     use_sim_time = LaunchConfiguration('use_sim_time')
+    nav_to_pose_bt = PathJoinSubstitution([
+        bringup_share, 'behavior_trees',
+        'navigate_to_pose_w_replanning_goal_patience_and_recovery_no_spin.xml',
+    ])
+    nav_through_poses_bt = PathJoinSubstitution([
+        bringup_share, 'behavior_trees',
+        'navigate_through_poses_w_replanning_goal_patience_and_recovery_no_spin.xml',
+    ])
+
     localization = LaunchConfiguration('localization')
     map_file = LaunchConfiguration('map')
     params_file = LaunchConfiguration('params_file')
