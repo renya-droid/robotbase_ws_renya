@@ -1,8 +1,10 @@
 #!/bin/bash
-trap 'echo ""; echo "Ctrl + Cが押されましたが、ウィンドウは閉じません"' 2
-cd "/home/ren/robotbase_ws_renya"
 
-WAYPOINTS_DIR="/home/ren/robotbase_ws_renya/maps_waypoints/waypoints"
+_ROBOTBASE_SCRIPT_WS="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+trap 'echo ""; echo "Ctrl + Cが押されましたが、ウィンドウは閉じません"' 2
+cd "${_ROBOTBASE_SCRIPT_WS}"
+
+WAYPOINTS_DIR="${_ROBOTBASE_SCRIPT_WS}/maps_waypoints/waypoints"
 
 # ウェイポイントファイル一覧を取得
 get_waypoints_list() {

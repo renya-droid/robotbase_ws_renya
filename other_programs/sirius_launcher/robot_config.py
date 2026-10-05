@@ -74,9 +74,11 @@ if SIM_ROS_DOMAIN_ID == ROS_DOMAIN_ID:
 if not re.fullmatch(r'[a-zA-Z0-9_-]+', TF_PREFIX):
     raise ValueError('ROBOTBASE_TF_PREFIX must be one non-empty frame-name component')
 
-LAUNCHER_ID = f'{ROBOT_ID}_launcher'
-LAUNCHER_TITLE = f'{DISPLAY_NAME} ROS 2 Launch Manager'
-TAB_PREFIX = f'[{DISPLAY_NAME}]'
+LAUNCHER_ID = _config.get('ROBOTBASE_LAUNCHER_ID', f'{ROBOT_ID}_launcher')
+if not re.fullmatch(r'[a-z0-9_-]+', LAUNCHER_ID):
+    raise ValueError('ROBOTBASE_LAUNCHER_ID must contain only lowercase letters, numbers, _ or -')
+LAUNCHER_TITLE = _config.get('ROBOTBASE_LAUNCHER_NAME', f'{DISPLAY_NAME} ROS 2 Launch Manager')
+TAB_PREFIX = f'[{LAUNCHER_TITLE}]'
 ALIAS_FILE = WORKSPACE / 'bash' / 'bash_alias2.sh'
 SOURCE_ALIAS = f'{ROBOT_ID}_src'
 ENV_ALIAS = f'{ROBOT_ID}_env'

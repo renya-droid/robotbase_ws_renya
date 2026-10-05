@@ -1,5 +1,7 @@
 #!/bin/bash
 
+_ROBOTBASE_SCRIPT_WS="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
 if ! ros2 pkg prefix foxglove_bridge >/dev/null 2>&1; then
     echo "Foxglove Bridgeがインストールされていません。"
     echo "次を一度実行してください:"
@@ -10,7 +12,7 @@ fi
 foxglove_address="${ROBOTBASE_FOXGLOVE_ADDRESS:-0.0.0.0}"
 foxglove_port="${ROBOTBASE_FOXGLOVE_PORT:-8766}"
 foxglove_profile="${ROBOTBASE_FOXGLOVE_PROFILE:-foxglove.yaml}"
-foxglove_params_root="${ROBOTBASE_PARAMS_DIR:-/home/ren/robotbase_ws_renya/params}"
+foxglove_params_root="${ROBOTBASE_PARAMS_DIR:-${_ROBOTBASE_SCRIPT_WS}/params}"
 foxglove_params_file="${foxglove_params_root}/common/${foxglove_profile}"
 
 echo "========================================="

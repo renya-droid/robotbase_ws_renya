@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
 
-from robot_config import GZ_PARTITION, ROS_DOMAIN_ID, SIM_ROS_DOMAIN_ID
+from robot_config import GZ_PARTITION, LAUNCHER_TITLE, ROS_DOMAIN_ID, SIM_ROS_DOMAIN_ID
 
 
 class LaunchButtonUI(QWidget):
@@ -78,7 +78,7 @@ class MainWindowUI:
         """UIのセットアップ（タブ切り替え対応）"""
         from PySide6.QtWidgets import QWidget, QVBoxLayout, QScrollArea, QFrame, QTabWidget
 
-        launcher_title = f"{display_name} ROS 2 Launch Manager"
+        launcher_title = LAUNCHER_TITLE
         window.setWindowTitle(launcher_title)
         window.setMinimumSize(800, 600)
 

@@ -102,7 +102,8 @@ fi
 
 # Close launcher shells for simulation buttons after their ROS children stopped.
 # Validate the command line so a stale PID file cannot terminate an unrelated PID.
-launcher_prefix="/tmp/${ROBOTBASE_ID}_launcher_"
+launcher_id="${ROBOTBASE_LAUNCHER_ID:-${ROBOTBASE_ID}_launcher}"
+launcher_prefix="/tmp/${launcher_id}_"
 launcher_shells=()
 for pid_file in "${launcher_prefix}"*.pid; do
     [ -e "${pid_file}" ] || continue
@@ -116,7 +117,7 @@ for pid_file in "${launcher_prefix}"*.pid; do
                [ -r "/proc/${launcher_pid}/cmdline" ]; then
                 launcher_command="$(
                     tr '\0' ' ' < "/proc/${launcher_pid}/cmdline" 2>/dev/null || true)"
-                if [[ "${launcher_command}" == *"bash --rcfile /tmp/${ROBOTBASE_ID}_launcher_"* ]]; then
+                if [[ "${launcher_command}" == *"bash --rcfile ${launcher_prefix}"* ]]; then
                     launcher_shells+=("${launcher_pid}")
                 fi
             fi

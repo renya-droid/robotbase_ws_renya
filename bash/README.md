@@ -2,7 +2,9 @@
 
 シリウス用aliasとの競合を避けるため、このWSが公開するコマンドはすべて `koko_*` です。
 
-`.bashrc`へ次を追加します。この開発PCには設定済みです。
+既存の `robotbase_ws` と併用する場合は、[ランチャー2の導入手順](../DOCS/LAUNCHER2.md) を使ってください。元の `koko_*` を維持するため、以下を `.bashrc` に追加しません。
+
+以下は、このWSだけを端末の既定環境として使う場合の設定です。
 
 ```bash
 source ~/robotbase_ws_renya/bash/bash_alias1.sh
@@ -31,7 +33,7 @@ koko_slamtoolbox_real
 koko_nav2_real
 koko_nav2_real_slam
 koko_rviz_real
-koko_launcher
+koko_launcher2
 ```
 
 表示名・Domain IDの変更とデスクトップUIについては `DOCS/LAUNCHER.md` を参照してください。

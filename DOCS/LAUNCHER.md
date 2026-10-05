@@ -1,3 +1,5 @@
+> `robotbase_ws` と同じPCで使う場合は、[ココちゃんランチャー2の導入手順](LAUNCHER2.md) を参照してください。元の `.bashrc` は変更しません。
+
 # ココちゃん用Bashとランチャー
 
 ## 目的
@@ -11,16 +13,20 @@
 ```bash
 ROBOTBASE_DISPLAY_NAME="ココちゃん"
 ROBOTBASE_ID="koko"
+ROBOTBASE_LAUNCHER_NAME="ココちゃんランチャー2"
+ROBOTBASE_LAUNCHER_ID="koko_launcher2"
 ROBOTBASE_ROS_DOMAIN_ID="54"
 ROBOTBASE_SIM_ROS_DOMAIN_ID="67"
-ROBOTBASE_GZ_PARTITION="koko"
+ROBOTBASE_GZ_PARTITION="koko_renya"
 ROBOTBASE_TF_PREFIX="robot"
 ROBOTBASE_FOXGLOVE_ADDRESS="0.0.0.0"
 ROBOTBASE_FOXGLOVE_PORT="8766"
 ```
 
-- `ROBOTBASE_DISPLAY_NAME`: UI、ターミナルタイトル、デスクトップ表示名
-- `ROBOTBASE_ID`: `koko_*`や`/tmp/koko_launcher_*`の安定識別子
+- `ROBOTBASE_DISPLAY_NAME`: 機体の表示名
+- `ROBOTBASE_ID`: `koko_*` の安定識別子
+- `ROBOTBASE_LAUNCHER_NAME`: ランチャーの表示名（ココちゃんランチャー2）
+- `ROBOTBASE_LAUNCHER_ID`: ショートカット・PID・ログの識別子（koko_launcher2）
 - `ROBOTBASE_ROS_DOMAIN_ID`: 実機用ROS 2 Domain
 - `ROBOTBASE_SIM_ROS_DOMAIN_ID`: シミュレーション用ROS 2 Domain。実機と異なる値にする
 - `ROBOTBASE_GZ_PARTITION`: Gazebo Transportの分離名
@@ -37,7 +43,7 @@ ROBOTBASE_FOXGLOVE_PORT="8766"
 
 ## Bashコマンド
 
-`.bashrc`にはSIRIUSのaliasに加えて次を設定済みです。
+このWSだけを端末の既定環境として使う場合の設定です。既存の `robotbase_ws` と併用するPCでは `.bashrc` に追加せず、ランチャー2から起動してください。
 
 ```bash
 source ~/robotbase_ws_renya/bash/bash_alias1.sh
@@ -67,7 +73,7 @@ source ~/robotbase_ws_renya/bash/bash_alias2.sh
 | `koko_rviz_real` | 実機用RViz単体 |
 | `koko_foxglove` | 実機DomainのFoxglove Bridge（8766） |
 | `koko_foxglove_sim` | シミュレーションDomainのFoxglove Bridge（8766） |
-| `koko_launcher` | GUIランチャー |
+| `koko_launcher2` | GUIランチャー |
 
 aliasファイルをsourceしただけでは、SIRIUS端末のDomain 56を変更しません。`koko_src`または`koko_env`で実機Domain 54、`koko_sim_src`または`koko_sim_env`でシミュレーションDomain 67になります。同じターミナルでSIRIUSへ戻る場合は新しいターミナルを開くのが安全です。
 
@@ -76,16 +82,16 @@ aliasファイルをsourceしただけでは、SIRIUS端末のDomain 56を変更
 起動方法:
 
 ```bash
-koko_launcher
+~/.local/bin/koko_launcher2
 ```
 
-またはデスクトップの「ココちゃん ランチャー」を開きます。
+またはデスクトップの「ココちゃんランチャー2」を開きます。
 
 ランチャーは `robotbase_ws_renya/bash/bash_alias2.sh` のみを読み、SIRIUSのaliasファイルへフォールバックしません。子ターミナルでは `.bashrc` 読み込み後に、ココちゃん用の次の値を必ず再設定します。
 
 ```text
 ROS_DOMAIN_ID=54  # 実機。シミュレーションボタンでは67
-GZ_PARTITION=koko
+GZ_PARTITION=koko_renya
 ROBOTBASE_TF_PREFIX=robot
 ```
 
@@ -94,9 +100,9 @@ ROBOTBASE_TF_PREFIX=robot
 プロセス管理も次のように分離されています。
 
 ```text
-/tmp/koko_launcher_<alias>.pid
-/tmp/koko_launcher_<alias>.log
-Terminator tab: [ココちゃん] <alias>
+/tmp/koko_launcher2_<alias>.pid
+/tmp/koko_launcher2_<alias>.log
+Terminator tab: [ココちゃんランチャー2] <alias>
 ```
 
 UIは5タブです。Gazebo、RViz、シミュレーション地図作成、2種類のシミュレーションNav2は「シミュレーション」タブに集約し、すべてDomain 67で起動します。実機用 `twist_mux` と `koko_nav2_real_slam` は「リアル実験」タブです。実機用`koko_foxglove`とシミュレーション用`koko_foxglove_sim`は「ユーティリティ」タブにあります。外部連携タブ、LLM、ZED/SAM3関連ボタンはありません。
@@ -117,11 +123,11 @@ bash ~/robotbase_ws_renya/bash/startup_bash/stop_simulation.sh
 
 ## デスクトップショートカット
 
-次の2か所へ設置済みです。
+インストーラを実行すると次の2か所へ設置します。
 
 ```text
-~/Desktop/koko_launcher.desktop
-~/.local/share/applications/koko_launcher.desktop
+~/Desktop/koko_launcher2.desktop
+~/.local/share/applications/koko_launcher2.desktop
 ```
 
 再生成スクリプトは `bash/install_launcher_shortcut.sh` です。`robot.env` の表示名と現在のワークスペース絶対パスをテンプレートへ反映し、デスクトップ側には実行権限とtrusted metadataを設定します。
@@ -137,7 +143,7 @@ alias koko_nav2_sim_map # ココちゃん・既存地図
 
 koko_env
 echo "$ROS_DOMAIN_ID"  # 54
-echo "$GZ_PARTITION"   # koko
+echo "$GZ_PARTITION"   # koko_renya
 echo "$ROBOTBASE_TF_PREFIX" # robot
 ```
 

@@ -1,9 +1,11 @@
 #!/bin/bash
+
+_ROBOTBASE_SCRIPT_WS="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # PCL Object Detection Node Startup Script
 # -------------------------------------------------------------
 trap 'echo ""; echo "PCL Object Detection を終了しました。"' SIGINT
 
-cd "/home/ren/robotbase_ws_renya"
+cd "${_ROBOTBASE_SCRIPT_WS}"
 source /opt/ros/jazzy/setup.bash
 source install/setup.bash
 

@@ -2,9 +2,11 @@
 
 SIRIUS用の [`sirius_jazzy_ws`](../sirius_jazzy_ws) を基に、新しい差動二輪ロボット向けに調整している ROS 2 Jazzy ワークスペースです。車輪径、トレッド幅、エンコーダ、車体寸法、センサー構成がSIRIUSと異なります。
 
-新機体の仮称は「ココちゃん」です。表示名、ROS Domain、Gazebo識別子は [`robot.env`](robot.env) で変更できます。この開発PC上のSIRIUSと競合しないよう、Bashコマンドは `koko_*`、ROSは実機Domain 54・シミュレーションDomain 67、Gazeboはpartition `koko`へ分離しています。
+新機体の仮称は「ココちゃん」です。表示名、ROS Domain、Gazebo識別子は [`robot.env`](robot.env) で変更できます。この開発PC上のSIRIUSと競合しないよう、Bashコマンドは `koko_*`、ROSは実機Domain 54・シミュレーションDomain 67、Gazeboはpartition `koko_renya`へ分離しています。
 
 Foxglove Bridgeは実機では `koko_foxglove`、シミュレーションでは `koko_foxglove_sim` から起動できます。Siriusの既定ポート8765と競合しないよう、ココちゃんは8766を使います。
+
+別PCで元の `robotbase_ws` を残して使う場合は、[ココちゃんランチャー2の導入手順](DOCS/LAUNCHER2.md) を参照してください。
 
 ## このPCへの切り替え（2026-10-01）
 

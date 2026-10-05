@@ -75,7 +75,7 @@ def parse_bash_aliases(alias_file_path):
                     alias_name = match.group(1).strip()
                     command = match.group(2).strip()
                     
-                    if alias_name.endswith('install_packages') or alias_name.endswith('launcher'):
+                    if alias_name.endswith('install_packages') or re.search(r'launcher\d*$', alias_name):
                         i += 1
                         continue
 

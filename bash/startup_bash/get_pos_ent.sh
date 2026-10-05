@@ -1,6 +1,8 @@
 #!/bin/bash
+
+_ROBOTBASE_SCRIPT_WS="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 trap 'echo ""; echo "Ctrl + Cが押されましたが、ウィンドウは閉じません"' 2
-cd "/home/ren/robotbase_ws_renya"
+cd "${_ROBOTBASE_SCRIPT_WS}"
 while : ;do
     read -p "Press [Enter] key to start get_position_enter..."
     source install/setup.bash

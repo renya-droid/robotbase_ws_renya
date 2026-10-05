@@ -1,18 +1,18 @@
-# Robot ROS 2 Launch Manager
+# ココちゃんランチャー2
 
-移植元との互換性でディレクトリ名は `sirius_launcher` のままですが、公開エントリポイントとUIは機体名設定に対応した汎用ランチャーです。現在の表示名は「ココちゃん」です。
+`robotbase_ws_renya` 専用のランチャーです。既存の `robotbase_ws` のランチャーと併用する手順は [別PCでの導入](../../DOCS/LAUNCHER2.md) を参照してください。
 
 ## 起動
 
 ```bash
-cd ~/robotbase_ws_renya/other_programs/sirius_launcher
-python3 robot_launcher.py
+bash ~/robotbase_ws_renya/bash/start_launcher2.sh
 ```
 
-Bash設定を読み込んでいれば `koko_launcher` でも起動できます。デスクトップショートカットは次で再作成します。
+ショートカットと専用コマンドをインストールします。`.bashrc` は変更しません。
 
 ```bash
-~/robotbase_ws_renya/bash/install_launcher_shortcut.sh
+bash ~/robotbase_ws_renya/bash/install_launcher_shortcut.sh
+~/.local/bin/koko_launcher2
 ```
 
 ## 設定
@@ -22,13 +22,15 @@ Bash設定を読み込んでいれば `koko_launcher` でも起動できます�
 ```bash
 ROBOTBASE_DISPLAY_NAME="ココちゃん"
 ROBOTBASE_ID="koko"
+ROBOTBASE_LAUNCHER_NAME="ココちゃんランチャー2"
+ROBOTBASE_LAUNCHER_ID="koko_launcher2"
 ROBOTBASE_ROS_DOMAIN_ID="54"
 ROBOTBASE_SIM_ROS_DOMAIN_ID="67"
-ROBOTBASE_GZ_PARTITION="koko"
+ROBOTBASE_GZ_PARTITION="koko_renya"
 ROBOTBASE_TF_PREFIX="robot"
 ```
 
-表示名を変更した後はランチャーを再起動し、デスクトップショートカットのインストーラをもう一度実行してください。`ROBOTBASE_ID` はエイリアス名とプロセス管理IDに関係するため、通常は変更しません。
+表示名を変更した後はランチャーを再起動し、デスクトップショートカットのインストーラをもう一度実行してください。`ROBOTBASE_ID` はエイリアス名に関係するため、通常は変更しません。
 
 ランチャーは `robotbase_ws_renya/bash/bash_alias2.sh` だけを読みます。`sirius_jazzy_ws` へフォールバックしないため、両WSが同じPCにあってもボタンが入れ替わりません。
 
@@ -36,10 +38,10 @@ ROBOTBASE_TF_PREFIX="robot"
 
 - 実機の子プロセス: `ROS_DOMAIN_ID=54`
 - シミュレーションの子プロセス: `ROS_DOMAIN_ID=67`
-- Gazebo Transport: `GZ_PARTITION=koko`
+- Gazebo Transport: `GZ_PARTITION=koko_renya`
 - TF prefix: `ROBOTBASE_TF_PREFIX=robot`
-- PID/ログ: `/tmp/koko_launcher_*`
-- Terminatorタブ: `[ココちゃん] koko_*`
+- PID/ログ: `/tmp/koko_launcher2_*`
+- Terminatorタブ: `[ココちゃんランチャー2] koko_*`
 
 ランチャーは子ターミナルが `.bashrc` を読み、シリウス設定へ戻った後にも上記の値を再適用します。
 

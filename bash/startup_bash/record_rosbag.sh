@@ -1,4 +1,6 @@
 #!/bin/bash
+
+_ROBOTBASE_SCRIPT_WS="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # 軽量版ROS2 bag記録スクリプト
 # 使い方: ./record_rosbag.sh
 #         ファイル名を入力して記録開始
@@ -34,7 +36,7 @@ show_result() {
         if [ -n "$mcap_file" ] && [ -f "$mcap_file" ]; then
             echo "  [MCAP] インデックスの整合性を自動チェック・修復中..."
             local tmp_mcap="${mcap_file}.tmp"
-            if "/home/ren/robotbase_ws_renya/mcap" recover "$mcap_file" -o "$tmp_mcap" >/dev/null 2>&1; then
+            if "${_ROBOTBASE_SCRIPT_WS}/mcap" recover "$mcap_file" -o "$tmp_mcap" >/dev/null 2>&1; then
                 mv "$tmp_mcap" "$mcap_file"
                 echo "  [MCAP] ✓ インデックス処理が正常に完了しました（Foxgloveで開けます）"
             else
@@ -168,7 +170,7 @@ start_recording() {
 }
 
 # メイン処理（ループ）
-cd "/home/ren/robotbase_ws_renya"
+cd "${_ROBOTBASE_SCRIPT_WS}"
 source install/setup.bash
 
 while : ; do

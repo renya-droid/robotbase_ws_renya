@@ -1,11 +1,13 @@
 #!/bin/bash
+
+_ROBOTBASE_SCRIPT_WS="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # 地図切り替えスクリプト
 # 使い方: ./change_map.sh
 #         一覧から地図を選択して切り替え
 
 trap 'echo ""; echo "Ctrl + Cが押されましたが、ウィンドウは閉じません"' 2
 
-MAPS_DIR="/home/ren/robotbase_ws_renya/maps_waypoints/maps"
+MAPS_DIR="${_ROBOTBASE_SCRIPT_WS}/maps_waypoints/maps"
 
 # 地図ファイル一覧を取得
 get_map_list() {
@@ -72,7 +74,7 @@ change_map() {
 }
 
 # メイン処理（ループ）
-cd "/home/ren/robotbase_ws_renya"
+cd "${_ROBOTBASE_SCRIPT_WS}"
 source install/setup.bash
 
 while : ; do

@@ -1,4 +1,6 @@
 #!/bin/bash
+
+_ROBOTBASE_SCRIPT_WS="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # 好きなタイミングで実験メモを送信するスクリプト
 
 if [ -z "$1" ]; then
@@ -7,8 +9,8 @@ if [ -z "$1" ]; then
 fi
 
 # ROS2 ワークスペースのセットアップ
-if [ -f "/home/ren/robotbase_ws_renya"/install/setup.bash ]; then
-    source "/home/ren/robotbase_ws_renya"/install/setup.bash
+if [ -f "${_ROBOTBASE_SCRIPT_WS}"/install/setup.bash ]; then
+    source "${_ROBOTBASE_SCRIPT_WS}"/install/setup.bash
 fi
 
 # トピックのパブリッシュ

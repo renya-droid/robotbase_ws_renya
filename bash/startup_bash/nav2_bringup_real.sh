@@ -1,10 +1,13 @@
 #!/bin/bash
-trap 'echo ""; echo "Ctrl + Cが押されましたが、ウィンドウは閉じません"' 2
-cd "/home/ren/robotbase_ws_renya"
 
-MAPS_DIR="/home/ren/robotbase_ws_renya/maps_waypoints/maps"
-LANDMARKS_DIR="/home/ren/robotbase_ws_renya/maps_waypoints/landmarks"
-CURRENT_MAP_STATE="${HOME}/.koko_nav2_current_map.yaml"
+_ROBOTBASE_SCRIPT_WS="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+trap 'echo ""; echo "Ctrl + Cが押されましたが、ウィンドウは閉じません"' 2
+cd "${_ROBOTBASE_SCRIPT_WS}"
+
+MAPS_DIR="${_ROBOTBASE_SCRIPT_WS}/maps_waypoints/maps"
+LANDMARKS_DIR="${_ROBOTBASE_SCRIPT_WS}/maps_waypoints/landmarks"
+source "${_ROBOTBASE_SCRIPT_WS}/robot.env"
+CURRENT_MAP_STATE="${HOME}/.${ROBOTBASE_LAUNCHER_ID:-${ROBOTBASE_ID}_launcher}_nav2_current_map.yaml"
 
 # 地図ファイル一覧を取得
 get_map_list() {

@@ -1,4 +1,6 @@
 #!/bin/bash
+
+_ROBOTBASE_SCRIPT_WS="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # 地図切り替えスクリプト（プログラム呼び出し用）
 # 使い方: ./change_map_simple.sh <地図名>
 #         地図名は .yaml 拡張子なしで指定
@@ -12,7 +14,7 @@
 #   2 - 地図ファイルが見つからない
 #   3 - サービス呼び出し失敗
 
-MAPS_DIR="/home/ren/robotbase_ws_renya/maps_waypoints/maps"
+MAPS_DIR="${_ROBOTBASE_SCRIPT_WS}/maps_waypoints/maps"
 
 # 引数チェック
 if [ -z "$1" ]; then

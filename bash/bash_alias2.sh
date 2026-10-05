@@ -114,7 +114,7 @@ alias koko_waypoint_record='koko_src && bash "${_KOKO_WS}"/bash/startup_bash/way
 alias koko_slam_waypoint_record='koko_src && bash "${_KOKO_WS}"/bash/startup_bash/slam_waypoint_record.sh real'
 
 # ココちゃんランチャー起動
-alias koko_launcher='koko_env && cd ${_KOKO_WS}/other_programs/sirius_launcher && python3 robot_launcher.py'
+alias koko_launcher2='bash "${_KOKO_WS}/bash/start_launcher2.sh"'
 
 # TAB: リアル実験
 # GROUP: リアル実験
