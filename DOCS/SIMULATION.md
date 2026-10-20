@@ -1,5 +1,54 @@
 # Robotbase Gazeboシミュレータ
 
+## ワールド選択（renya/camera-nav）
+
+ランチャー2の `koko_sim` または通常のsimプリセットを押すと、Gazebo起動前にワールド選択画面が開きます。
+端末の `koko_sim` では番号を選択します。従来の部屋固定プリセットはそのままです。
+
+| 選択肢 | 広さ・用途 |
+| --- | --- |
+| 標準試験場 | 約12 × 12 m。従来の障害物付き試験場 |
+| 屋内施設 | 40 × 30 m。幅4 mの十字廊下、8部屋、幅2.4 mの出入口、机 |
+| 部屋 | 3.60 × 2.70 m。既存の部屋モデル |
+
+屋内施設はGazeboの基本形状だけで構成した施設型試験場です。外部モデルのダウンロードは不要です。
+設定カタログは `src/robotbase_sim/worlds/catalog.json` です。
+[施設の配置図](images/indoor_facility.svg)で廊下・部屋・初期位置を確認できます。
+
+`自律移動（sim）` では、選択ワールドに対応する地図が地図一覧の先頭に出ます。Enterでその地図を選択できます。
+その場合、Nav2のAMCL初期位置もGazeboのスポーン位置に合わせます。
+保存済みの別地図を選ぶ機能も残しています。別地図では必要に応じRVizの2D Pose Estimateで位置を合わせてください。
+
+`人位置Layer・ワールド選択（sim）` プリセットではワールドを選ぶだけで、対応地図・初期位置で人位置Layer付きNav2を起動します。
+従来の部屋固定の `人位置Layer付き自律移動（sim）` は変更していません。
+ワールド切り替え時はシミュレーション一式を終了してから起動し直してください。
+
+```bash
+# 一覧（Gazeboは起動しない）
+bash ~/robotbase_ws_renya/bash/startup_bash/start_sim.sh --list-worlds
+
+# 選択画面を出さず、屋内施設を起動
+koko_sim --world-id indoor_facility
+
+# 画面なしの起動にも対応
+koko_sim --world-id indoor_facility gui:=false
+```
+
+`world:=/path/to/world.sdf spawn_x:=... spawn_y:=... spawn_yaw:=...` も従来どおり使用できます。
+外部ワールド指定時は対応地図を自動推測しないため、Nav2側でそのワールドの地図を選択してください。
+`--world-id` と `world:=` は併用しません。
+
+最後の選択はこのWSの `.runtime/sim_world_<ROS_DOMAIN_ID>.json` に保存します。
+これは最後の選択情報であり、Gazeboが実行中であることを示すものではありません。
+シミュレーションのDomainごとに分離し、Git管理対象外にしています。
+
+屋内施設のワールドと地図は同じ壁・家具配置から生成しています。再生成する場合:
+
+```bash
+python3 src/robotbase_sim/scripts/generate_indoor_facility.py
+colcon build --packages-select robotbase_sim --symlink-install
+```
+
 ## 目的と確認済み範囲
 
 `src/robotbase_sim/` は、実機がなくても次を確認するための最小構成です。

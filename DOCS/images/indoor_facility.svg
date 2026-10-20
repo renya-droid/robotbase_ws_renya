@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="700" viewBox="0 0 900 700">
+<rect width="900" height="700" fill="#f8fafc"/>
+<g font-family="sans-serif" fill="#172033">
+<text x="450" y="35" font-size="22" text-anchor="middle">Indoor facility — 40 × 30 m</text>
+<text x="450" y="61" font-size="15" text-anchor="middle">8 rooms · 4 m cross corridor · 2.4 m doorways</text>
+<rect x="86.40" y="86.40" width="727.20" height="3.60" fill="#404b5a"/>
+<rect x="86.40" y="630.00" width="727.20" height="3.60" fill="#404b5a"/>
+<rect x="810.00" y="90.00" width="3.60" height="540.00" fill="#404b5a"/>
+<rect x="86.40" y="90.00" width="3.60" height="540.00" fill="#404b5a"/>
+<rect x="90.00" y="396.00" width="59.40" height="3.60" fill="#404b5a"/>
+<rect x="192.60" y="396.00" width="59.40" height="3.60" fill="#404b5a"/>
+<rect x="138.60" y="547.20" width="43.20" height="21.60" fill="#4f709a"/>
+<rect x="252.00" y="396.00" width="59.40" height="3.60" fill="#404b5a"/>
+<rect x="354.60" y="396.00" width="59.40" height="3.60" fill="#404b5a"/>
+<rect x="322.20" y="559.80" width="43.20" height="21.60" fill="#4f709a"/>
+<rect x="486.00" y="396.00" width="59.40" height="3.60" fill="#404b5a"/>
+<rect x="588.60" y="396.00" width="59.40" height="3.60" fill="#404b5a"/>
+<rect x="534.60" y="572.40" width="43.20" height="21.60" fill="#4f709a"/>
+<rect x="648.00" y="396.00" width="59.40" height="3.60" fill="#404b5a"/>
+<rect x="750.60" y="396.00" width="59.40" height="3.60" fill="#404b5a"/>
+<rect x="718.20" y="547.20" width="43.20" height="21.60" fill="#4f709a"/>
+<rect x="250.20" y="399.60" width="3.60" height="230.40" fill="#404b5a"/>
+<rect x="410.40" y="399.60" width="3.60" height="230.40" fill="#404b5a"/>
+<rect x="486.00" y="399.60" width="3.60" height="230.40" fill="#404b5a"/>
+<rect x="646.20" y="399.60" width="3.60" height="230.40" fill="#404b5a"/>
+<rect x="90.00" y="320.40" width="59.40" height="3.60" fill="#404b5a"/>
+<rect x="192.60" y="320.40" width="59.40" height="3.60" fill="#404b5a"/>
+<rect x="138.60" y="151.20" width="43.20" height="21.60" fill="#4f709a"/>
+<rect x="252.00" y="320.40" width="59.40" height="3.60" fill="#404b5a"/>
+<rect x="354.60" y="320.40" width="59.40" height="3.60" fill="#404b5a"/>
+<rect x="322.20" y="138.60" width="43.20" height="21.60" fill="#4f709a"/>
+<rect x="486.00" y="320.40" width="59.40" height="3.60" fill="#404b5a"/>
+<rect x="588.60" y="320.40" width="59.40" height="3.60" fill="#404b5a"/>
+<rect x="534.60" y="126.00" width="43.20" height="21.60" fill="#4f709a"/>
+<rect x="648.00" y="320.40" width="59.40" height="3.60" fill="#404b5a"/>
+<rect x="750.60" y="320.40" width="59.40" height="3.60" fill="#404b5a"/>
+<rect x="718.20" y="151.20" width="43.20" height="21.60" fill="#4f709a"/>
+<rect x="250.20" y="90.00" width="3.60" height="230.40" fill="#404b5a"/>
+<rect x="410.40" y="90.00" width="3.60" height="230.40" fill="#404b5a"/>
+<rect x="486.00" y="90.00" width="3.60" height="230.40" fill="#404b5a"/>
+<rect x="646.20" y="90.00" width="3.60" height="230.40" fill="#404b5a"/>
+<text x="171.0" y="486" text-anchor="middle" font-size="17">Room 5</text>
+<text x="333.0" y="486" text-anchor="middle" font-size="17">Room 6</text>
+<text x="567.0" y="486" text-anchor="middle" font-size="17">Room 7</text>
+<text x="729.0" y="486" text-anchor="middle" font-size="17">Room 8</text>
+<text x="171.0" y="234" text-anchor="middle" font-size="17">Room 1</text>
+<text x="333.0" y="234" text-anchor="middle" font-size="17">Room 2</text>
+<text x="567.0" y="234" text-anchor="middle" font-size="17">Room 3</text>
+<text x="729.0" y="234" text-anchor="middle" font-size="17">Room 4</text>
+<circle cx="450" cy="360" r="8" fill="#198754"/>
+<text x="465" y="350" font-size="15">Spawn (0, 0)</text>
+<text x="450" y="670" text-anchor="middle" font-size="14">Walls and furniture use the same geometry as the Gazebo world and Nav2 map.</text>
+</g></svg>

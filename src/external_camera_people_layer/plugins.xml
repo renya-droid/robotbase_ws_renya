@@ -1,0 +1,6 @@
+<library path="external_camera_people_layer">
+  <class name="external_camera_people_layer::PeopleLayer"
+    type="external_camera_people_layer::PeopleLayer" base_class_type="nav2_costmap_2d::Layer">
+    <description>Snapshot-based, finite radial human costs with steady-clock expiry.</description>
+  </class>
+</library>

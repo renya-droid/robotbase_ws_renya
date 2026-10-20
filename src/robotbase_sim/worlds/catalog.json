@@ -1,0 +1,23 @@
+[
+  {
+    "id": "test_arena",
+    "label": "標準試験場（約12 × 12 m）",
+    "world": "worlds/test_arena.sdf",
+    "map": "maps/test_arena.yaml",
+    "spawn": [0.0, 0.0, 0.0]
+  },
+  {
+    "id": "indoor_facility",
+    "label": "屋内施設（40 × 30 m、十字廊下・8部屋）",
+    "world": "worlds/indoor_facility.sdf",
+    "map": "maps/indoor_facility/map.yaml",
+    "spawn": [0.0, 0.0, 0.0]
+  },
+  {
+    "id": "room_360x270",
+    "label": "部屋（3.60 × 2.70 m）",
+    "world": "worlds/room_360x270.sdf",
+    "map": "maps/room_360x270/room.yaml",
+    "spawn": [1.8, 1.35, 0.0]
+  }
+]

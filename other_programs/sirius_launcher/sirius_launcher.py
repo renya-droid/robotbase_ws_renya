@@ -3,16 +3,18 @@
 
 import os
 import signal
+import shlex
 import subprocess
 import sys
 import psutil
-from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QPushButton
-from PySide6.QtCore import QTimer, QEvent
+from PySide6.QtWidgets import QApplication, QInputDialog, QMainWindow, QMessageBox, QPushButton
+from PySide6.QtCore import QTimer, QEvent, QProcess
 
 from keepout_editor import KeepoutEditor
 from alias_parser import parse_bash_aliases
 from ui_components import LaunchButtonUI, MainWindowUI
 from process_manager import ProcessManager
+from simulation_worlds import load_worlds
 from robot_config import (
     ALIAS_FILE,
     DISPLAY_NAME,
@@ -44,6 +46,7 @@ class LaunchButton(LaunchButtonUI):
         self.tab_index = tab_index
         self.command = command
         self.process_manager = ProcessManager(name, command)
+        self.prepare_launch = None
         
         # ボタンのイベント接続
         self.launch_btn.clicked.connect(self.launch)
@@ -100,11 +103,15 @@ class LaunchButton(LaunchButtonUI):
                     )
             return
             
+        if self.prepare_launch is not None and not self.prepare_launch(self):
+            return False
         if self.process_manager.launch():
             QTimer.singleShot(1500, self.load_pid)
             print(f"起動: {self.name}")
+            return True
         else:
             QMessageBox.critical(self, "エラー", f"起動に失敗しました: {self.name}")
+            return False
     
     def load_pid(self, retry_count=0):
         """PIDファイルからプロセスIDを読み込む"""
@@ -173,6 +180,9 @@ class RobotLauncher(QMainWindow):
         self.buttons = []
         self.button_map = {}
         self.presets = []
+        self.preset_queue = []
+        self.preset_probe = None
+        self.preset_generation = 0
         self.sim_ros_domain_id = SIM_ROS_DOMAIN_ID
         self.original_tab_names = {} # index -> name
         self.setup_ui()
@@ -265,6 +275,8 @@ class RobotLauncher(QMainWindow):
         )
         if answer != QMessageBox.Yes:
             return
+
+        self.cancel_preset()
 
         script = WORKSPACE / 'bash' / 'startup_bash' / 'stop_simulation.sh'
         cleanup_environment = os.environ.copy()
@@ -367,6 +379,7 @@ class RobotLauncher(QMainWindow):
     def reload_launcher(self):
         """エイリアスファイルを再パースしてGUIを再構築（実行中のプロセスはそのまま維持）"""
         print("🔄 エイリアス設定を再読み込み中...")
+        self.cancel_preset()
         
         # 1. 内部のボタンマップ等をクリア
         self.buttons = []
@@ -391,20 +404,90 @@ class RobotLauncher(QMainWindow):
         self.preset_layout.addWidget(preset_btn)
     
     def launch_preset(self, preset_name, items):
-        """プリセットの複数コマンドを同時起動"""
+        """Launch dependents only after Gazebo has passed its startup checks."""
+        if self.preset_queue or self.preset_probe is not None:
+            QMessageBox.information(self, '起動準備中', '現在のプリセットの起動完了をお待ちください。')
+            return
         print(f"プリセット起動: {preset_name}")
-        import time
-        for item in items:
-            if item in self.button_map:
-                button = self.button_map[item]
-                # 起動中でない場合のみ起動
-                if not button.process_manager.is_running():
-                    button.launch()
-                    time.sleep(0.5)
-                else:
-                    print(f"  スキップ: {item} (既に起動中)")
-            else:
-                print(f"  エラー: {item} が見つかりません")
+        self.preset_queue = list(items)
+        self.advance_preset()
+
+    def cancel_preset(self):
+        self.preset_generation += 1
+        self.preset_queue = []
+        probe, self.preset_probe = self.preset_probe, None
+        if probe is not None:
+            probe.kill()
+
+    def advance_preset(self):
+        if not self.preset_queue:
+            return
+        item = self.preset_queue.pop(0)
+        button = self.button_map.get(item)
+        if button is None:
+            self.preset_queue = []
+            return
+        if not button.process_manager.is_running():
+            if button.launch() is False:
+                self.cancel_preset()
+                return
+        if item == f'{ROBOT_ID}_sim' or item.startswith(f'{ROBOT_ID}_sim_'):
+            self.wait_for_simulation()
+        else:
+            generation = self.preset_generation
+            QTimer.singleShot(200, lambda: self.advance_preset()
+                if generation == self.preset_generation else None)
+
+    def wait_for_simulation(self):
+        probe = QProcess(self)
+        self.preset_probe = probe
+        probe.setProcessChannelMode(QProcess.MergedChannels)
+        command = ' && '.join([
+            'source ' + shlex.quote(str(WORKSPACE / 'bash/activate_koko_sim_env.sh')),
+            'source ' + shlex.quote(str(WORKSPACE / 'install/setup.bash')),
+            'exec /usr/bin/python3 ' + shlex.quote(str(WORKSPACE / 'bash/helpers/wait_for_sim.py')),
+        ])
+        probe.finished.connect(lambda code, _status: self.simulation_ready(probe, code))
+        probe.errorOccurred.connect(lambda error: self.simulation_ready(probe, -1)
+            if error == QProcess.FailedToStart else None)
+        self.runtime_info_label.setText('Gazebo起動待ち：/clockの進行と/odomを確認してからNav2・RVizを起動します。')
+        probe.start('/bin/bash', ['-c', command])
+
+    def simulation_ready(self, probe, code):
+        if self.preset_probe is not probe:
+            probe.deleteLater()
+            return
+        self.preset_probe = None
+        output = bytes(probe.readAllStandardOutput()).decode(errors='replace').strip()
+        probe.deleteLater()
+        self.runtime_info_label.setText(output or 'Gazeboの準備確認に失敗しました。')
+        if code == 0:
+            self.advance_preset()
+        else:
+            self.preset_queue = []
+            QMessageBox.warning(self, 'シミュレーション起動中止', output or 'Gazeboの起動確認に失敗しました。')
+
+    def closeEvent(self, event):
+        self.cancel_preset()
+        super().closeEvent(event)
+
+    def prepare_simulation_launch(self, button):
+        """Choose before launching so the readiness timeout excludes user input."""
+        try:
+            worlds = load_worlds()
+        except (OSError, ValueError) as error:
+            self.cancel_preset()
+            QMessageBox.warning(self, 'ワールドを読み込めません', str(error))
+            return False
+        labels = [world['label'] for world in worlds]
+        label, accepted = QInputDialog.getItem(
+            self, 'シミュレータのワールド', '走行する環境を選択してください', labels, 0, False)
+        if not accepted:
+            self.cancel_preset()
+            return False
+        world = worlds[labels.index(label)]
+        button.process_manager.command = button.command + ' --world-id ' + shlex.quote(world['id'])
+        return True
     
     def add_button(self, layout, name, command, description, group_widget=None):
         """ボタンを追加"""
@@ -418,6 +501,8 @@ class RobotLauncher(QMainWindow):
                     break
                 parent = parent.parentWidget()
         button = LaunchButton(name, command, description, tab_widget=self.tab_widget, tab_index=tab_index)
+        if name == f'{ROBOT_ID}_sim':
+            button.prepare_launch = self.prepare_simulation_launch
         layout.addWidget(button)
         self.buttons.append(button)
         self.button_map[name] = button

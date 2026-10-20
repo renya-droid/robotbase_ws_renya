@@ -1,0 +1,281 @@
+"""Continuous sections must preserve progress, stop tasks and goal ownership."""
+
+from concurrent.futures import Future
+from types import SimpleNamespace
+import xml.etree.ElementTree as ET
+
+from action_msgs.msg import GoalStatus
+from nav2_msgs.action import NavigateThroughPoses
+import pytest
+from rclpy.time import Time as RosTime
+
+import robotbase_waypoint.waypoint_follow as module
+from robotbase_waypoint.waypoint_follow import navigation_segment_end, WaypointFollower
+from robotbase_waypoint.waypoint_follow import split_ambiguous_section
+from robotbase_waypoint.waypoint_io import Waypoint
+
+
+def wp(number, *, stop=False, wait_time=0.0, person_area=False, threshold=-1.0):
+    """Place ordered points two metres apart on a straight route."""
+    return Waypoint(number, float(number * 2), 0.0, 0.0, threshold,
+                    stop, wait_time, person_area)
+
+
+class Handle:
+    """Action handle whose acceptance/result/cancellation can arrive separately."""
+
+    accepted = True
+
+    def __init__(self, goal_id):
+        self.goal_id = goal_id
+        self.result = Future()
+        self.cancel = Future()
+        self.cancel_calls = 0
+
+    def get_result_async(self):
+        return self.result
+
+    def cancel_goal_async(self):
+        self.cancel_calls += 1
+        return self.cancel
+
+
+@pytest.fixture
+def follower():
+    """Exercise the real state machine with deterministic action transports."""
+    node = WaypointFollower.__new__(WaypointFollower)
+    node._init_shutdown_state()
+    node.navigation_mode = 'through_poses'
+    node.navigation_only = False
+    node.single_goal_recovery = False
+    node._bt_directory = None
+    node.manual_paused = False
+    node.manual_pause_started_at = None
+    node.waypoints = [wp(1), wp(2), wp(3)]
+    node.index = 0
+    node.loop = False
+    node.default_threshold = 1.0
+    node.precise_threshold = .35
+    node.stop_duration = 5.0
+    node.stop_on_failure = False
+    node.person_area_cancel_timeout_sec = 3.0
+    node.person_area_zero_settle_sec = .5
+    node.map_frame = 'map'
+    node.base_frame = 'robot/base_footprint'
+    node.position = (0.0, 0.0)
+    node.tf_buffer = SimpleNamespace(lookup_transform=lambda *args: SimpleNamespace(
+        transform=SimpleNamespace(translation=SimpleNamespace(
+            x=node.position[0], y=node.position[1]))))
+    node.goal_handle = node.goal_result_future = None
+    node.goal_serial = 0
+    node.transition_in_progress = False
+    node.cancel_transition_generation = 0
+    node.active_cancel_transition_generation = None
+    node.person_area_cancel_started_at = None
+    node.person_area_stop_pending = False
+    node.person_area_stop_started_at = None
+    node.person_area_stop_starts_search = False
+    node.holding_stop = False
+    node.waiting_until = None
+    node.waiting_finishes_route = False
+    node.person_search_waiting = False
+    node.person_search_faulted = False
+    node.finished = False
+    node.now = 0.0
+    node.get_clock = lambda: SimpleNamespace(now=lambda: RosTime(seconds=node.now))
+    node.events = []
+    node.get_logger = lambda: SimpleNamespace(
+        info=lambda text, **kw: node.events.append(('info', text)),
+        warning=lambda text, **kw: node.events.append(('warning', text)),
+        error=lambda text, **kw: node.events.append(('error', text)))
+    node.stop_publisher = SimpleNamespace(
+        publish=lambda msg: node.events.append(('stop', msg.data)))
+    node.safety_cmd_vel_publisher = SimpleNamespace(
+        publish=lambda msg: node.events.append(('zero', msg.linear.x)))
+    node.sent = []
+
+    def send(goal, *, goal_uuid, feedback_callback):
+        future = Future()
+        node.sent.append(SimpleNamespace(goal=goal, future=future, goal_id=goal_uuid,
+                                         feedback=feedback_callback))
+        return future
+
+    node.action_client = SimpleNamespace(send_goal_async=send)
+    node._through_poses_tree = lambda: '/tmp/test_through.xml'
+    yield node
+    if node._bt_directory is not None:
+        node._bt_directory.cleanup()
+
+
+def accept(sent):
+    """Resolve one request into a live Nav2 goal."""
+    handle = Handle(sent.goal_id)
+    sent.future.set_result(handle)
+    return handle
+
+
+def feedback(sent, remaining):
+    sent.feedback(SimpleNamespace(feedback=SimpleNamespace(
+        number_of_poses_remaining=remaining)))
+
+
+def finish(handle, status=GoalStatus.STATUS_SUCCEEDED):
+    handle.result.set_result(SimpleNamespace(status=status))
+
+
+def test_sections_include_stop_and_person_endpoints_and_respect_navigation_only():
+    points = [wp(1), wp(2, stop=True), wp(3), wp(4, person_area=True), wp(5)]
+    assert navigation_segment_end(points, 0) == 1
+    assert navigation_segment_end(points, 1) == 1
+    assert navigation_segment_end(points, 2) == 3
+    assert navigation_segment_end(points, 4) == 4
+    assert navigation_segment_end(points, 2, navigation_only=True) == 4
+
+
+def test_straight_section_stays_continuous_and_hairpin_is_split():
+    points = [wp(i) for i in range(1, 7)]
+    assert split_ambiguous_section(points, 0, 5) == 5
+    points = [Waypoint(i + 1, x, 0., 0.) for i, x in enumerate((0., 2., 4., 6., 4., 2.))]
+    assert split_ambiguous_section(points, 0, 5) == 3
+    assert split_ambiguous_section(points, 4, 5) == 5
+
+
+def test_large_smooth_loop_does_not_end_near_early_part_of_path():
+    import math
+    points = [Waypoint(i + 1, 5 * math.cos(i * math.pi / 12),
+                       5 * math.sin(i * math.pi / 12), 0.) for i in range(25)]
+    assert split_ambiguous_section(points, 0, 24) == 12
+
+
+def test_hairpin_sections_preserve_order_and_wait_marker(follower):
+    follower.waypoints = [Waypoint(i + 1, x, 0., 0., wait_time=2.0 if i == 5 else 0.)
+                          for i, x in enumerate((0., 2., 4., 6., 4., 2.))]
+    follower._send_current_goal()
+    assert [p.pose.position.x for p in follower.sent[0].goal.poses] == [0., 2., 4., 6.]
+    follower.position = (6., 0.)
+    finish(accept(follower.sent[0]))
+    assert follower.index == 4
+    assert [p.pose.position.x for p in follower.sent[1].goal.poses] == [4., 2.]
+    follower.position = (2., 0.)
+    finish(accept(follower.sent[1]))
+    assert follower.index == 5
+    assert follower.waiting_until is not None
+
+
+def test_midpoint_feedback_does_not_resend_or_cancel_or_command_zero(follower):
+    follower.waypoints = [wp(1), wp(2), wp(3, wait_time=2.0), wp(4)]
+    follower._send_current_goal()
+    sent = follower.sent[0]
+    handle = accept(sent)
+    assert isinstance(sent.goal, NavigateThroughPoses.Goal)
+    assert [pose.pose.position.x for pose in sent.goal.poses] == [2., 4., 6.]
+    feedback(sent, 2)
+    assert follower.index == 1
+    feedback(sent, 3)  # Old/reordered feedback cannot move backwards.
+    assert follower.index == 1
+    follower._timer_callback()  # No TF lookup is needed for intermediate points.
+    assert len(follower.sent) == 1
+    assert handle.cancel_calls == 0
+    assert not any(name in ('stop', 'zero') for name, _ in follower.events)
+
+
+def test_section_success_waits_then_starts_next_section(follower):
+    follower.waypoints = [wp(1), wp(2, wait_time=3.0), wp(3), wp(4)]
+    follower._send_current_goal()
+    handle = accept(follower.sent[0])
+    finish(handle)
+    assert follower.index == 1
+    assert follower.holding_stop
+    assert follower.waiting_until is not None
+    assert len(follower.sent) == 1
+    follower.now = 3.1
+    follower._timer_callback()
+    assert follower.index == 2
+    assert not follower.holding_stop
+    assert [pose.pose.position.x for pose in follower.sent[-1].goal.poses] == [6., 8.]
+
+
+def test_starting_in_middle_keeps_only_remaining_points(follower):
+    follower.waypoints = [wp(1), wp(2), wp(3), wp(4)]
+    follower.index = 2
+    follower._send_current_goal()
+    assert [pose.pose.position.x for pose in follower.sent[0].goal.poses] == [6., 8.]
+    feedback(follower.sent[0], 1)
+    assert follower.index == 3
+
+
+def test_loop_restarts_without_immediate_success_at_current_endpoint(follower):
+    follower.loop = True
+    follower._send_current_goal()
+    follower.position = (6., 0.)
+    finish(accept(follower.sent[0]))
+    # Return to the start first; re-sending all poses would end at the
+    # robot's current position and could succeed without traversing the lap.
+    assert [pose.pose.position.x for pose in follower.sent[1].goal.poses] == [2.]
+    follower.position = (2., 0.)
+    finish(accept(follower.sent[1]))
+    assert [pose.pose.position.x for pose in follower.sent[2].goal.poses] == [4., 6.]
+
+
+def test_closed_section_keeps_all_points_in_order(follower):
+    follower.waypoints = [wp(1), wp(2), Waypoint(3, 0., 0., 0.)]
+    follower._send_current_goal()
+    assert [pose.pose.position.x for pose in follower.sent[0].goal.poses] == [2., 4.]
+    follower.position = (4., 0.)
+    finish(accept(follower.sent[0]))
+    assert [pose.pose.position.x for pose in follower.sent[1].goal.poses] == [0.]
+
+
+def test_person_search_is_started_at_section_end_and_blocks_next_section(follower):
+    follower.waypoints = [wp(1), wp(2, person_area=True), wp(3)]
+    follower._start_person_search = lambda: follower.events.append(('search', follower.index))
+    follower._send_current_goal()
+    finish(accept(follower.sent[0]))
+    assert follower.index == 1
+    assert ('search', 1) in follower.events
+    assert len(follower.sent) == 1
+
+
+def test_batch_failure_retries_next_point_without_skipping_task(follower):
+    follower.waypoints = [wp(1), wp(2, person_area=True), wp(3)]
+    follower._send_current_goal()
+    finish(accept(follower.sent[0]), GoalStatus.STATUS_ABORTED)
+    assert follower.index == 0
+    assert len(follower.sent[1].goal.poses) == 1
+    finish(accept(follower.sent[1]), GoalStatus.STATUS_ABORTED)
+    assert follower.index == 1
+    assert follower.sent[-1].goal.poses[0].pose.position.x == 4.0
+    assert len(follower.sent[-1].goal.poses) == 1
+
+
+def test_manual_pause_owns_late_acceptance_and_resumes_unpassed_points(follower, monkeypatch):
+    now = [0.0]
+    monkeypatch.setattr(module, 'monotonic', lambda: now[0])
+    follower._send_current_goal()
+    sent = follower.sent[0]
+    feedback(sent, 2)
+    response = follower._set_paused(SimpleNamespace(data=True), SimpleNamespace())
+    assert response.success and follower.manual_paused
+    handle = accept(sent)  # Pause was requested before the server accepted.
+    follower._timer_callback()
+    assert handle.cancel_calls == 1
+    response = follower._set_paused(SimpleNamespace(data=False), SimpleNamespace())
+    assert not response.success
+    finish(handle, GoalStatus.STATUS_CANCELED)
+    now[0] = 1.0
+    follower._timer_callback()
+    response = follower._set_paused(SimpleNamespace(data=False), SimpleNamespace())
+    assert response.success and not follower.manual_paused
+    assert [pose.pose.position.x for pose in follower.sent[-1].goal.poses] == [4., 6.]
+    feedback(sent, 1)  # A late message from the cancelled goal is harmless.
+    assert follower.index == 1
+
+
+def test_current_tree_checks_passage_outside_rate_controller(follower):
+    del follower._through_poses_tree
+    path = follower._through_poses_tree()
+    tree = ET.parse(path)
+    passage = tree.find('.//PipelineSequence/RemoveTraversedGoals')
+    assert passage is not None and 'radius' not in passage.attrib
+    assert tree.find('.//RemovePassedGoals') is None
+    assert tree.find('.//PathLongerOnApproach').get('length_factor') == '3.0'

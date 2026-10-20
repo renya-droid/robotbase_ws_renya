@@ -13,6 +13,12 @@ unalias koko_nav2_sim 2>/dev/null || true
 # PRESET: 自律移動（sim）
 # PRESET_ITEMS: koko_sim,koko_nav2_sim_map,koko_rviz_sim
 
+# PRESET: 人位置Layer・ワールド選択（sim）
+# PRESET_ITEMS: koko_sim,koko_nav2_sim_people_world,koko_rviz_sim
+
+# PRESET: 人位置Layer付き自律移動（sim）
+# PRESET_ITEMS: koko_sim_room,koko_nav2_sim_people,koko_rviz_sim
+
 # PRESET: SLAMしながら自律移動（sim）
 # PRESET_ITEMS: koko_sim,koko_nav2_sim_slam,koko_rviz_sim
 
@@ -49,6 +55,9 @@ alias koko_imu='koko_src && ros2 launch robotbase_bringup imu.launch.py tf_prefi
 # Gazebo Sim本体（VLP16 + IMU、RViz/SLAM/Nav2は起動しない）
 alias koko_sim='koko_sim_src && bash "${_KOKO_WS}/bash/startup_bash/start_sim.sh" tf_prefix:=${ROBOTBASE_TF_PREFIX}'
 
+# 自分の部屋：内寸 横3.60 m × 縦2.70 m、外周壁のみ
+alias koko_sim_room='koko_sim_src && bash "${_KOKO_WS}/bash/startup_bash/start_sim.sh" --world-id room_360x270 tf_prefix:=${ROBOTBASE_TF_PREFIX}'
+
 # RViz2のみ起動（Gazeboクロック、SLAM/Nav2は起動しない）
 alias koko_rviz_sim='koko_sim_src && ros2 launch robotbase_sim rviz.launch.py tf_prefix:=${ROBOTBASE_TF_PREFIX}'
 
@@ -57,6 +66,12 @@ alias koko_slamtoolbox_sim='koko_sim_src && ros2 launch robotbase_sim mapping.la
 
 # 一覧から既存地図を選ぶNav2（koko_simを先に起動）
 alias koko_nav2_sim_map='koko_sim_env && bash "${_KOKO_WS}/bash/startup_bash/nav2_bringup_sim.sh"'
+
+# 人位置Layer付きNav2（横3.60 m × 縦2.70 mの部屋。通常のNav2とは同時起動しない）
+alias koko_nav2_sim_people='koko_sim_env && bash "${_KOKO_WS}/bash/startup_bash/nav2_bringup_sim.sh" --people-room'
+
+# 選択したワールドに対応する地図で人位置Layer付きNav2を起動
+alias koko_nav2_sim_people_world='koko_sim_env && bash "${_KOKO_WS}/bash/startup_bash/nav2_bringup_sim.sh" --people --world-current'
 
 # 地図なし: SLAM ToolboxとNav2を同時起動（koko_simを先に起動）
 alias koko_nav2_sim_slam='koko_sim_src && ros2 launch robotbase_sim navigation_slam.launch.py tf_prefix:=${ROBOTBASE_TF_PREFIX}'

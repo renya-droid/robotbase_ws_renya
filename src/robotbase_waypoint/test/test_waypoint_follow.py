@@ -72,6 +72,8 @@ class FakeClock:
 def make_person_search_follower(*, now=0.0, waiting=True):
     """Create a callback-only follower without ROS publishers or navigation."""
     follower = WaypointFollower.__new__(WaypointFollower)
+    follower.navigation_mode = 'to_pose'
+    follower.manual_paused = False
     follower.clock = FakeClock(now)
     follower.get_clock = lambda: follower.clock
     follower.index = 0
@@ -126,6 +128,8 @@ def test_arrival_threshold_prefers_waypoint_value_then_default():
 def make_timer_follower(waypoints):
     """Create the state needed to exercise one distance-check timer tick."""
     follower = WaypointFollower.__new__(WaypointFollower)
+    follower.navigation_mode = 'to_pose'
+    follower.manual_paused = False
     follower.index = 0
     follower.waypoints = waypoints
     follower.default_threshold = 1.0
@@ -192,6 +196,8 @@ def test_timer_routes_stop_and_wait_waypoints_to_stopping_arrival():
 def test_advance_sends_next_goal_without_cancel_or_zero():
     """A continuous transition only advances state and dispatches the next goal."""
     follower = WaypointFollower.__new__(WaypointFollower)
+    follower.navigation_mode = 'to_pose'
+    follower.manual_paused = False
     follower.index = 0
     follower.goal_handle = object()
     follower.goal_result_future = object()
@@ -222,6 +228,8 @@ def test_stop_and_wait_arrivals_keep_cancel_transition():
             make_waypoint(wait_time=2.0),
     ):
         follower = WaypointFollower.__new__(WaypointFollower)
+        follower.navigation_mode = 'to_pose'
+        follower.manual_paused = False
         follower.index = 0
         follower.waypoints = [waypoint, make_waypoint(number=2)]
         follower.goal_handle = object()
@@ -248,6 +256,8 @@ def test_stop_and_wait_arrivals_keep_cancel_transition():
 def test_final_arrival_and_loop_restart_are_preserved():
     """Completing a loop resets to waypoint one and dispatches it again."""
     follower = WaypointFollower.__new__(WaypointFollower)
+    follower.navigation_mode = 'to_pose'
+    follower.manual_paused = False
     follower.loop = True
     follower.index = 2
     follower.goal_handle = object()
@@ -295,6 +305,8 @@ def test_final_waypoint_waits_for_current_nav2_success():
 def test_delayed_old_goal_response_cannot_replace_current_goal():
     """A late response records ownership but cannot overwrite current state."""
     follower = WaypointFollower.__new__(WaypointFollower)
+    follower.navigation_mode = 'to_pose'
+    follower.manual_paused = False
     current_handle = object()
     current_result = object()
     follower.goal_serial = 2
@@ -324,6 +336,8 @@ def test_delayed_old_goal_response_cannot_replace_current_goal():
 def test_delayed_old_goal_result_cannot_advance_waypoint():
     """A stale successful result is observed without triggering arrival."""
     follower = WaypointFollower.__new__(WaypointFollower)
+    follower.navigation_mode = 'to_pose'
+    follower.manual_paused = False
     follower.goal_serial = 2
     follower.goal_records = {1: GoalRecord()}
     follower.finished = False
@@ -343,6 +357,8 @@ def test_delayed_old_goal_result_cannot_advance_waypoint():
 def test_person_search_does_not_advance_when_stop_release_fails():
     """Keep navigation stopped if the person-search stop lock cannot be released."""
     follower = WaypointFollower.__new__(WaypointFollower)
+    follower.navigation_mode = 'to_pose'
+    follower.manual_paused = False
     follower.index = 0
     follower.waypoints = [
         make_waypoint(person_area=True),

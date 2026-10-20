@@ -264,6 +264,7 @@ behavior_server:
 
 bt_navigator:
   ros__parameters:
+    plugin_lib_names: [robotbase_remove_traversed_goals_bt_node]
     use_sim_time: true
     global_frame: map
     robot_base_frame: base_footprint

@@ -110,7 +110,7 @@ for pid_file in "${launcher_prefix}"*.pid; do
     button_name="${pid_file#${launcher_prefix}}"
     button_name="${button_name%.pid}"
     case "${button_name}" in
-        koko_sim|koko_*_sim|koko_*_sim_*)
+        koko_sim|koko_sim_*|koko_*_sim|koko_*_sim_*)
             launcher_pid="$(sed -n '1p' "${pid_file}" 2>/dev/null)"
             if [[ "${launcher_pid}" =~ ^[0-9]+$ ]] && \
                ! is_protected "${launcher_pid}" && \

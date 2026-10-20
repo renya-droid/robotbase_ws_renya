@@ -66,6 +66,12 @@ koko_waypoint_record_sim
 
 実機ROS graphはDomain 54、シミュレーションは既定Domain 67に分離しています。ランチャーの「シミュレーション ROS_DOMAIN_ID」で0〜232を選んで保存でき、`robot.env`へ永続化されます。`koko_*_sim`コマンドは保存値を自動的に使うため、実機や別PCの`/clock`がRVizへ混入しません。Gazeboを再起動するときは、ランチャー上部の赤い「シミュレーション一式を終了」ボタンで旧Gazebo・RViz・Nav2・SLAMを終了してください。`koko_sim`は二重起動や残存ノードを検出すると、安全のため起動を拒否します。
 
+## 外部カメラの人位置をシミュレーションへ反映
+
+外部カメラのPoseArrayをGlobal Costmapへ追加するシミュレーション専用の任意機能は、
+[外部カメラ人位置Layer](src/external_camera_people_layer/README.md) を参照してください。
+手動の人位置配信、起動方法、コスト消去・時刻の仕様、Gazebo上の検証結果をまとめています。
+
 ## 速度指令の経路
 
 ```text

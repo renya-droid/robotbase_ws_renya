@@ -5,6 +5,11 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 WORKSPACE_ROOT="$(cd -- "${SCRIPT_DIR}/../.." && pwd)"
 LOCK_FILE="/tmp/${ROBOTBASE_ID:-koko}_sim_domain_${ROS_DOMAIN_ID:-unset}.lock"
 
+# Listing worlds never starts ROS or takes the simulator lock.
+if [ "${1:-}" = "--list-worlds" ]; then
+    exec /usr/bin/python3 "${WORKSPACE_ROOT}/other_programs/sirius_launcher/simulation_worlds.py" --list
+fi
+
 # Keep this descriptor open for the complete ros2 launch lifetime.
 exec 9>"${LOCK_FILE}"
 if ! flock -n 9; then
@@ -13,7 +18,7 @@ if ! flock -n 9; then
     exit 2
 fi
 
-clock_publishers="$(ros2 topic info /clock 2>/dev/null | sed -n 's/^Publisher count: //p')"
+clock_publishers="$(ros2 topic info /clock --no-daemon --spin-time 1 2>/dev/null | sed -n 's/^Publisher count: //p')"
 if [ "${clock_publishers:-0}" -gt 0 ]; then
     echo "エラー: /clock publisherが既に${clock_publishers}個あります。" >&2
     echo "Gazeboを重ねて起動すると時刻が巻き戻り、TF_OLD_DATAやRViz異常終了の原因になります。" >&2
@@ -21,7 +26,7 @@ if [ "${clock_publishers:-0}" -gt 0 ]; then
     exit 3
 fi
 
-existing_nodes="$(ros2 node list 2>/dev/null || true)"
+existing_nodes="$(ros2 node list --no-daemon --spin-time 1 2>/dev/null || true)"
 if printf '%s\n' "${existing_nodes}" | grep -Eq '^/(koko_rviz|robotbase_gz_bridge|robot_state_publisher|slam_toolbox|controller_server)$'; then
     echo "エラー: 前回のシミュレーション用RViz/Nav2/SLAMノードが残っています。" >&2
     echo "時刻巻き戻りを防ぐため、関連端末を終了してからkoko_simを起動してください。" >&2
@@ -30,5 +35,5 @@ fi
 
 cd -- "${WORKSPACE_ROOT}" || exit 1
 # shellcheck disable=SC1091
-source install/setup.bash
-exec ros2 launch robotbase_sim sim.launch.py "$@"
+source install/setup.bash || exit 1
+exec /usr/bin/python3 "${WORKSPACE_ROOT}/other_programs/sirius_launcher/simulation_worlds.py" "$@"

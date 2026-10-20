@@ -20,7 +20,7 @@ from nav2_common.launch import ReplaceString
 def generate_launch_description():
     pkg_share = get_package_share_directory('robotbase_sim')
     bringup_share = get_package_share_directory('robotbase_bringup')
-    world = os.path.join(pkg_share, 'worlds', 'test_arena.sdf')
+    world = LaunchConfiguration('world')
     model = os.path.join(pkg_share, 'models', 'robotbase.sdf')
     urdf = os.path.join(bringup_share, 'urdf', 'robotbase.urdf')
     params_root = os.environ.get(
@@ -87,7 +87,8 @@ def generate_launch_description():
         arguments=[
             '-file', configured_model,
             '-name', tf_prefix,
-            '-x', '0.0', '-y', '0.0', '-z', '0.01', '-Y', '0.0',
+            '-x', LaunchConfiguration('spawn_x'), '-y', LaunchConfiguration('spawn_y'),
+            '-z', '0.01', '-Y', LaunchConfiguration('spawn_yaw'),
         ],
     )
 
@@ -154,6 +155,10 @@ def generate_launch_description():
             'gui', default_value='true',
             description='Start the Gazebo GUI. Set false for a headless run.'),
         DeclareLaunchArgument('tf_prefix', default_value='robot'),
+        DeclareLaunchArgument('world', default_value=os.path.join(pkg_share, 'worlds', 'test_arena.sdf')),
+        DeclareLaunchArgument('spawn_x', default_value='0.0'),
+        DeclareLaunchArgument('spawn_y', default_value='0.0'),
+        DeclareLaunchArgument('spawn_yaw', default_value='0.0'),
         DeclareLaunchArgument(
             'twist_mux_params_file',
             default_value=os.path.join(params_root, 'sim', 'twist_mux.yaml')),
