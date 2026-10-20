@@ -9,7 +9,12 @@ import psutil
 from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QPushButton
 from PySide6.QtCore import QTimer, QEvent
 
-from keepout_editor import KeepoutEditor
+try:
+    from keepout_editor import KeepoutEditor
+except ModuleNotFoundError as error:
+    if error.name != "keepout_editor_app":
+        raise
+    KeepoutEditor = None
 from alias_parser import parse_bash_aliases
 from ui_components import LaunchButtonUI, MainWindowUI
 from process_manager import ProcessManager
@@ -330,9 +335,10 @@ class RobotLauncher(QMainWindow):
             QMessageBox.warning(self, "警告", "エイリアスが見つかりませんでした。")
             return
 
-        keepout_btn = QPushButton("進入禁止領域を編集")
-        keepout_btn.clicked.connect(self.open_keepout_editor)
-        self.preset_layout.addWidget(keepout_btn)
+        if KeepoutEditor is not None:
+            keepout_btn = QPushButton("進入禁止領域を編集")
+            keepout_btn.clicked.connect(self.open_keepout_editor)
+            self.preset_layout.addWidget(keepout_btn)
 
         # プリセットボタンを作成
         for preset_name, items in presets:

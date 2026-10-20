@@ -87,6 +87,35 @@ def test_launch_keepout_disabled_enabled_and_wrong_map(app, map_file):
         mod.configure_keepout(context)
 
 
+
+def test_relocated_workspace_keeps_matching_map_mask(app, tmp_path):
+    from launch import LaunchContext
+    map_dir = tmp_path / 'robotbase_ws_renya' / 'maps_waypoints' / 'maps'
+    map_dir.mkdir(parents=True)
+    image = QImage(100, 80, QImage.Format_RGB32)
+    image.fill(Qt.white)
+    image.save(str(map_dir / 'koko-sim.png'))
+    map_file = map_dir / 'koko-sim.yaml'
+    map_file.write_text(yaml.safe_dump(dict(
+        image='koko-sim.png', resolution=0.05, origin=[-2., -3., 0.])))
+    state_file = settings_path(map_file)
+    state_file.parent.mkdir(parents=True)
+    state_file.write_text(json.dumps(dict(
+        enabled=True,
+        source_map='/home/ren/robotbase_ws_renya/maps_waypoints/maps/koko-sim.yaml',
+        map_metadata=dict(resolution=0.05, origin=[-2., -3., 0.], size=[100, 80]))))
+    (state_file.parent / 'mask.yaml').write_text('image: mask.png\n')
+    path = Path('src/robotbase_bringup/launch/nav2.launch.py')
+    spec = importlib.util.spec_from_file_location('keepout_relocation_test', path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    context = LaunchContext()
+    context.launch_configurations.update(
+        map=str(map_file), localization='amcl',
+        params_file=str(Path('params/sim/nav2.yaml').resolve()), use_sim_time='true')
+    assert len(mod.configure_keepout(context)) == 4
+
+
 def test_editor_button_survives_launcher_reload(app):
     from sirius_launcher import RobotLauncher
     window = RobotLauncher()

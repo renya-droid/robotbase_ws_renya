@@ -87,8 +87,13 @@ while :; do
     echo ""
     echo "Gazebo（koko_sim）を先に起動しておいてください。"
 
+    # Recover missed lifecycle transitions while the launch process runs.
+    bash "${SCRIPT_DIR}/ensure_sim_map_active.sh" &
+    recovery_pid=$!
     ros2 launch robotbase_sim navigation.launch.py \
         map:="$selected_map" \
         tf_prefix:="${ROBOTBASE_TF_PREFIX:-robot}"
+    kill "$recovery_pid" 2>/dev/null || true
+    wait "$recovery_pid" 2>/dev/null || true
 done
 

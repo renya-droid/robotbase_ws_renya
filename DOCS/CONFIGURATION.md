@@ -134,6 +134,35 @@ Nav2とtwist_muxは別コマンドである。実機Nav2試験では `koko_twist
 
 ### Roboteq odometryの平滑化
 
+#### 実機の直進・旋回 odom を比較する
+
+`/odom` は左右エンコーダから距離と向きを計算する。`/odom/filtered` は車輪の前進速度と IMU のヨー角速度を融合する。どちらがずれるか分からない場合は、床上実測と両トピックを同時に比べる。以下のツールは購読だけを行い、モータ指令を送らない。Nav2 の自律走行を止め、手動操作する。開始まで5秒あり、計測時間の前後は車体を静止させる。
+
+1. 床に開始位置と車体の向きを印し、巻尺で約2 mの直線を取る。低速で直進し、**車体中心**の実移動距離を測る。前進と後退をそれぞれ2回以上行う。左右への曲がりも記録する。
+2. 同じ場所で車体の開始向きを印し、車体中心付近で約360°のその場旋回を行う。終了時の向きを床で確認し、時計回り・反時計回りをそれぞれ2回以上行う。壁や人から距離を取る。
+
+2 m 程度の開始線・終了線を目安として用意し、手動終了モードを使う。計測端末で最初の Enter を押してからキーオペで動かし、終了線の近くで `s` を押して停止した後、計測端末に戻って2回目の Enter を押す。停止後の実移動距離を巻尺で測って入力する。指定した距離に正確に止まったと仮定して `--actual-m 2.00` を付けない。床で測るのは毎回、車体の同じ点にする。
+
+```bash
+source /opt/ros/jazzy/setup.bash
+source install/setup.bash
+python3 tools/compare_odometry.py straight --manual
+python3 tools/compare_odometry.py turn --manual
+```
+
+キーオペによる1周の停止位置が安定しない場合は、自動旋回ツールを使う。`/odom/filtered` の角度を見て約1周で止め、停止後に生の `/odom` と融合 odom の角度を表示する。`twist_mux` を起動し、キーオペの速度を `s` で0にしてから実行する。進行中は `/stop` または Ctrl-C で中止できる。床の印で実際の最終方向を必ず確認する。
+
+```bash
+python3 tools/auto_turn_calibration.py right --run
+python3 tools/auto_turn_calibration.py left --run
+```
+
+床で車体前端の中央を測る場合、odom側も同じ点で比較する。URDFの車体前端は `base_link` 原点より前方0.425 mなので、実機でもその寸法なら `--measure-offset-x 0.425` を直進コマンドへ追加する。実寸が異なる場合は左右駆動輪の中心を結ぶ線から、床で使う目印までの前後距離を測って指定する。`--measure-offset-y` は目印が左右中心からずれる場合に使う。指定しない場合は `base_link` 原点を比較する。
+
+旋回では床の印で確認した実際の角度を度単位で入力する。反時計回りは正、時計回りは負。まだ測れない場合は空欄で Enter を押すと両 odom の値だけ表示する。時間で自動終了したい場合は `--manual` を省略し、`--duration` に計測秒数を指定する。ドライバの設定が既定値と異なる場合は `--wheel-circumference` / `--track-width` に実際の値を渡す。
+
+直進の生 `/odom` 距離が実測と違い、左右の結果がそろう場合は `wheel_circumference` を先に校正する。直進距離が合っていて生 `/odom` の旋回角だけ違う場合は `track_width` を校正する。ツールはそれぞれの提案値を表示する。`/odom` は合うが `/odom/filtered` の角度だけ違う場合は IMU の軸方向・角速度・TF を調べる。左右の旋回差や直進時の曲がりが大きい場合は車輪の滑りや左右輪差を調べ、平均値で設定を補正しない。旋回の符号が逆なら `encoder_sign_r/l` を確認する。複数回の結果がそろってから `params/real/roboteq.yaml` を変更する。
+
 Roboteq driverはposeをencoder受信時に積算し、`/odom`のtwistをsteady clock基準のencoder窓から推定する。推定窓は100 msを目標とし、75--150 msの範囲で確定するため、50 Hzのpublish周期の微小な揺れや、serial packetがまとめて届いたときの影響を受けにくい。32 bit encoderのwraparoundを処理し、最大回転数を超える不正なjumpは除外する。encoderを300 ms以上受信しない場合は速度を0へ戻す。
 
 実機設定の`odom_stream_interval_ms: 10`と`odom_publish_hz: 50.0`はそのまま使用する。前者はencoder取得間隔、後者はROS topicの配信周期であり、100 msはtwist推定に使う観測窓である。

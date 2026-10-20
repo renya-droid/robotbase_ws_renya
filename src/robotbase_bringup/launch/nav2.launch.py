@@ -28,7 +28,13 @@ def configure_keepout(context):
     state = json.loads(state_path.read_text())
     if not state.get('enabled', False):
         return []
-    if state.get('source_map') != str(map_path):
+    source_map = Path(state.get('source_map', ''))
+    same_file = source_map == map_path
+    # A copied workspace keeps the map and mask together, but changes HOME.
+    map_location = ('maps_waypoints', 'maps', map_path.name)
+    relocated_file = (tuple(source_map.parts[-3:]) == map_location and
+                      tuple(map_path.parts[-3:]) == map_location)
+    if not (same_file or relocated_file):
         raise RuntimeError('Keepout mask belongs to a different map.')
     meta = yaml.safe_load(map_path.read_text())
     # Match geometry before activating a previously saved mask.
