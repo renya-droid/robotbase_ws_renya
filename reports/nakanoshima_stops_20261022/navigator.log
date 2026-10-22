@@ -1,0 +1,76 @@
+[INFO] [1792644653.383261322] [bt_navigator]: 
+	bt_navigator lifecycle node launched. 
+	Waiting on external lifecycle transitions to activate
+	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[INFO] [1792644653.763221833] [bt_navigator]: Creating
+[INFO] [1792644656.969341915] [bt_navigator]: Configuring
+[INFO] [1792644656.978575621] [bt_navigator]: Creating navigator id navigate_to_pose of type nav2_bt_navigator::NavigateToPoseNavigator
+[WARN] [1792644657.014293351] [bt_navigator]: Error_code parameters were not set. Using default values of: follow_path_error_code compute_path_error_code
+Make sure these match your BT and there are not other sources of error codes youreported to your application
+[INFO] [1792644657.700657975] [bt_navigator]: Creating navigator id navigate_through_poses of type nav2_bt_navigator::NavigateThroughPosesNavigator
+[INFO] [1792644662.873295794] [bt_navigator]: Activating
+[INFO] [1792644663.019155422] [bt_navigator]: Creating bond (bt_navigator) to lifecycle manager.
+[INFO] [1792644684.532010528] [bt_navigator]: Begin navigating from current location through 17 poses to (-1.00, -74.40)
+[ERROR] [1792644777.272560381] [bt_navigator_navigate_through_poses_rclcpp_node]: Failed to get result for follow_path in node halt!
+[INFO] [1792644777.272705415] [bt_navigator]: [navigate_through_poses] [ActionServer] Client requested to cancel the goal. Cancelling.
+[INFO] [1792644777.273015118] [bt_navigator]: Goal canceled
+[INFO] [1792644787.353373109] [bt_navigator]: Begin navigating from current location through 54 poses to (-90.05, -100.40)
+[WARN] [1792644826.673521296] [bt_navigator]: [navigate_through_poses] [ActionServer] Aborting handle.
+[ERROR] [1792644826.673613034] [bt_navigator]: Goal failed
+[INFO] [1792644826.676199991] [bt_navigator]: Begin navigating from current location through 1 poses to (-1.70, -93.95)
+[INFO] [1792644829.666415091] [bt_navigator]: Goal succeeded
+[INFO] [1792644829.669578325] [bt_navigator]: Begin navigating from current location through 50 poses to (-90.05, -100.40)
+[WARN] [1792644866.279781387] [bt_navigator]: [navigate_through_poses] [ActionServer] Aborting handle.
+[ERROR] [1792644866.280053140] [bt_navigator]: Goal failed
+[INFO] [1792644866.282831763] [bt_navigator]: Begin navigating from current location through 1 poses to (-6.70, -109.40)
+[INFO] [1792644867.043051464] [bt_navigator]: Goal succeeded
+[INFO] [1792644867.046544271] [bt_navigator]: Begin navigating from current location through 46 poses to (-90.05, -100.40)
+[WARN] [1792644901.486689743] [bt_navigator]: [navigate_through_poses] [ActionServer] Aborting handle.
+[ERROR] [1792644901.486789595] [bt_navigator]: Goal failed
+[INFO] [1792644901.489322979] [bt_navigator]: Begin navigating from current location through 1 poses to (-9.50, -127.05)
+[ERROR] [1792644904.870214103] [bt_navigator_navigate_through_poses_rclcpp_node]: Failed to get result for compute_path_through_poses in node halt!
+[INFO] [1792644904.870540733] [bt_navigator]: Goal succeeded
+[INFO] [1792644904.874613774] [bt_navigator]: Begin navigating from current location through 42 poses to (-90.05, -100.40)
+[WARN] [1792644937.214981252] [bt_navigator]: [navigate_through_poses] [ActionServer] Aborting handle.
+[ERROR] [1792644937.215113610] [bt_navigator]: Goal failed
+[INFO] [1792644937.217799666] [bt_navigator]: Begin navigating from current location through 1 poses to (-11.15, -144.60)
+[INFO] [1792644942.288080906] [bt_navigator]: Goal succeeded
+[INFO] [1792644942.292189329] [bt_navigator]: Begin navigating from current location through 38 poses to (-90.05, -100.40)
+[WARN] [1792644971.982369126] [bt_navigator]: [navigate_through_poses] [ActionServer] Aborting handle.
+[ERROR] [1792644971.982641212] [bt_navigator]: Goal failed
+[INFO] [1792644971.985439741] [bt_navigator]: Begin navigating from current location through 1 poses to (-15.15, -160.90)
+[INFO] [1792644977.755742932] [bt_navigator]: Goal succeeded
+[INFO] [1792644977.760291762] [bt_navigator]: Begin navigating from current location through 34 poses to (-90.05, -100.40)
+[WARN] [1792645005.120476743] [bt_navigator]: [navigate_through_poses] [ActionServer] Aborting handle.
+[ERROR] [1792645005.120605511] [bt_navigator]: Goal failed
+[INFO] [1792645005.124107382] [bt_navigator]: Begin navigating from current location through 1 poses to (-27.70, -161.50)
+[INFO] [1792645005.504365961] [bt_navigator]: Goal succeeded
+[INFO] [1792645005.508314811] [bt_navigator]: Begin navigating from current location through 31 poses to (-90.05, -100.40)
+[WARN] [1792645031.088499212] [bt_navigator]: [navigate_through_poses] [ActionServer] Aborting handle.
+[ERROR] [1792645031.088616450] [bt_navigator]: Goal failed
+[INFO] [1792645031.091782488] [bt_navigator]: Begin navigating from current location through 1 poses to (-40.05, -160.45)
+[INFO] [1792645031.472043155] [bt_navigator]: Goal succeeded
+[INFO] [1792645031.475564437] [bt_navigator]: Begin navigating from current location through 28 poses to (-90.05, -100.40)
+[WARN] [1792645054.655751813] [bt_navigator]: [navigate_through_poses] [ActionServer] Aborting handle.
+[ERROR] [1792645054.655889095] [bt_navigator]: Goal failed
+[INFO] [1792645054.658935589] [bt_navigator]: Begin navigating from current location through 1 poses to (-52.85, -160.15)
+[INFO] [1792645057.649228158] [bt_navigator]: Goal succeeded
+[INFO] [1792645057.653167258] [bt_navigator]: Begin navigating from current location through 25 poses to (-90.05, -100.40)
+[WARN] [1792645079.173325840] [bt_navigator]: [navigate_through_poses] [ActionServer] Aborting handle.
+[ERROR] [1792645079.173422087] [bt_navigator]: Goal failed
+[INFO] [1792645079.176582530] [bt_navigator]: Begin navigating from current location through 1 poses to (-65.35, -158.75)
+[INFO] [1792645084.076864870] [bt_navigator]: Goal succeeded
+[INFO] [1792645084.080935441] [bt_navigator]: Begin navigating from current location through 22 poses to (-90.05, -100.40)
+[WARN] [1792645103.161127049] [bt_navigator]: [navigate_through_poses] [ActionServer] Aborting handle.
+[ERROR] [1792645103.161413738] [bt_navigator]: Goal failed
+[INFO] [1792645103.164362636] [bt_navigator]: Begin navigating from current location through 1 poses to (-77.60, -156.15)
+[INFO] [1792645108.894572252] [bt_navigator]: Goal succeeded
+[INFO] [1792645108.898304616] [bt_navigator]: Begin navigating from current location through 19 poses to (-90.05, -100.40)
+[WARN] [1792645125.708519258] [bt_navigator]: [navigate_through_poses] [ActionServer] Aborting handle.
+[ERROR] [1792645125.708804981] [bt_navigator]: Goal failed
+[INFO] [1792645125.712492518] [bt_navigator]: Begin navigating from current location through 1 poses to (-86.05, -155.35)
+[INFO] [1792645126.172851886] [bt_navigator]: Goal succeeded
+[INFO] [1792645126.177325247] [bt_navigator]: Begin navigating from current location through 17 poses to (-90.05, -100.40)
+[ERROR] [1792645216.187791361] [bt_navigator_navigate_through_poses_rclcpp_node]: Failed to get result for follow_path in node halt!
+[INFO] [1792645216.187940413] [bt_navigator]: [navigate_through_poses] [ActionServer] Client requested to cancel the goal. Cancelling.
+[INFO] [1792645216.188059066] [bt_navigator]: Goal canceled

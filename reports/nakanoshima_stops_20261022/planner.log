@@ -1,0 +1,84 @@
+[INFO] [1792644653.386873720] [planner_server]: 
+	planner_server lifecycle node launched. 
+	Waiting on external lifecycle transitions to activate
+	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[INFO] [1792644653.763224750] [planner_server]: Creating
+[INFO] [1792644653.783033420] [global_costmap.global_costmap]: 
+	global_costmap lifecycle node launched. 
+	Waiting on external lifecycle transitions to activate
+	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[INFO] [1792644653.886013526] [global_costmap.global_costmap]: Creating Costmap
+[INFO] [1792644656.810190023] [planner_server]: Configuring
+[INFO] [1792644656.810227596] [global_costmap.global_costmap]: Configuring
+[INFO] [1792644656.818653947] [global_costmap.global_costmap]: Using plugin "static_layer"
+[INFO] [1792644656.825301030] [global_costmap.global_costmap]: Subscribing to the map topic (/map) with transient local durability
+[INFO] [1792644656.827326724] [global_costmap.global_costmap]: Initialized plugin "static_layer"
+[INFO] [1792644656.827355231] [global_costmap.global_costmap]: Using plugin "obstacle_layer"
+[INFO] [1792644656.827965394] [global_costmap.global_costmap]: Subscribed to Topics: scan
+[INFO] [1792644656.831655957] [global_costmap.global_costmap]: Initialized plugin "obstacle_layer"
+[INFO] [1792644656.831684699] [global_costmap.global_costmap]: Using plugin "inflation_layer"
+[INFO] [1792644656.832253715] [global_costmap.global_costmap]: Initialized plugin "inflation_layer"
+[INFO] [1792644656.862719010] [planner_server]: Created global planner plugin GridBased of type nav2_navfn_planner::NavfnPlanner
+[INFO] [1792644656.862755761] [planner_server]: Configuring plugin GridBased of type NavfnPlanner
+[INFO] [1792644656.863138025] [planner_server]: Planner Server has GridBased  planners available.
+[INFO] [1792644657.206878190] [global_costmap.global_costmap]: StaticLayer: Resizing costmap to 5586 X 6649 at 0.050000 m/pix
+[INFO] [1792644658.204362433] [planner_server]: Activating
+[INFO] [1792644658.204392884] [global_costmap.global_costmap]: Activating
+[INFO] [1792644658.204401654] [global_costmap.global_costmap]: Checking transform
+[INFO] [1792644658.204433036] [global_costmap.global_costmap]: Timed out waiting for transform from robot/base_footprint to map to become available, tf error: Invalid frame ID "map" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1792644658.704467597] [global_costmap.global_costmap]: Timed out waiting for transform from robot/base_footprint to map to become available, tf error: Invalid frame ID "map" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1792644659.204462515] [global_costmap.global_costmap]: Timed out waiting for transform from robot/base_footprint to map to become available, tf error: Invalid frame ID "map" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1792644659.704478360] [global_costmap.global_costmap]: Timed out waiting for transform from robot/base_footprint to map to become available, tf error: Invalid frame ID "map" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1792644660.204461430] [global_costmap.global_costmap]: Timed out waiting for transform from robot/base_footprint to map to become available, tf error: Invalid frame ID "map" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1792644660.704461494] [global_costmap.global_costmap]: Timed out waiting for transform from robot/base_footprint to map to become available, tf error: Invalid frame ID "map" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1792644661.204469758] [global_costmap.global_costmap]: Timed out waiting for transform from robot/base_footprint to map to become available, tf error: Invalid frame ID "map" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1792644661.704527660] [global_costmap.global_costmap]: start
+[INFO] [1792644662.655617599] [planner_server]: Activating plugin GridBased of type NavfnPlanner
+[INFO] [1792644662.657279058] [planner_server]: Creating bond (planner_server) to lifecycle manager.
+[WARN] [1792644690.170891380] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.1775 Hz
+[WARN] [1792644698.822076431] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.1778 Hz
+[WARN] [1792644706.846654160] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.2000 Hz
+[WARN] [1792644714.457877390] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.2182 Hz
+[WARN] [1792644721.446059719] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.2527 Hz
+[WARN] [1792644728.140352464] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.2756 Hz
+[WARN] [1792644734.144621203] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.3367 Hz
+[WARN] [1792644739.748688555] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.3883 Hz
+[WARN] [1792644744.946431815] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.4613 Hz
+[WARN] [1792644749.851836075] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.5345 Hz
+[WARN] [1792644754.414843060] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.6502 Hz
+[WARN] [1792644758.737237126] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.7770 Hz
+[WARN] [1792644805.198854235] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.0561 Hz
+[WARN] [1792644826.612015877] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.0546 Hz
+[WARN] [1792644846.126786115] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.0608 Hz
+[WARN] [1792644866.200822204] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.0589 Hz
+[WARN] [1792644882.329108202] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.0656 Hz
+[WARN] [1792644901.344078625] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.0629 Hz
+[INFO] [1792644919.291661943] [global_costmap.global_costmap]: Message Filter dropping message: frame 'robot/lidar_link' at time 291.600 for reason 'the timestamp on the message is earlier than all the data in the transform cache'
+[WARN] [1792644919.355643598] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.0706 Hz
+[WARN] [1792644937.130513957] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.0682 Hz
+[WARN] [1792644955.529535719] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.0758 Hz
+[WARN] [1792644971.917961208] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.0754 Hz
+[WARN] [1792644989.569095543] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.0850 Hz
+[WARN] [1792645004.996550365] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.0816 Hz
+[WARN] [1792645016.635377606] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.0909 Hz
+[WARN] [1792645030.993213687] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.0900 Hz
+[WARN] [1792645041.302399806] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.1022 Hz
+[WARN] [1792645054.554931504] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.0994 Hz
+[WARN] [1792645066.921270705] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.1096 Hz
+[WARN] [1792645079.014009773] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.1110 Hz
+[WARN] [1792645092.104862783] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.1251 Hz
+[WARN] [1792645103.105601101] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.1268 Hz
+[WARN] [1792645115.656420440] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.1483 Hz
+[WARN] [1792645125.591855417] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.1465 Hz
+[WARN] [1792645132.238184703] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.1655 Hz
+[WARN] [1792645141.475991435] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.1623 Hz
+[WARN] [1792645150.084815609] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.1811 Hz
+[WARN] [1792645157.944408694] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.2084 Hz
+[WARN] [1792645165.376790178] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.2288 Hz
+[WARN] [1792645171.976018514] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.2822 Hz
+[WARN] [1792645178.368847932] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.3022 Hz
+[WARN] [1792645184.340558653] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.3439 Hz
+[WARN] [1792645189.511704638] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.4701 Hz
+[WARN] [1792645194.373238138] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.5476 Hz
+[WARN] [1792645198.858185661] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.6849 Hz
+[WARN] [1792645202.972477801] [planner_server]: Planner loop missed its desired rate of 1.0000 Hz. Current loop rate is 0.9149 Hz

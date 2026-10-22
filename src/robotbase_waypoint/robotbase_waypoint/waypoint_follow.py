@@ -107,6 +107,8 @@ class GoalRecord:
     error: str = ''
     start_index: Optional[int] = None
     end_index: Optional[int] = None
+    allow_early_extension: bool = False
+    verify_endpoint_on_success: bool = False
 
     @property
     def resolved(self) -> bool:
@@ -210,6 +212,20 @@ def navigation_segment_end(waypoints, start_index: int, navigation_only: bool = 
     return len(waypoints) - 1
 
 
+def limit_section_length(waypoints, start: int, end: int, position, limit: float) -> int:
+    """Bound polyline distance from the robot without dropping waypoint tasks."""
+    distance = 0.0
+    previous = position
+    for index in range(start, end + 1):
+        point = (waypoints[index].x, waypoints[index].y)
+        distance += math.hypot(point[0] - previous[0], point[1] - previous[1])
+        if distance > limit:
+            # An indivisible first leg still needs a goal, even if it is long.
+            return max(start, index - 1)
+        previous = point
+    return end
+
+
 def split_nearby_endpoint(waypoints, start: int, end: int, position) -> int:
     """Avoid immediate goal success for closed routes or at the start of a lap."""
     def distance(index):
@@ -280,6 +296,8 @@ class WaypointFollower(Node):
         self.declare_parameter('person_area_zero_settle_sec', 0.5)
         self.declare_parameter('navigation_only', False)
         self.declare_parameter('navigation_mode', 'through_poses')
+        self.declare_parameter('max_section_length', 40.0)
+        self.declare_parameter('section_switch_distance', 6.0)
 
         waypoint_file = str(self.get_parameter('waypoint_file').value)
         if not waypoint_file:
@@ -300,6 +318,12 @@ class WaypointFollower(Node):
         self.manual_pause_started_at = None
         self.loop = bool(self.get_parameter('loop').value)
         self.navigation_only = bool(self.get_parameter('navigation_only').value)
+        self.max_section_length = float(self.get_parameter('max_section_length').value)
+        if not math.isfinite(self.max_section_length) or self.max_section_length <= 0.0:
+            raise ValueError('max_section_length must be finite and positive')
+        self.section_switch_distance = float(self.get_parameter('section_switch_distance').value)
+        if not math.isfinite(self.section_switch_distance) or self.section_switch_distance < 0.0:
+            raise ValueError('section_switch_distance must be finite and non-negative')
         validate_person_search_route(
             self.waypoints, requested_index, self.loop, self.navigation_only)
         self.default_threshold = float(self.get_parameter('default_threshold').value)
@@ -514,7 +538,7 @@ class WaypointFollower(Node):
         self._publish_stop(False)
         self._publish_safety_zero()
 
-    def _send_current_goal(self) -> None:
+    def _send_current_goal(self, *, extend_after: Optional[int] = None) -> bool:
         if any((
                 self._is_shutting_down(),
                 self.finished,
@@ -524,20 +548,28 @@ class WaypointFollower(Node):
                 self.person_search_faulted,
                 self.manual_paused,
         )):
-            return
+            return False
         waypoint = self.waypoints[self.index]
         through = self.navigation_mode == 'through_poses'
         end_index = self.index
+        allow_early_extension = False
         if through and not self.single_goal_recovery:
             end_index = navigation_segment_end(self.waypoints, self.index, self.navigation_only)
-            end_index = split_ambiguous_section(self.waypoints, self.index, end_index)
+            protected_end = split_ambiguous_section(self.waypoints, self.index, end_index)
             try:
                 transform = self.tf_buffer.lookup_transform(
                     self.map_frame, self.base_frame, rclpy.time.Time())
                 position = (transform.transform.translation.x, transform.transform.translation.y)
             except TransformException:
                 position = (waypoint.x, waypoint.y)
+            end_index = limit_section_length(
+                self.waypoints, self.index, protected_end, position, self.max_section_length)
+            length_end = end_index
+            end_index = split_ambiguous_section(self.waypoints, self.index, end_index)
             end_index = split_nearby_endpoint(self.waypoints, self.index, end_index, position)
+            allow_early_extension = end_index == length_end and end_index < protected_end
+        if extend_after is not None and end_index <= extend_after:
+            return False
         poses = []
         stamp = self.get_clock().now().to_msg()
         for item in self.waypoints[self.index:end_index + 1]:
@@ -565,7 +597,9 @@ class WaypointFollower(Node):
         # server never received the request. Never discard an unresolved record.
         record = GoalRecord(goal_id=GoalInfo().goal_id,
                             start_index=self.index if through else None,
-                            end_index=end_index if through else None)
+                            end_index=end_index if through else None,
+                            allow_early_extension=allow_early_extension,
+                            verify_endpoint_on_success=extend_after is not None)
         record.goal_id.uuid = list(uuid4().bytes)
         send = self.action_client.send_goal_async
 
@@ -589,9 +623,33 @@ class WaypointFollower(Node):
                 raise
 
         if not self._commit_mission(dispatch):
-            return
+            return False
         record.send_future.add_done_callback(
             lambda completed, sent_serial=serial: self._goal_response(completed, sent_serial))
+        return True
+
+    def _try_extend_section(self, record) -> bool:
+        """Extend a length-limited horizon while retaining every unpassed pose."""
+        if (record is None or not record.allow_early_extension
+                or record.accepted is not True or record.terminal_status is not None
+                or self.section_switch_distance <= 0.0):
+            return False
+        try:
+            transform = self.tf_buffer.lookup_transform(
+                self.map_frame, self.base_frame, rclpy.time.Time())
+        except TransformException:
+            return False
+        endpoint = self.waypoints[record.end_index]
+        distance = math.hypot(endpoint.x - transform.transform.translation.x,
+                              endpoint.y - transform.transform.translation.y)
+        if distance > self.section_switch_distance:
+            return False
+        if not self._send_current_goal(extend_after=record.end_index):
+            return False
+        self.get_logger().info(
+            f'Extended continuous section {distance:.2f} m before WP:{endpoint.number}; '
+            'unpassed waypoints retained')
+        return True
 
     def _through_poses_tree(self) -> str:
         """Use traversal progress without an early arrival distance threshold."""
@@ -722,6 +780,26 @@ class WaypointFollower(Node):
             self._handle_failure(f'goal result failed: {error}', serial, unconfirmed=True)
             return
         if wrapped_result.status == GoalStatus.STATUS_SUCCEEDED:
+            if record.verify_endpoint_on_success:
+                # During preemption, the old FollowPath can finish before the
+                # new plan arrives. Nav2 may then succeed the replacement
+                # action while the robot is still at the OLD endpoint.
+                try:
+                    transform = self.tf_buffer.lookup_transform(
+                        self.map_frame, self.base_frame, rclpy.time.Time())
+                    endpoint = self.waypoints[record.end_index]
+                    endpoint_distance = math.hypot(
+                        endpoint.x - transform.transform.translation.x,
+                        endpoint.y - transform.transform.translation.y)
+                except TransformException:
+                    endpoint_distance = math.inf
+                if endpoint_distance > self.precise_threshold:
+                    self.get_logger().warning(
+                        'Nav2 succeeded the updated section before reaching its endpoint; '
+                        f'distance={endpoint_distance:.2f} m. Retrying unpassed waypoints')
+                    if self._commit_state(goal_handle=None, goal_result_future=None):
+                        self._send_current_goal()
+                    return
             if record.end_index is not None:
                 if not self._commit_state(index=record.end_index):
                     return
@@ -773,6 +851,8 @@ class WaypointFollower(Node):
 
         if self.navigation_mode == 'through_poses':
             record = self.goal_records.get(self.goal_serial)
+            if self._try_extend_section(record):
+                return
             # Intermediate progress comes from the same BT that removes passed
             # goals. Only a section endpoint can trigger a stop/task locally.
             if record is None or self.index != record.end_index:

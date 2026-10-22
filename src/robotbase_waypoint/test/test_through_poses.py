@@ -1,6 +1,7 @@
 """Continuous sections must preserve progress, stop tasks and goal ownership."""
 
 from concurrent.futures import Future
+from dataclasses import replace
 from types import SimpleNamespace
 import xml.etree.ElementTree as ET
 
@@ -10,6 +11,7 @@ import pytest
 from rclpy.time import Time as RosTime
 
 import robotbase_waypoint.waypoint_follow as module
+from robotbase_waypoint.waypoint_follow import limit_section_length
 from robotbase_waypoint.waypoint_follow import navigation_segment_end, WaypointFollower
 from robotbase_waypoint.waypoint_follow import split_ambiguous_section
 from robotbase_waypoint.waypoint_io import Waypoint
@@ -47,6 +49,8 @@ def follower():
     node._init_shutdown_state()
     node.navigation_mode = 'through_poses'
     node.navigation_only = False
+    node.max_section_length = 40.0
+    node.section_switch_distance = 4.0
     node.single_goal_recovery = False
     node._bt_directory = None
     node.manual_paused = False
@@ -140,6 +144,32 @@ def test_straight_section_stays_continuous_and_hairpin_is_split():
     assert split_ambiguous_section(points, 4, 5) == 5
 
 
+def test_length_limit_counts_polyline_and_keeps_exact_boundary():
+    points = [Waypoint(i + 1, x, y, 0.) for i, (x, y) in enumerate(
+        ((10., 0.), (30., 0.), (30., 20.), (30., 30.)))]
+    assert limit_section_length(points, 0, 3, (0., 0.), 50.) == 2
+    assert limit_section_length(points, 0, 3, (0., 0.), 49.) == 1
+    assert limit_section_length(points, 1, 3, (20., 0.), 30.) == 2
+    assert limit_section_length(points, 0, 3, (-100., 0.), 50.) == 0
+
+
+def test_fifty_metre_sections_preserve_remaining_points_and_wait(follower):
+    follower.max_section_length = 50.0
+    follower.waypoints = [Waypoint(i + 1, float(i * 10), 0., 0.,
+                                   wait_time=2.0 if i == 8 else 0.0)
+                          for i in range(9)]
+    follower._send_current_goal()
+    assert [p.pose.position.x for p in follower.sent[0].goal.poses] == [
+        0., 10., 20., 30., 40., 50.]
+    follower.position = (50., 0.)
+    finish(accept(follower.sent[0]))
+    assert follower.index == 6
+    assert [p.pose.position.x for p in follower.sent[1].goal.poses] == [60., 70., 80.]
+    follower.position = (80., 0.)
+    finish(accept(follower.sent[1]))
+    assert follower.waiting_until is not None
+
+
 def test_large_smooth_loop_does_not_end_near_early_part_of_path():
     import math
     points = [Waypoint(i + 1, 5 * math.cos(i * math.pi / 12),
@@ -177,6 +207,107 @@ def test_midpoint_feedback_does_not_resend_or_cancel_or_command_zero(follower):
     assert len(follower.sent) == 1
     assert handle.cancel_calls == 0
     assert not any(name in ('stop', 'zero') for name, _ in follower.events)
+
+
+@pytest.mark.parametrize('remaining', [1, 2])
+@pytest.mark.parametrize('status', [GoalStatus.STATUS_CANCELED, GoalStatus.STATUS_SUCCEEDED])
+def test_early_extension_retains_old_endpoint_and_ignores_stale_result(
+        follower, remaining, status):
+    follower.waypoints = [Waypoint(i + 1, float(i * 10), 0., 0.) for i in range(9)]
+    follower._send_current_goal()
+    old = follower.sent[0]
+    handle = accept(old)
+    feedback(old, remaining)
+    follower.position = (35.9, 0.)
+    follower._timer_callback()
+    assert len(follower.sent) == 1
+    follower.position = (36., 0.)
+    follower._timer_callback()
+    assert follower.index == 5 - remaining
+    expected = [40., 50., 60., 70.] if remaining == 1 else [30., 40., 50., 60.]
+    assert [p.pose.position.x for p in follower.sent[1].goal.poses] == expected
+    follower._timer_callback()  # Do not re-send while the new request is pending.
+    assert len(follower.sent) == 2
+    finish(handle, status)
+    assert follower.index == 5 - remaining
+    assert not follower.finished
+    assert handle.cancel_calls == 0
+    assert not any(name in ('stop', 'zero') for name, _ in follower.events)
+
+
+def test_pause_during_extension_cancels_both_owned_goals(follower):
+    follower.waypoints = [Waypoint(i + 1, float(i * 10), 0., 0.) for i in range(9)]
+    follower._send_current_goal()
+    old = accept(follower.sent[0])
+    feedback(follower.sent[0], 1)
+    follower.position = (36., 0.)
+    follower._timer_callback()
+    response = follower._set_paused(SimpleNamespace(data=True), SimpleNamespace())
+    assert response.success
+    new = accept(follower.sent[1])
+    follower._timer_callback()
+    assert old.cancel_calls == new.cancel_calls == 1
+    assert follower.index == 4
+
+
+@pytest.mark.parametrize('pose_available', [True, False])
+def test_replacement_success_at_old_endpoint_never_skips_remaining_points(
+        follower, pose_available):
+    follower.waypoints = [Waypoint(i + 1, float(i * 10), 0., 0.) for i in range(9)]
+    follower._send_current_goal()
+    accept(follower.sent[0])
+    feedback(follower.sent[0], 1)
+    follower.position = (36., 0.)
+    follower._timer_callback()
+    updated = accept(follower.sent[1])
+    follower.position = (40., 0.)
+    if not pose_available:
+        def missing_pose(*args):
+            raise module.TransformException('No current pose')
+        follower.tf_buffer.lookup_transform = missing_pose
+    finish(updated)  # Nav2 reports success for 70 m while still at 40 m.
+    assert follower.index == 4
+    assert len(follower.sent) == 3
+    assert [p.pose.position.x for p in follower.sent[2].goal.poses] == [
+        40., 50., 60., 70., 80.]
+    assert not follower.finished
+
+
+def test_replacement_success_at_new_endpoint_advances_normally(follower):
+    follower.waypoints = [Waypoint(i + 1, float(i * 10), 0., 0.) for i in range(9)]
+    follower._send_current_goal()
+    accept(follower.sent[0])
+    feedback(follower.sent[0], 1)
+    follower.position = (36., 0.)
+    follower._timer_callback()
+    updated = accept(follower.sent[1])
+    follower.position = (70., 0.)
+    finish(updated)
+    assert follower.index == 8
+    assert [p.pose.position.x for p in follower.sent[2].goal.poses] == [80.]
+
+
+@pytest.mark.parametrize('task', ['stop', 'wait', 'person', 'final', 'hairpin'])
+def test_early_extension_never_bypasses_protected_endpoint(follower, task):
+    follower.waypoints = [Waypoint(i + 1, float(i * 10), 0., 0.) for i in range(9)]
+    endpoint = follower.waypoints[4]
+    if task == 'stop':
+        follower.waypoints[4] = replace(endpoint, stop=True)
+    elif task == 'wait':
+        follower.waypoints[4] = replace(endpoint, wait_time=2.0)
+    elif task == 'person':
+        follower.waypoints[4] = replace(endpoint, person_area=True)
+    elif task == 'final':
+        follower.waypoints = follower.waypoints[:5]
+    else:
+        follower.waypoints[5] = replace(follower.waypoints[5], x=30.0)
+    follower._send_current_goal()
+    accept(follower.sent[0])
+    feedback(follower.sent[0], 1)
+    follower.position = (36., 0.)
+    follower._timer_callback()
+    assert len(follower.sent) == 1
+    assert not follower.goal_records[follower.goal_serial].allow_early_extension
 
 
 def test_section_success_waits_then_starts_next_section(follower):

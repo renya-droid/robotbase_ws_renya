@@ -2,17 +2,54 @@
 
 _ROBOTBASE_SCRIPT_WS="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # 軽量版ROS2 bag記録スクリプト
-# 使い方: ./record_rosbag.sh
+# 使い方: ./record_rosbag.sh [real|sim]
 #         ファイル名を入力して記録開始
 
 ROSBAG_PID=""
 CURRENT_BAG_PATH=""
 RESULT_SHOWN=false
 experiment_memo="No description"
+RECORD_STATUS=0
+RECORD_MODE=real
+RECORD_TIME_OPTIONS=()
+RECORD_CLOCK_TOPICS=()
 
-trap 'echo ""; echo "記録を停止・保存しています..."; kill -INT $ROSBAG_PID 2>/dev/null; wait $ROSBAG_PID 2>/dev/null; show_result; exit 0' INT TERM HUP
+configure_recording_mode() {
+    RECORD_MODE="${1:-real}"
+    RECORD_TIME_OPTIONS=()
+    RECORD_CLOCK_TOPICS=()
+    case "$RECORD_MODE" in
+        real)
+            source "${_ROBOTBASE_SCRIPT_WS}/bash/activate_koko_env.sh" || return 1
+            ;;
+        sim)
+            source "${_ROBOTBASE_SCRIPT_WS}/bash/activate_koko_sim_env.sh" || return 1
+            RECORD_TIME_OPTIONS=(--use-sim-time)
+            RECORD_CLOCK_TOPICS=(/clock)
+            ;;
+        *)
+            echo "使い方: $0 [real|sim]" >&2
+            return 1
+            ;;
+    esac
+}
 
-ROSBAG_DIR="${HOME}/rosbag2_data"
+stop_recording() {
+    # Do not let repeated Ctrl+C interrupt the writer while it flushes its indexes.
+    trap '' INT TERM HUP
+    if [ -n "$ROSBAG_PID" ]; then
+        echo ""
+        echo "記録を停止・保存しています。完了までお待ちください..."
+        kill -INT "$ROSBAG_PID" 2>/dev/null
+        wait "$ROSBAG_PID"
+        RECORD_STATUS=$?
+        ROSBAG_PID=""
+        show_result
+    fi
+    exit "$RECORD_STATUS"
+}
+
+ROSBAG_DIR="${ROSBAG_DIR:-${HOME}/rosbag2_data}"
 
 # 保存ディレクトリ作成
 mkdir -p "$ROSBAG_DIR"
@@ -26,24 +63,17 @@ show_result() {
     
     echo ""
     echo "========================================="
-    echo "✓ 記録が完了しました"
     echo "  保存先: $CURRENT_BAG_PATH"
     
-    # 未インデックス対策: MCAPファイルを自動修復/インデックス処理する
-    if [ -d "$CURRENT_BAG_PATH" ]; then
-        # フォルダ内の .mcap ファイルを探す
-        local mcap_file=$(find "$CURRENT_BAG_PATH" -name "*.mcap" | head -n 1)
-        if [ -n "$mcap_file" ] && [ -f "$mcap_file" ]; then
-            echo "  [MCAP] インデックスの整合性を自動チェック・修復中..."
-            local tmp_mcap="${mcap_file}.tmp"
-            if "${_ROBOTBASE_SCRIPT_WS}/mcap" recover "$mcap_file" -o "$tmp_mcap" >/dev/null 2>&1; then
-                mv "$tmp_mcap" "$mcap_file"
-                echo "  [MCAP] ✓ インデックス処理が正常に完了しました（Foxgloveで開けます）"
-            else
-                rm -f "$tmp_mcap"
-                echo "  [MCAP] ⚠ 自動修復に失敗しました。手動で mcap recover を試してください"
-            fi
+    if python3 "${_ROBOTBASE_SCRIPT_WS}/tools/finalize_rosbag.py" "$CURRENT_BAG_PATH"; then
+        if [ "$RECORD_STATUS" -eq 0 ]; then
+            echo "✓ 保存が完了しました（Foxgloveで開けます）"
+        else
+            echo "⚠ 記録プロセスは異常終了しました（終了コード: $RECORD_STATUS）。MCAPの保存は確認済みです"
         fi
+    else
+        echo "⚠ 保存の確認に失敗しました。上のエラーを確認してください"
+        RECORD_STATUS=1
     fi
     
     # ファイルサイズ表示
@@ -61,15 +91,22 @@ input_filename() {
     echo "========================================="
     echo ""
     echo "保存先: $ROSBAG_DIR"
+    echo "モード: $RECORD_MODE (ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0})"
+    if [ "$RECORD_MODE" = sim ]; then
+        echo "※ /clock を記録し、シミュレーション時刻を使用します"
+        echo "※ シミュレータの /clock が配信されるまで記録は待機します"
+    fi
     echo ""
     echo "記録対象トピック:"
-    echo "  - /scan3 (VLP-16複数リングから生成した2D LiDAR)"
+    echo "  - /scan3, /hokuyo_scan (LiDAR)"
     echo "  - /odom, /odom/filtered (オドメトリ)"
     echo "  - /imu (IMU)"
     echo "  - /tf, /tf_static (座標変換)"
-    echo "  - /cmd_vel, /cmd_vel_nav (速度指令)"
+    echo "  - /cmd_vel, /cmd_vel_nav, /cmd_vel_smoothed (速度指令)"
+    echo "  - FollowPath / NavigateToPose / NavigateThroughPoses の status・feedback"
     echo "  - /spin/_action/status, /spin/_action/feedback (Spinアクション)"
     echo "  - /parameter_events (パラメータ変更)"
+    echo "  - /rosout (ノードログ)"
     echo "  - /amcl_pose, /initialpose (位置推定)"
     echo "  - /map, /plan, /optimal_trajectory (地図・経路)"
     echo "  - /cmd_vel_teleop"
@@ -117,6 +154,7 @@ input_filename() {
 start_recording() {
     CURRENT_BAG_PATH="$ROSBAG_DIR/$1"
     RESULT_SHOWN=false
+    RECORD_STATUS=0
     
     echo "========================================="
     echo "記録を開始します..."
@@ -129,12 +167,22 @@ start_recording() {
     # 録画開始の瞬間にのみ実験メタデータを1回パブリッシュ
     ros2 topic pub --once /experiment_metadata std_msgs/msg/String "data: '$experiment_memo'" >/dev/null 2>&1 &
 
-    ros2 bag record -o "$CURRENT_BAG_PATH" \
+    # Bash asynchronous commands inherit SIGINT=ignored. Reset it before exec,
+    # and isolate the recorder from terminal signals so only this shell stops it.
+    python3 -c 'import os, signal, sys; os.setsid(); signal.signal(signal.SIGINT, signal.SIG_DFL); signal.signal(signal.SIGHUP, signal.SIG_DFL); os.execvp(sys.argv[1], sys.argv[1:])' \
+        ros2 bag record -o "$CURRENT_BAG_PATH" \
+        --storage mcap \
+        --storage-config-file "${_ROBOTBASE_SCRIPT_WS}/params/common/rosbag_mcap.yaml" \
+        --disable-keyboard-controls \
+        "${RECORD_TIME_OPTIONS[@]}" \
         --all-services \
         --include-hidden-topics \
         --topics \
+        "${RECORD_CLOCK_TOPICS[@]}" \
         /experiment_metadata \
         /scan3 \
+        /hokuyo_scan \
+        /rosout \
         /odom \
         /odom/filtered \
         /imu \
@@ -148,6 +196,13 @@ start_recording() {
         /tf_static \
         /cmd_vel \
         /cmd_vel_nav \
+        /cmd_vel_smoothed \
+        /follow_path/_action/status \
+        /follow_path/_action/feedback \
+        /navigate_to_pose/_action/status \
+        /navigate_to_pose/_action/feedback \
+        /navigate_through_poses/_action/status \
+        /navigate_through_poses/_action/feedback \
         /spin/_action/status \
         /spin/_action/feedback \
         /parameter_events \
@@ -164,18 +219,29 @@ start_recording() {
         /joint_states &
     
     ROSBAG_PID=$!
-    wait $ROSBAG_PID
+    wait "$ROSBAG_PID"
+    RECORD_STATUS=$?
+    ROSBAG_PID=""
     
     show_result
 }
 
 # メイン処理（ループ）
+if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
+    return
+fi
+if [ "$#" -gt 1 ]; then
+    echo "使い方: $0 [real|sim]" >&2
+    exit 1
+fi
+configure_recording_mode "${1:-real}" || exit 1
+trap stop_recording INT TERM HUP
 cd "${_ROBOTBASE_SCRIPT_WS}"
-source install/setup.bash
+source install/setup.bash || exit 1
 
 while : ; do
     echo ""
-    read -p "Press [Enter] key to start recording..."
+    read -r -p "Press [Enter] key to start recording..." || break
     
     selected_name=""
     input_filename

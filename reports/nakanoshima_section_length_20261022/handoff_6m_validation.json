@@ -1,0 +1,32 @@
+[
+  {
+    "limit_m": 40.0,
+    "completed": true,
+    "elapsed_sim_s": 86.72,
+    "distance_m": 69.3,
+    "stationary_s": 5.98,
+    "aborted": 0,
+    "skipped": 0,
+    "empty_plan": 0,
+    "sections": 2,
+    "early_extensions": 1,
+    "route": "18-34",
+    "midroute_stationary_s": 0,
+    "midroute_min_speed": 0.436
+  },
+  {
+    "limit_m": 40.0,
+    "completed": true,
+    "elapsed_sim_s": 92.34,
+    "distance_m": 72.23,
+    "stationary_s": 8.64,
+    "aborted": 0,
+    "skipped": 0,
+    "empty_plan": 0,
+    "sections": 3,
+    "early_extensions": 2,
+    "route": "50-67",
+    "midroute_stationary_s": 0,
+    "midroute_min_speed": 0.603
+  }
+]

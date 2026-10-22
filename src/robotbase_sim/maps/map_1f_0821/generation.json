@@ -1,0 +1,19 @@
+{
+  "source_map": "1F-0821.yaml",
+  "source_image_sha256": "90eb05f923b57ed4807ff844338dd8b1c5a45b3bcc7b9e5903f70d96f80fa2e5",
+  "image_size": [
+    3931,
+    3661
+  ],
+  "resolution": 0.05,
+  "origin": [
+    -92.25,
+    -105.25,
+    0
+  ],
+  "wall_height": 2.0,
+  "occupied_cells": 35423,
+  "vertices": 112772,
+  "triangles": 176632,
+  "unknown_policy": "No invented walls in unknown cells; ground covers the map extent."
+}

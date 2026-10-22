@@ -1,0 +1,242 @@
+[
+  {
+    "limit_m": 10,
+    "start_wp": 30,
+    "length_m": 8.99,
+    "goals": 2,
+    "wall_s": 1.211,
+    "planning_s": 1.1965,
+    "error": 0,
+    "points": 358
+  },
+  {
+    "limit_m": 10,
+    "start_wp": 40,
+    "length_m": 8.28,
+    "goals": 2,
+    "wall_s": 0.7691,
+    "planning_s": 0.759,
+    "error": 0,
+    "points": 329
+  },
+  {
+    "limit_m": 10,
+    "start_wp": 71,
+    "length_m": 16.11,
+    "goals": 1,
+    "wall_s": 0.3727,
+    "planning_s": 0.3548,
+    "error": 0,
+    "points": 644
+  },
+  {
+    "limit_m": 20,
+    "start_wp": 30,
+    "length_m": 17.71,
+    "goals": 4,
+    "wall_s": 1.4807,
+    "planning_s": 1.4603,
+    "error": 0,
+    "points": 704
+  },
+  {
+    "limit_m": 20,
+    "start_wp": 40,
+    "length_m": 16.67,
+    "goals": 4,
+    "wall_s": 1.5038,
+    "planning_s": 1.4714,
+    "error": 0,
+    "points": 661
+  },
+  {
+    "limit_m": 20,
+    "start_wp": 71,
+    "length_m": 19.04,
+    "goals": 2,
+    "wall_s": 0.7883,
+    "planning_s": 0.7642,
+    "error": 0,
+    "points": 760
+  },
+  {
+    "limit_m": 30,
+    "start_wp": 30,
+    "length_m": 26.1,
+    "goals": 6,
+    "wall_s": 2.1945,
+    "planning_s": 2.1677,
+    "error": 0,
+    "points": 1036
+  },
+  {
+    "limit_m": 30,
+    "start_wp": 40,
+    "length_m": 29.44,
+    "goals": 7,
+    "wall_s": 2.6275,
+    "planning_s": 2.5951,
+    "error": 0,
+    "points": 1166
+  },
+  {
+    "limit_m": 30,
+    "start_wp": 71,
+    "length_m": 29.1,
+    "goals": 5,
+    "wall_s": 1.8675,
+    "planning_s": 1.8324,
+    "error": 0,
+    "points": 1158
+  },
+  {
+    "limit_m": 40,
+    "start_wp": 30,
+    "length_m": 38.56,
+    "goals": 9,
+    "wall_s": 3.3429,
+    "planning_s": 3.3,
+    "error": 0,
+    "points": 1529
+  },
+  {
+    "limit_m": 40,
+    "start_wp": 40,
+    "length_m": 37.8,
+    "goals": 9,
+    "wall_s": 3.3385,
+    "planning_s": 3.3018,
+    "error": 0,
+    "points": 1498
+  },
+  {
+    "limit_m": 40,
+    "start_wp": 71,
+    "length_m": 37.76,
+    "goals": 7,
+    "wall_s": 2.5808,
+    "planning_s": 2.5407,
+    "error": 0,
+    "points": 1502
+  },
+  {
+    "limit_m": 60,
+    "start_wp": 30,
+    "length_m": 59.69,
+    "goals": 14,
+    "wall_s": 5.2404,
+    "planning_s": 5.1677,
+    "error": 0,
+    "points": 2366
+  },
+  {
+    "limit_m": 60,
+    "start_wp": 40,
+    "length_m": 58.87,
+    "goals": 14,
+    "wall_s": 5.2481,
+    "planning_s": 5.1899,
+    "error": 0,
+    "points": 2333
+  },
+  {
+    "limit_m": 60,
+    "start_wp": 71,
+    "length_m": 59.56,
+    "goals": 12,
+    "wall_s": 4.4959,
+    "planning_s": 4.4016,
+    "error": 0,
+    "points": 2367
+  },
+  {
+    "limit_m": 80,
+    "start_wp": 30,
+    "length_m": 76.59,
+    "goals": 18,
+    "wall_s": 6.6842,
+    "planning_s": 6.6068,
+    "error": 0,
+    "points": 3035
+  },
+  {
+    "limit_m": 80,
+    "start_wp": 40,
+    "length_m": 78.54,
+    "goals": 19,
+    "wall_s": 7.0065,
+    "planning_s": 6.9299,
+    "error": 0,
+    "points": 3122
+  },
+  {
+    "limit_m": 80,
+    "start_wp": 71,
+    "length_m": 76.27,
+    "goals": 16,
+    "wall_s": 5.9439,
+    "planning_s": 5.8681,
+    "error": 0,
+    "points": 3030
+  },
+  {
+    "limit_m": 120,
+    "start_wp": 30,
+    "length_m": 117.82,
+    "goals": 28,
+    "wall_s": 10.3668,
+    "planning_s": 10.2382,
+    "error": 0,
+    "points": 4669
+  },
+  {
+    "limit_m": 120,
+    "start_wp": 40,
+    "length_m": 118.48,
+    "goals": 28,
+    "wall_s": 10.3562,
+    "planning_s": 10.1757,
+    "error": 0,
+    "points": 4707
+  },
+  {
+    "limit_m": 120,
+    "start_wp": 71,
+    "length_m": 118.95,
+    "goals": 26,
+    "wall_s": 9.6248,
+    "planning_s": 9.5033,
+    "error": 0,
+    "points": 4720
+  },
+  {
+    "limit_m": 160,
+    "start_wp": 30,
+    "length_m": 157.48,
+    "goals": 37,
+    "wall_s": 13.3786,
+    "planning_s": 13.2065,
+    "error": 0,
+    "points": 6253
+  },
+  {
+    "limit_m": 160,
+    "start_wp": 40,
+    "length_m": 131.81,
+    "goals": 31,
+    "wall_s": 11.5072,
+    "planning_s": 11.3249,
+    "error": 0,
+    "points": 5237
+  },
+  {
+    "limit_m": 160,
+    "start_wp": 71,
+    "length_m": 147.17,
+    "goals": 33,
+    "wall_s": 12.2742,
+    "planning_s": 12.101,
+    "error": 0,
+    "points": 5837
+  }
+]

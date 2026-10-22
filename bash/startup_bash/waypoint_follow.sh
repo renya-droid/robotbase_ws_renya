@@ -2,7 +2,6 @@
 set -u
 
 mode="real"
-navigation_mode="through_poses"
 mode_selected=false
 navigation_only=false
 for argument in "$@"; do
@@ -61,22 +60,40 @@ if ! [[ "${start_index}" =~ ^[0-9]+$ ]] || [ "${start_index}" -lt 1 ]; then
     echo "開始番号には1以上の整数を指定してください: ${start_index}" >&2
     exit 1
 fi
+echo "走行方式:"
+echo "  [1] NavigateToPose（１点ずつ・切替距離あり）"
+echo "  [2] NavigateThroughPoses（連続走行）"
+read -r -p "走行方式を選択 [2]: " navigation_selection
+case "${navigation_selection:-2}" in
+    1) navigation_mode="to_pose" ;;
+    2) navigation_mode="through_poses" ;;
+    *)
+        echo "無効な走行方式です: ${navigation_selection}" >&2
+        exit 1
+        ;;
+esac
+
 threshold="1.0"
 threshold_args=()
 if [ "$navigation_mode" = to_pose ]; then
     read -r -p "中間点の切替距離[m] [1.0]: " threshold
     threshold="${threshold:-1.0}"
-    if ! [[ "${threshold}" =~ ^([0-9]+([.][0-9]*)?|[.][0-9]+)$ ]] || \
-       ! awk -v value="${threshold}" 'BEGIN { exit !(value > 0) }'; then
-        echo "切替距離には0より大きい数値を指定してください: ${threshold}" >&2
-        exit 1
-    fi
-    # ROS 2 infers `2` as INTEGER, but this parameter is declared as DOUBLE.
-    if [[ "${threshold}" =~ ^[0-9]+$ ]]; then
-        threshold="${threshold}.0"
-    fi
-    threshold_args=(-p "default_threshold:=${threshold}")
+    threshold_parameter="default_threshold"
+else
+    read -r -p "通常区間の切替距離[m] [6.0]: " threshold
+    threshold="${threshold:-6.0}"
+    threshold_parameter="section_switch_distance"
 fi
+if ! [[ "${threshold}" =~ ^([0-9]+([.][0-9]*)?|[.][0-9]+)$ ]] || \
+   ! awk -v value="${threshold}" 'BEGIN { exit !(value > 0) }'; then
+    echo "切替距離には0より大きい数値を指定してください: ${threshold}" >&2
+    exit 1
+fi
+# ROS 2 infers `2` as INTEGER, but this parameter is declared as DOUBLE.
+if [[ "${threshold}" =~ ^[0-9]+$ ]]; then
+    threshold="${threshold}.0"
+fi
+threshold_args=(-p "${threshold_parameter}:=${threshold}")
 read -r -p "無限ループしますか [y/N]: " loop_answer
 loop_value=false
 if [[ "${loop_answer:-}" =~ ^[yY]$ ]]; then
@@ -86,7 +103,7 @@ fi
 echo "ウェイポイント: ${waypoint_file}"
 echo "開始番号: ${start_index}, loop: ${loop_value}"
 if [ "$navigation_mode" = through_poses ]; then
-    echo "走行方式: NavigateThroughPoses（中間点の距離による早期通過判定なし）"
+    echo "走行方式: NavigateThroughPoses（区間上限40 m、通常区間の切替距離: ${threshold} m）"
 else
     echo "走行方式: NavigateToPose（中間点の切替距離: ${threshold} m）"
 fi

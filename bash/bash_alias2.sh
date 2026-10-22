@@ -90,6 +90,9 @@ alias koko_waypoint_save_sim='koko_sim_src && bash "${_KOKO_WS}"/bash/startup_ba
 alias koko_waypoint_record_sim='koko_sim_src && bash "${_KOKO_WS}"/bash/startup_bash/waypoint_record.sh distance sim'
 alias koko_slam_waypoint_record_sim='koko_sim_src && bash "${_KOKO_WS}"/bash/startup_bash/slam_waypoint_record.sh sim'
 
+# シミュレーションのrosbag記録（sim時刻・/clock対応、Zstd圧縮）
+alias koko_record_rosbag_sim='koko_sim_env && bash "${_KOKO_WS}"/bash/startup_bash/record_rosbag.sh sim'
+
 # TAB: ユーティリティ
 # GROUP: ユーティリティ
 

@@ -1,0 +1,12 @@
+{
+  "limit_m": 40.0,
+  "completed": true,
+  "elapsed_sim_s": 128.78,
+  "distance_m": 105.68,
+  "stationary_s": 5.82,
+  "aborted": 0,
+  "skipped": 0,
+  "empty_plan": 0,
+  "sections": 3,
+  "early_extensions": 2
+}

@@ -1,0 +1,46 @@
+[
+  {
+    "limit_m": 30.0,
+    "completed": true,
+    "elapsed_sim_s": 142.26,
+    "distance_m": 105.73,
+    "stationary_s": 13.62,
+    "aborted": 0,
+    "skipped": 0,
+    "empty_plan": 0,
+    "sections": 4
+  },
+  {
+    "limit_m": 40.0,
+    "completed": true,
+    "elapsed_sim_s": 140.52,
+    "distance_m": 105.67,
+    "stationary_s": 15.2,
+    "aborted": 0,
+    "skipped": 0,
+    "empty_plan": 0,
+    "sections": 3
+  },
+  {
+    "limit_m": 60.0,
+    "completed": true,
+    "elapsed_sim_s": 137.45,
+    "distance_m": 105.67,
+    "stationary_s": 14.62,
+    "aborted": 0,
+    "skipped": 0,
+    "empty_plan": 0,
+    "sections": 2
+  },
+  {
+    "limit_m": 80.0,
+    "completed": true,
+    "elapsed_sim_s": 170.96,
+    "distance_m": 105.7,
+    "stationary_s": 39.52,
+    "aborted": 4,
+    "skipped": 0,
+    "empty_plan": 4,
+    "sections": 9
+  }
+]

@@ -1,0 +1,19 @@
+{
+  "source_map": "0920-nakanoshima.yaml",
+  "source_image_sha256": "162e3f83c335de0d39833f7af9e7e9b7ef73c1b5d9306ee3d06837d1dc44270c",
+  "image_size": [
+    5586,
+    6649
+  ],
+  "resolution": 0.05,
+  "origin": [
+    -182.75,
+    -233.35000000000002,
+    0
+  ],
+  "wall_height": 2.0,
+  "occupied_cells": 137150,
+  "vertices": 533948,
+  "triangles": 836672,
+  "unknown_policy": "No invented walls in unknown cells; ground covers the map extent."
+}

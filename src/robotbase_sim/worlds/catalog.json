@@ -19,5 +19,19 @@
     "world": "worlds/room_360x270.sdf",
     "map": "maps/room_360x270/room.yaml",
     "spawn": [1.8, 1.35, 0.0]
+  },
+  {
+    "id": "map_1f_0821",
+    "label": "1F-0821（実測地図・占有セルから生成）",
+    "world": "worlds/map_1f_0821.sdf",
+    "map": "maps/map_1f_0821/map.yaml",
+    "spawn": [0.0, 0.0, 0.0]
+  },
+  {
+    "id": "map_0920_nakanoshima",
+    "label": "0920-nakanoshima（実測地図・占有セルから生成）",
+    "world": "worlds/map_0920_nakanoshima.sdf",
+    "map": "maps/map_0920_nakanoshima/map.yaml",
+    "spawn": [0.0, 0.0, 0.0]
   }
 ]
