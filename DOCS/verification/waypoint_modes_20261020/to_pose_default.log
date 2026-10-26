@@ -1,0 +1,20 @@
+[WARN] [1792483169.505189564] [rcl]: ROS_LOCALHOST_ONLY is deprecated but still honored if it is enabled. Use ROS_AUTOMATIC_DISCOVERY_RANGE and ROS_STATIC_PEERS instead.
+[WARN] [1792483169.505274472] [rcl]: 'localhost_only' is enabled, 'automatic_discovery_range' and 'static_peers' will be ignored.
+[INFO] [1792483169.680806776] [koko_waypoint_follower]: Loaded 3 waypoints from '/tmp/waypoint_validation/to_pose_default.yaml', start=1, loop=False, frame=robot/base_footprint, stop_on_failure=True, navigation_only=False, navigation_mode=to_pose
+[INFO] [1792483169.931951952] [koko_waypoint_follower]: [WP:1] 1/3 goal=(0.00, 1.00, 1.57 rad), section_end=WP:1, poses=1
+[WARN] [1792483170.630789614] [koko_waypoint_follower]: TF map -> robot/base_footprint unavailable: Could not find a connection between 'map' and 'robot/base_footprint' because they are not part of the same tree.Tf has two or more unconnected trees.
+[INFO] [1792483170.699828612] [koko_waypoint_follower]: [WP:1] distance=1.00 m
+[INFO] [1792483171.708617375] [koko_waypoint_follower]: [WP:1] distance=0.91 m
+[INFO] [1792483172.710609155] [koko_waypoint_follower]: [WP:1] distance=0.67 m
+[INFO] [1792483173.611809695] [koko_waypoint_follower]: [WP:1] threshold reached at 0.37 m
+[INFO] [1792483173.612633813] [koko_waypoint_follower]: [WP:2] 2/3 goal=(0.00, 2.00, 1.57 rad), section_end=WP:2, poses=1
+[INFO] [1792483173.810403004] [koko_waypoint_follower]: [WP:2] distance=1.29 m
+[INFO] [1792483174.814401370] [koko_waypoint_follower]: [WP:2] distance=0.99 m
+[INFO] [1792483175.731673897] [koko_waypoint_follower]: [WP:2] threshold reached at 0.59 m
+[INFO] [1792483175.732558360] [koko_waypoint_follower]: [WP:3] 3/3 goal=(0.00, 3.00, 1.57 rad), section_end=WP:3, poses=1
+[INFO] [1792483175.831904198] [koko_waypoint_follower]: [WP:3] distance=1.55 m
+[INFO] [1792483176.833632981] [koko_waypoint_follower]: [WP:3] distance=1.13 m
+[INFO] [1792483177.835826829] [koko_waypoint_follower]: [WP:3] distance=0.66 m
+[INFO] [1792483178.836093273] [koko_waypoint_follower]: [WP:3] distance=0.30 m
+[INFO] [1792483179.098373173] [koko_waypoint_follower]: [WP:3] reached by Nav2
+[INFO] [1792483179.098784154] [koko_waypoint_follower]: All waypoints completed

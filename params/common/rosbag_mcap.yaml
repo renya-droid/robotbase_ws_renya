@@ -1,0 +1,8 @@
+# Keep Foxglove's message/chunk indexes and compress inside MCAP (not the bag file).
+noChunking: false
+noMessageIndex: false
+noSummary: false
+noChunkIndex: false
+compression: Zstd
+compressionLevel: Fast
+chunkSize: 1048576

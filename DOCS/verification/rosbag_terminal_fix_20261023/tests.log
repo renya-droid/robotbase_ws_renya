@@ -1,0 +1,44 @@
+test_all_split_files_are_checked_and_partial_footer_is_recovered (test_record_rosbag.FinalizationTests.test_all_split_files_are_checked_and_partial_footer_is_recovered) ... [MCAP] split_1.mcap: 未完了のファイルを修復します
+Recovered 1 message, 0 attachments, and 2 metadata records.
+[MCAP] 修復済み。元ファイル: /tmp/tmpg9l0k2de/split/split_1.mcap.damaged
+[INFO] [1792744416.154851794] [rosbag2_cpp]: Beginning reindexing bag in directory: "/tmp/tmpg9l0k2de/split"
+[INFO] [1792744416.156863962] [rosbag2_cpp]: Reindexing complete.
+ok
+test_cli_search_order_and_unusable_override (test_record_rosbag.FinalizationTests.test_cli_search_order_and_unusable_override) ... ok
+test_existing_backup_and_recovery_output_are_never_overwritten (test_record_rosbag.FinalizationTests.test_existing_backup_and_recovery_output_are_never_overwritten) ... ok
+test_failed_recovery_retains_original_and_intermediate_output (test_record_rosbag.FinalizationTests.test_failed_recovery_retains_original_and_intermediate_output) ... [MCAP] bad_recover_0_0.mcap: 未完了のファイルを修復します
+[MCAP] bad_recover_5_0.mcap: 未完了のファイルを修復します
+ok
+test_failed_reindex_remains_pending_and_can_be_retried (test_record_rosbag.FinalizationTests.test_failed_reindex_remains_pending_and_can_be_retried) ... [MCAP] reindex_retry_0.mcap: 未完了のファイルを修復します
+Recovered 1 message, 0 attachments, and 2 metadata records.
+[MCAP] 修復済み。元ファイル: /tmp/tmpwmk0uthw/reindex_retry/reindex_retry_0.mcap.damaged
+[INFO] [1792744416.415535048] [rosbag2_cpp]: Beginning reindexing bag in directory: "/tmp/tmpwmk0uthw/reindex_retry"
+[INFO] [1792744416.417011955] [rosbag2_cpp]: Reindexing complete.
+ok
+test_closed_output_pipe_cannot_interrupt_save (test_record_rosbag.RecordingTests.test_closed_output_pipe_cannot_interrupt_save) ... ok
+test_closing_controlling_terminal_still_saves_indexes (test_record_rosbag.RecordingTests.test_closing_controlling_terminal_still_saves_indexes) ... ok
+test_config_writes_zstd_chunks_and_indexes (test_record_rosbag.RecordingTests.test_config_writes_zstd_chunks_and_indexes) ... ok
+test_failed_recorder_is_not_reported_as_success (test_record_rosbag.RecordingTests.test_failed_recorder_is_not_reported_as_success) ... ok
+test_interactive_entrypoint_preserves_filename_input_and_mode (test_record_rosbag.RecordingTests.test_interactive_entrypoint_preserves_filename_input_and_mode) ... ok
+test_launcher_pipeline_survives_its_display_tee_disappearing (test_record_rosbag.RecordingTests.test_launcher_pipeline_survives_its_display_tee_disappearing) ... ok
+test_launcher_waits_longer_than_two_seconds_without_killing_writer (test_record_rosbag.RecordingTests.test_launcher_waits_longer_than_two_seconds_without_killing_writer) ... ok
+test_normal_exit_and_abnormal_exit_are_distinguished (test_record_rosbag.RecordingTests.test_normal_exit_and_abnormal_exit_are_distinguished) ... ok
+test_recovery_preserves_original_and_rebuilds_metadata (test_record_rosbag.RecordingTests.test_recovery_preserves_original_and_rebuilds_metadata) ... 保存終了を待っています: koko_record_rosbag（強制終了しません）
+保存終了を待っています: koko_record_rosbag（強制終了しません）
+[MCAP] recover_0.mcap: 未完了のファイルを修復します
+Recovered 1 message, 0 attachments, and 2 metadata records.
+[MCAP] 修復済み。元ファイル: /tmp/tmp1su6ivvb/recover/recover_0.mcap.damaged
+[INFO] [1792744424.172163204] [rosbag2_cpp]: Beginning reindexing bag in directory: "/tmp/tmp1su6ivvb/recover"
+[INFO] [1792744424.173374107] [rosbag2_cpp]: Reindexing complete.
+ok
+test_save_confirmation_failure_is_distinguished_from_recording_failure (test_record_rosbag.RecordingTests.test_save_confirmation_failure_is_distinguished_from_recording_failure) ... ok
+test_signals_during_natural_exit_finalization_do_not_report_early_success (test_record_rosbag.RecordingTests.test_signals_during_natural_exit_finalization_do_not_report_early_success) ... ok
+test_simulation_cleanup_requests_save_without_escalating_recorder (test_record_rosbag.RecordingTests.test_simulation_cleanup_requests_save_without_escalating_recorder) ... ok
+test_stop_signals_flush_indexes (test_record_rosbag.RecordingTests.test_stop_signals_flush_indexes) ... ok
+test_topics_config_and_real_sim_time_options (test_record_rosbag.RecordingTests.test_topics_config_and_real_sim_time_options) ... ok
+test_truncated_file_is_detected_and_original_retained (test_record_rosbag.RecordingTests.test_truncated_file_is_detected_and_original_retained) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 18.281s
+
+OK

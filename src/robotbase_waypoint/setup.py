@@ -23,6 +23,7 @@ setup(
         'console_scripts': [
             'waypoint_follow = robotbase_waypoint.waypoint_follow:main',
             'waypoint_record = robotbase_waypoint.waypoint_record:main',
+            'waypoint_visualize = robotbase_waypoint.waypoint_visualize:main',
         ],
     },
 )

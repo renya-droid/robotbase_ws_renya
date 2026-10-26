@@ -1,0 +1,80 @@
+[
+  {
+    "name": "to_pose_default",
+    "mode": "default(to_pose)",
+    "seconds": 10.9,
+    "final_position": [
+      0.025280600433065174,
+      2.7992457526226
+    ],
+    "arrivals": 0,
+    "pause_resume": false,
+    "loop_cancel_confirmed": false,
+    "exit_code": 0
+  },
+  {
+    "name": "through_straight_pause",
+    "mode": "through_poses",
+    "seconds": 12.9,
+    "final_position": [
+      0.008764976165583895,
+      0.20590621909116308
+    ],
+    "arrivals": 0,
+    "pause_resume": true,
+    "loop_cancel_confirmed": false,
+    "exit_code": 0
+  },
+  {
+    "name": "through_hairpin_overlap",
+    "mode": "through_poses",
+    "seconds": 21.5,
+    "final_position": [
+      0.06881238417527911,
+      0.1826255087235856
+    ],
+    "arrivals": 0,
+    "pause_resume": false,
+    "loop_cancel_confirmed": false,
+    "exit_code": 0
+  },
+  {
+    "name": "through_tasks",
+    "mode": "through_poses",
+    "seconds": 23.0,
+    "final_position": [
+      0.000777734179766375,
+      4.29859529663434
+    ],
+    "arrivals": 1,
+    "pause_resume": false,
+    "loop_cancel_confirmed": false,
+    "exit_code": 0
+  },
+  {
+    "name": "through_midstart_navigation_only",
+    "mode": "through_poses",
+    "seconds": 19.4,
+    "final_position": [
+      -0.006157957934349592,
+      2.0798702775845683
+    ],
+    "arrivals": 0,
+    "pause_resume": false,
+    "loop_cancel_confirmed": false,
+    "exit_code": 0
+  },
+  {
+    "name": "through_loop_cancel",
+    "mode": "through_poses",
+    "seconds": 10.4,
+    "final_position": [
+      0.012365852153916588,
+      2.795913922025368
+    ],
+    "arrivals": 0,
+    "pause_resume": false,
+    "loop_cancel_confirmed": true,
+    "exit_code": 130
+  }
+]

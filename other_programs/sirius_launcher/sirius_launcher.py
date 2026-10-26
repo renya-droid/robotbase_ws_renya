@@ -123,6 +123,9 @@ class LaunchButton(LaunchButtonUI):
         """プロセスを停止"""
         result = self.process_manager.stop()
         if result:
+            if result.get('wait_for_save'):
+                self.update_status(True)
+                return
             pids = result['pids']
             terminator_pid = result['terminator_pid']
             

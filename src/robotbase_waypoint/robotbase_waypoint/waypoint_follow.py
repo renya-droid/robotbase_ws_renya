@@ -1,16 +1,18 @@
-"""Follow Sirius-compatible YAML waypoints using Nav2 NavigateToPose."""
+"""Follow YAML routes continuously, stopping at task boundaries."""
 
 from dataclasses import dataclass, field
 import math
 import os
+from pathlib import Path
 import signal
 from time import monotonic
 from typing import Optional
 from uuid import uuid4
 
 from action_msgs.msg import GoalInfo, GoalStatus
+from ament_index_python.packages import get_package_share_directory
 from geometry_msgs.msg import PoseStamped, Twist
-from nav2_msgs.action import NavigateToPose
+from nav2_msgs.action import NavigateThroughPoses, NavigateToPose
 import rclpy
 from rclpy.action import ActionClient
 from rclpy.duration import Duration
@@ -18,9 +20,11 @@ from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
 from rclpy.signals import SignalHandlerOptions
 from std_msgs.msg import Bool, String
+from std_srvs.srv import SetBool
 from tf2_ros import Buffer, TransformException, TransformListener
 
 from .waypoint_io import load_waypoints
+from .waypoint_visualize import RouteMarkerPublisher
 
 
 TERMINAL_STATUSES = {
@@ -102,6 +106,10 @@ class GoalRecord:
     cancel_future: object = None
     cancel_confirmed: bool = False
     error: str = ''
+    start_index: Optional[int] = None
+    end_index: Optional[int] = None
+    allow_early_extension: bool = False
+    verify_endpoint_on_success: bool = False
 
     @property
     def resolved(self) -> bool:
@@ -195,8 +203,79 @@ def waypoint_arrival_threshold(
     return default_threshold
 
 
+def navigation_segment_end(waypoints, start_index: int, navigation_only: bool = False) -> int:
+    """Include the first task/stop waypoint as this continuous section's endpoint."""
+    for index in range(start_index, len(waypoints)):
+        waypoint = waypoints[index]
+        if (waypoint.stop or waypoint.wait_time > 0.0
+                or waypoint_uses_person_search(waypoint, navigation_only)):
+            return index
+    return len(waypoints) - 1
+
+
+def limit_section_length(waypoints, start: int, end: int, position, limit: float) -> int:
+    """Bound polyline distance from the robot without dropping waypoint tasks."""
+    distance = 0.0
+    previous = position
+    for index in range(start, end + 1):
+        point = (waypoints[index].x, waypoints[index].y)
+        distance += math.hypot(point[0] - previous[0], point[1] - previous[1])
+        if distance > limit:
+            # An indivisible first leg still needs a goal, even if it is long.
+            return max(start, index - 1)
+        previous = point
+    return end
+
+
+def split_nearby_endpoint(waypoints, start: int, end: int, position) -> int:
+    """Avoid immediate goal success for closed routes or at the start of a lap."""
+    def distance(index):
+        return math.hypot(waypoints[index].x - position[0], waypoints[index].y - position[1])
+
+    if end > start and distance(end) < 0.5:
+        farthest = max(range(start, end), key=distance)
+        if distance(farthest) >= 0.5:
+            return farthest
+    return end
+
+
+def split_ambiguous_section(waypoints, start: int, end: int) -> int:
+    """Keep hairpins and an early revisit of the section goal out of one path."""
+    # MPPI's local lookahead can contain both sides of a hairpin. End the
+    # section at that turn, then continue only after its action has completed.
+    for index in range(max(1, start), end):
+        a, b, c = waypoints[index - 1:index + 2]
+        incoming = (b.x - a.x, b.y - a.y)
+        outgoing = (c.x - b.x, c.y - b.y)
+        lengths = math.hypot(*incoming) * math.hypot(*outgoing)
+        if lengths > 1e-9 and sum(x * y for x, y in zip(incoming, outgoing)) <= 0.0:
+            return index  # A change of direction of at least 90 degrees.
+
+    goal = waypoints[end]
+    remaining = 0.0
+    for index in range(end - 1, start - 1, -1):
+        a, b = waypoints[index:index + 2]
+        # Exclude the final approach: naturally every path ends at its goal.
+        if remaining > 3.0:
+            dx, dy = b.x - a.x, b.y - a.y
+            length2 = dx * dx + dy * dy
+            projection = (((goal.x - a.x) * dx + (goal.y - a.y) * dy) / length2
+                          if length2 > 1e-12 else 0.0)
+            t = min(1.0, max(0.0, projection))
+            if math.hypot(goal.x - a.x - t * dx, goal.y - a.y - t * dy) < 1.0:
+                # This is a batching guard, not a passing radius: no point is
+                # discarded. Send both resulting sections in their YAML order.
+                farthest = max(range(start, end), key=lambda i: math.hypot(
+                    waypoints[i].x - goal.x, waypoints[i].y - goal.y))
+                if math.hypot(waypoints[farthest].x - goal.x,
+                              waypoints[farthest].y - goal.y) > 1.0:
+                    return farthest
+        remaining += math.hypot(b.x - a.x, b.y - a.y)
+    return end
+
+
 class WaypointFollower(Node):
-    """Send successive Nav2 goals, with early switching at intermediate points."""
+    """Send continuous route sections and preserve task-specific stop handshakes."""
 
     def __init__(self, *, shutdown_request=None) -> None:
         super().__init__('koko_waypoint_follower')
@@ -217,6 +296,9 @@ class WaypointFollower(Node):
         self.declare_parameter('person_area_cancel_timeout_sec', 3.0)
         self.declare_parameter('person_area_zero_settle_sec', 0.5)
         self.declare_parameter('navigation_only', False)
+        self.declare_parameter('navigation_mode', 'to_pose')
+        self.declare_parameter('max_section_length', 40.0)
+        self.declare_parameter('section_switch_distance', 6.0)
 
         waypoint_file = str(self.get_parameter('waypoint_file').value)
         if not waypoint_file:
@@ -229,8 +311,20 @@ class WaypointFollower(Node):
                 f'got {requested_index}')
 
         self.index = requested_index - 1
+        self.navigation_mode = str(self.get_parameter('navigation_mode').value)
+        if self.navigation_mode not in ('through_poses', 'to_pose'):
+            raise ValueError('navigation_mode must be through_poses or to_pose')
+        self.single_goal_recovery = False
+        self.manual_paused = False
+        self.manual_pause_started_at = None
         self.loop = bool(self.get_parameter('loop').value)
         self.navigation_only = bool(self.get_parameter('navigation_only').value)
+        self.max_section_length = float(self.get_parameter('max_section_length').value)
+        if not math.isfinite(self.max_section_length) or self.max_section_length <= 0.0:
+            raise ValueError('max_section_length must be finite and positive')
+        self.section_switch_distance = float(self.get_parameter('section_switch_distance').value)
+        if not math.isfinite(self.section_switch_distance) or self.section_switch_distance < 0.0:
+            raise ValueError('section_switch_distance must be finite and non-negative')
         validate_person_search_route(
             self.waypoints, requested_index, self.loop, self.navigation_only)
         self.default_threshold = float(self.get_parameter('default_threshold').value)
@@ -268,7 +362,11 @@ class WaypointFollower(Node):
         if self.person_area_zero_settle_sec <= 0.0:
             raise ValueError('person_area_zero_settle_sec must be positive')
 
-        self.action_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
+        through = self.navigation_mode == 'through_poses'
+        action_type = NavigateThroughPoses if through else NavigateToPose
+        self.action_name = 'navigate_through_poses' if through else 'navigate_to_pose'
+        self.action_client = ActionClient(self, action_type, self.action_name)
+        self.pause_service = self.create_service(SetBool, '~/set_paused', self._set_paused)
         self.stop_publisher = self.create_publisher(Bool, '/stop', 10)
         self.safety_cmd_vel_publisher = self.create_publisher(
             Twist, safety_cmd_vel_topic, 10)
@@ -315,6 +413,7 @@ class WaypointFollower(Node):
         self.person_search_last_detail = ''
         self.finished = False
         self.timer = self.create_timer(0.1, self._timer_callback)
+        self.route_markers = RouteMarkerPublisher(self, self.waypoints, self.map_frame)
 
         if not self._is_shutting_down():
             self._publish_stop(False)
@@ -322,7 +421,7 @@ class WaypointFollower(Node):
             f"Loaded {len(self.waypoints)} waypoints from '{waypoint_file}', "
             f'start={requested_index}, loop={self.loop}, frame={self.base_frame}, '
             f'stop_on_failure={self.stop_on_failure}, '
-            f'navigation_only={self.navigation_only}')
+            f'navigation_only={self.navigation_only}, navigation_mode={self.navigation_mode}')
         if self.navigation_only:
             self.get_logger().warning(
                 'Navigation-only mode: person_area markers are ignored and Camera '
@@ -335,7 +434,7 @@ class WaypointFollower(Node):
                 self._send_current_goal()
                 return
             self.get_logger().info(
-                'Waiting for /navigate_to_pose action server...', throttle_duration_sec=1.0)
+                f'Waiting for /{self.action_name} action server...', throttle_duration_sec=1.0)
 
     def _init_shutdown_state(self, shutdown_request=None) -> None:
         self.shutdown_request = shutdown_request or ShutdownRequest()
@@ -441,7 +540,7 @@ class WaypointFollower(Node):
         self._publish_stop(False)
         self._publish_safety_zero()
 
-    def _send_current_goal(self) -> None:
+    def _send_current_goal(self, *, extend_after: Optional[int] = None) -> bool:
         if any((
                 self._is_shutting_down(),
                 self.finished,
@@ -449,26 +548,60 @@ class WaypointFollower(Node):
                 self.person_area_stop_pending,
                 self.person_search_waiting,
                 self.person_search_faulted,
+                self.manual_paused,
         )):
-            return
+            return False
         waypoint = self.waypoints[self.index]
-        goal = NavigateToPose.Goal()
-        goal.pose = PoseStamped()
-        goal.pose.header.frame_id = self.map_frame
-        goal.pose.header.stamp = self.get_clock().now().to_msg()
-        goal.pose.pose.position.x = waypoint.x
-        goal.pose.pose.position.y = waypoint.y
-        goal.pose.pose.orientation.z, goal.pose.pose.orientation.w = (
-            yaw_to_quaternion(waypoint.angle_radians))
+        through = self.navigation_mode == 'through_poses'
+        end_index = self.index
+        allow_early_extension = False
+        if through and not self.single_goal_recovery:
+            end_index = navigation_segment_end(self.waypoints, self.index, self.navigation_only)
+            protected_end = split_ambiguous_section(self.waypoints, self.index, end_index)
+            try:
+                transform = self.tf_buffer.lookup_transform(
+                    self.map_frame, self.base_frame, rclpy.time.Time())
+                position = (transform.transform.translation.x, transform.transform.translation.y)
+            except TransformException:
+                position = (waypoint.x, waypoint.y)
+            end_index = limit_section_length(
+                self.waypoints, self.index, protected_end, position, self.max_section_length)
+            length_end = end_index
+            end_index = split_ambiguous_section(self.waypoints, self.index, end_index)
+            end_index = split_nearby_endpoint(self.waypoints, self.index, end_index, position)
+            allow_early_extension = end_index == length_end and end_index < protected_end
+        if extend_after is not None and end_index <= extend_after:
+            return False
+        poses = []
+        stamp = self.get_clock().now().to_msg()
+        for item in self.waypoints[self.index:end_index + 1]:
+            pose = PoseStamped()
+            pose.header.frame_id, pose.header.stamp = self.map_frame, stamp
+            pose.pose.position.x, pose.pose.position.y = item.x, item.y
+            pose.pose.orientation.z, pose.pose.orientation.w = (
+                yaw_to_quaternion(item.angle_radians))
+            poses.append(pose)
+        if through:
+            goal = NavigateThroughPoses.Goal()
+            goal.poses = poses
+            goal.behavior_tree = self._through_poses_tree()
+        else:
+            goal = NavigateToPose.Goal()
+            goal.pose = poses[0]
 
         serial = self.goal_serial + 1
         self.get_logger().info(
             f'[WP:{waypoint.number}] {self.index + 1}/{len(self.waypoints)} '
             f'goal=({waypoint.x:.2f}, {waypoint.y:.2f}, '
-            f'{waypoint.angle_radians:.2f} rad)')
+            f'{waypoint.angle_radians:.2f} rad), '
+            f'section_end=WP:{self.waypoints[end_index].number}, poses={len(poses)}')
         # Register ownership before dispatch: an exception is not proof that the
         # server never received the request. Never discard an unresolved record.
-        record = GoalRecord(goal_id=GoalInfo().goal_id)
+        record = GoalRecord(goal_id=GoalInfo().goal_id,
+                            start_index=self.index if through else None,
+                            end_index=end_index if through else None,
+                            allow_early_extension=allow_early_extension,
+                            verify_endpoint_on_success=extend_after is not None)
         record.goal_id.uuid = list(uuid4().bytes)
         send = self.action_client.send_goal_async
 
@@ -481,16 +614,124 @@ class WaypointFollower(Node):
             }
             self.goal_records[serial] = record
             try:
-                record.send_future = send(goal, goal_uuid=record.goal_id)
+                kwargs = {'goal_uuid': record.goal_id}
+                if through:
+                    kwargs['feedback_callback'] = (
+                        lambda message: self._goal_feedback(message, serial))
+                record.send_future = send(goal, **kwargs)
             except Exception as error:  # noqa: BLE001
                 record.error = f'goal send failed: {error}'
                 self.request_shutdown(record.error)
                 raise
 
         if not self._commit_mission(dispatch):
-            return
+            return False
         record.send_future.add_done_callback(
             lambda completed, sent_serial=serial: self._goal_response(completed, sent_serial))
+        return True
+
+    def _try_extend_section(self, record) -> bool:
+        """Extend a length-limited horizon while retaining every unpassed pose."""
+        if (record is None or not record.allow_early_extension
+                or record.accepted is not True or record.terminal_status is not None
+                or self.section_switch_distance <= 0.0):
+            return False
+        try:
+            transform = self.tf_buffer.lookup_transform(
+                self.map_frame, self.base_frame, rclpy.time.Time())
+        except TransformException:
+            return False
+        endpoint = self.waypoints[record.end_index]
+        distance = math.hypot(endpoint.x - transform.transform.translation.x,
+                              endpoint.y - transform.transform.translation.y)
+        if distance > self.section_switch_distance:
+            return False
+        if not self._send_current_goal(extend_after=record.end_index):
+            return False
+        self.get_logger().info(
+            f'Extended continuous section {distance:.2f} m before WP:{endpoint.number}; '
+            'unpassed waypoints retained')
+        return True
+
+    def _through_poses_tree(self) -> str:
+        """Use traversal progress without an early arrival distance threshold."""
+        return str(Path(get_package_share_directory('robotbase_bringup')) / 'behavior_trees' / (
+            'navigate_through_poses_w_replanning_goal_patience_and_recovery_no_spin.xml'))
+
+    def _goal_feedback(self, message, serial: int) -> None:
+        """Track Nav2's remaining ordered goals without sending another action."""
+        record = self.goal_records.get(serial)
+        if (record is None or record.end_index is None or self._is_shutting_down()
+                or serial != self.goal_serial or self.manual_paused or self.finished):
+            return
+        remaining = int(message.feedback.number_of_poses_remaining)
+        count = record.end_index - record.start_index + 1
+        if not 1 <= remaining <= count:
+            return
+        next_index = record.end_index + 1 - remaining
+        if next_index > self.index and self._commit_state(index=next_index):
+            self.get_logger().info(
+                f'[WP:{self.waypoints[self.index].number}] next unpassed waypoint '
+                f'(Nav2 remaining={remaining})')
+
+    def _set_paused(self, request, response):
+        """Cancel and retain the next waypoint; resume only after confirmed stop."""
+        response.success = False
+        if self._is_shutting_down() or self.finished:
+            response.message = 'Waypoint follower is stopping or finished'
+            return response
+        if request.data:
+            if self.manual_paused:
+                response.success, response.message = True, 'Already paused'
+                return response
+            if (self.waiting_until is not None or self.transition_in_progress
+                    or self.person_area_stop_pending or self.person_search_waiting
+                    or self.person_search_faulted):
+                response.message = (
+                    'Already stopping/waiting at a task waypoint; task state is unchanged')
+                return response
+            if not self._commit_state(
+                    manual_paused=True, manual_pause_started_at=monotonic(),
+                    goal_serial=self.goal_serial + 1, holding_stop=True):
+                return response
+            self._publish_safety_zero()
+            for record in self.goal_records.values():
+                self._ensure_cancel_requested(record)
+            response.success = True
+            response.message = f'Pause requested; resume from waypoint index {self.index + 1}'
+            self.get_logger().info(response.message)
+            return response
+        if not self.manual_paused:
+            response.success, response.message = True, 'Already running'
+            return response
+        if any(not record.resolved for record in self.goal_records.values()):
+            response.message = 'Waiting for Nav2 cancellation; retry resume after confirmation'
+            return response
+        if monotonic() - self.manual_pause_started_at < SHUTDOWN_ZERO_SETTLE_SEC:
+            response.message = 'Waiting for zero-velocity settling; retry resume shortly'
+            return response
+        if not self._publish_stop(False):
+            response.message = 'Stop lock could not be released'
+            return response
+        if not self._commit_state(
+                manual_paused=False, manual_pause_started_at=None, holding_stop=False,
+                goal_handle=None, goal_result_future=None, single_goal_recovery=False):
+            return response
+        self._send_current_goal()
+        response.success, response.message = True, f'Resumed from waypoint index {self.index + 1}'
+        return response
+
+    def _continue_manual_pause(self) -> None:
+        """Drain cancellation while holding zero, without progressing route/tasks."""
+        self._publish_safety_zero()
+        elapsed = monotonic() - self.manual_pause_started_at
+        if elapsed >= SHUTDOWN_ZERO_SETTLE_SEC:
+            self._publish_stop(True)
+        for record in self.goal_records.values():
+            self._ensure_cancel_requested(record)
+        if (elapsed > self.person_area_cancel_timeout_sec
+                and any(not record.resolved for record in self.goal_records.values())):
+            self.request_shutdown('Manual pause cancellation could not be confirmed')
 
     def _goal_response(self, future, serial: int) -> None:
         record = self.goal_records.get(serial)
@@ -541,6 +782,29 @@ class WaypointFollower(Node):
             self._handle_failure(f'goal result failed: {error}', serial, unconfirmed=True)
             return
         if wrapped_result.status == GoalStatus.STATUS_SUCCEEDED:
+            if record.verify_endpoint_on_success:
+                # During preemption, the old FollowPath can finish before the
+                # new plan arrives. Nav2 may then succeed the replacement
+                # action while the robot is still at the OLD endpoint.
+                try:
+                    transform = self.tf_buffer.lookup_transform(
+                        self.map_frame, self.base_frame, rclpy.time.Time())
+                    endpoint = self.waypoints[record.end_index]
+                    endpoint_distance = math.hypot(
+                        endpoint.x - transform.transform.translation.x,
+                        endpoint.y - transform.transform.translation.y)
+                except TransformException:
+                    endpoint_distance = math.inf
+                if endpoint_distance > self.precise_threshold:
+                    self.get_logger().warning(
+                        'Nav2 succeeded the updated section before reaching its endpoint; '
+                        f'distance={endpoint_distance:.2f} m. Retrying unpassed waypoints')
+                    if self._commit_state(goal_handle=None, goal_result_future=None):
+                        self._send_current_goal()
+                    return
+            if record.end_index is not None:
+                if not self._commit_state(index=record.end_index):
+                    return
             waypoint = self.waypoints[self.index]
             self.get_logger().info(f'[WP:{waypoint.number}] reached by Nav2')
             self._arrive_at_waypoint(exact_arrival=True)
@@ -554,6 +818,9 @@ class WaypointFollower(Node):
 
     def _timer_callback(self) -> None:
         if self._is_shutting_down():
+            return
+        if self.manual_paused:
+            self._continue_manual_pause()
             return
         if self.person_area_stop_pending:
             self._continue_person_area_stop()
@@ -584,6 +851,15 @@ class WaypointFollower(Node):
                     self._advance()
             return
 
+        if self.navigation_mode == 'through_poses':
+            record = self.goal_records.get(self.goal_serial)
+            if self._try_extend_section(record):
+                return
+            # Intermediate progress comes from the same BT that removes passed
+            # goals. Only a section endpoint can trigger a stop/task locally.
+            if record is None or self.index != record.end_index:
+                return
+
         try:
             transform = self.tf_buffer.lookup_transform(
                 self.map_frame, self.base_frame, rclpy.time.Time())
@@ -605,6 +881,10 @@ class WaypointFollower(Node):
             waypoint, self.navigation_only)
         needs_pause = waypoint.stop or waypoint.wait_time > 0.0 or uses_person_search
         is_last = self.index == len(self.waypoints) - 1
+        if self.navigation_mode == 'through_poses' and not needs_pause:
+            # A short recovery/loop section is also one action: wait for its
+            # terminal result before changing BT files or starting another.
+            return
         if is_last and not needs_pause:
             return
         threshold = waypoint_arrival_threshold(
@@ -1031,7 +1311,8 @@ class WaypointFollower(Node):
     def _advance(self) -> None:
         if self._is_shutting_down():
             return
-        if not self._commit_state(index=self.index + 1, goal_handle=None):
+        if not self._commit_state(index=self.index + 1, goal_handle=None,
+                                  single_goal_recovery=False):
             return
         self._send_current_goal()
 
@@ -1039,7 +1320,7 @@ class WaypointFollower(Node):
         if self._is_shutting_down():
             return
         if self.loop:
-            if not self._commit_state(index=0, goal_handle=None):
+            if not self._commit_state(index=0, goal_handle=None, single_goal_recovery=False):
                 return
             self.get_logger().info('Waypoint loop completed; returning to waypoint 1')
             self._send_current_goal()
@@ -1087,6 +1368,18 @@ class WaypointFollower(Node):
                 return
             self.request_shutdown(message)
         else:
+            record = self.goal_records.get(serial)
+            if (record is not None and record.end_index is not None
+                    and record.end_index > self.index):
+                # A path through many points can fail because a later point is
+                # blocked. Retry the next unpassed point alone before skipping
+                # anything; never skip an entire section containing tasks.
+                if not self._commit_state(
+                        single_goal_recovery=True, goal_handle=None, goal_result_future=None):
+                    return
+                self.get_logger().warning('Section failed; retrying the next waypoint alone')
+                self._send_current_goal()
+                return
             self.get_logger().warning(
                 f'[WP:{waypoint.number}] Skipping failed waypoint and continuing '
                 f'to next waypoint (stop_on_failure=false)')

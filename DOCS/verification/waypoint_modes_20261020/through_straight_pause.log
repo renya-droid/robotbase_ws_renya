@@ -1,0 +1,12 @@
+[WARN] [1792483180.439880980] [rcl]: ROS_LOCALHOST_ONLY is deprecated but still honored if it is enabled. Use ROS_AUTOMATIC_DISCOVERY_RANGE and ROS_STATIC_PEERS instead.
+[WARN] [1792483180.439910945] [rcl]: 'localhost_only' is enabled, 'automatic_discovery_range' and 'static_peers' will be ignored.
+[INFO] [1792483180.582747776] [koko_waypoint_follower]: Loaded 3 waypoints from '/tmp/waypoint_validation/through_straight_pause.yaml', start=1, loop=False, frame=robot/base_footprint, stop_on_failure=True, navigation_only=False, navigation_mode=through_poses
+[INFO] [1792483180.834642187] [koko_waypoint_follower]: [WP:1] 1/3 goal=(0.00, 2.00, -1.57 rad), section_end=WP:3, poses=3
+[INFO] [1792483183.862339072] [koko_waypoint_follower]: Pause requested; resume from waypoint index 1
+[INFO] [1792483185.378752513] [koko_waypoint_follower]: [WP:1] 1/3 goal=(0.00, 2.00, -1.57 rad), section_end=WP:3, poses=3
+[INFO] [1792483188.381966171] [koko_waypoint_follower]: [WP:2] next unpassed waypoint (Nav2 remaining=2)
+[INFO] [1792483190.032917101] [koko_waypoint_follower]: [WP:3] next unpassed waypoint (Nav2 remaining=1)
+[INFO] [1792483190.070038172] [koko_waypoint_follower]: [WP:3] distance=1.00 m
+[INFO] [1792483191.076706178] [koko_waypoint_follower]: [WP:3] distance=0.54 m
+[INFO] [1792483192.031541915] [koko_waypoint_follower]: [WP:3] reached by Nav2
+[INFO] [1792483192.032032235] [koko_waypoint_follower]: All waypoints completed

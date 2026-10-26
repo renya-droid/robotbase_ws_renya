@@ -1,0 +1,205 @@
+[INFO] [launch]: All log files can be found below /tmp/renya-port-sim/roslog/2026-10-23-14-38-01-865057-koko-chan-nuc-NUC11PAHi5-23680
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [map_server-1]: process started with pid [23688]
+[INFO] [static_transform_publisher-2]: process started with pid [23689]
+[INFO] [lifecycle_manager-3]: process started with pid [23690]
+[INFO] [controller_server-4]: process started with pid [23691]
+[INFO] [smoother_server-5]: process started with pid [23692]
+[INFO] [planner_server-6]: process started with pid [23693]
+[INFO] [behavior_server-7]: process started with pid [23694]
+[INFO] [bt_navigator-8]: process started with pid [23695]
+[INFO] [velocity_smoother-9]: process started with pid [23696]
+[INFO] [waypoint_follower-10]: process started with pid [23697]
+[INFO] [lifecycle_manager-11]: process started with pid [23700]
+[static_transform_publisher-2] [INFO] [1792733882.192231066] [map_to_odom_ground_truth]: Spinning until stopped - publishing transform
+[static_transform_publisher-2] translation: ('0.000000', '0.000000', '0.000000')
+[static_transform_publisher-2] rotation: ('0.000000', '0.000000', '0.000000', '1.000000')
+[static_transform_publisher-2] from 'map' to 'robot/odom'
+[lifecycle_manager-11] [INFO] [1792733882.198049700] [lifecycle_manager_navigation]: Creating
+[lifecycle_manager-11] [INFO] [1792733882.213195823] [lifecycle_manager_navigation]: [34m[1mCreating and initializing lifecycle service clients[0m[0m
+[velocity_smoother-9] [INFO] [1792733882.233036396] [velocity_smoother]: 
+[velocity_smoother-9] 	velocity_smoother lifecycle node launched. 
+[velocity_smoother-9] 	Waiting on external lifecycle transitions to activate
+[velocity_smoother-9] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[waypoint_follower-10] [INFO] [1792733882.261753238] [waypoint_follower]: 
+[waypoint_follower-10] 	waypoint_follower lifecycle node launched. 
+[waypoint_follower-10] 	Waiting on external lifecycle transitions to activate
+[waypoint_follower-10] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[lifecycle_manager-3] [INFO] [1792733882.263961856] [lifecycle_manager_static_map]: Creating
+[waypoint_follower-10] [INFO] [1792733882.264914895] [waypoint_follower]: Creating
+[controller_server-4] [INFO] [1792733882.273971269] [controller_server]: 
+[controller_server-4] 	controller_server lifecycle node launched. 
+[controller_server-4] 	Waiting on external lifecycle transitions to activate
+[controller_server-4] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[behavior_server-7] [INFO] [1792733882.275583135] [behavior_server]: 
+[behavior_server-7] 	behavior_server lifecycle node launched. 
+[behavior_server-7] 	Waiting on external lifecycle transitions to activate
+[behavior_server-7] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[lifecycle_manager-3] [INFO] [1792733882.275825697] [lifecycle_manager_static_map]: [34m[1mCreating and initializing lifecycle service clients[0m[0m
+[smoother_server-5] [INFO] [1792733882.302537664] [smoother_server]: 
+[smoother_server-5] 	smoother_server lifecycle node launched. 
+[smoother_server-5] 	Waiting on external lifecycle transitions to activate
+[smoother_server-5] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[bt_navigator-8] [INFO] [1792733882.303351504] [bt_navigator]: 
+[bt_navigator-8] 	bt_navigator lifecycle node launched. 
+[bt_navigator-8] 	Waiting on external lifecycle transitions to activate
+[bt_navigator-8] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[controller_server-4] [INFO] [1792733882.304560328] [controller_server]: Creating controller server
+[planner_server-6] [INFO] [1792733882.306873596] [planner_server]: 
+[planner_server-6] 	planner_server lifecycle node launched. 
+[planner_server-6] 	Waiting on external lifecycle transitions to activate
+[planner_server-6] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[bt_navigator-8] [INFO] [1792733882.311543466] [bt_navigator]: Creating
+[smoother_server-5] [INFO] [1792733882.314809379] [smoother_server]: Creating smoother server
+[planner_server-6] [INFO] [1792733882.316047463] [planner_server]: Creating
+[planner_server-6] [INFO] [1792733882.335035071] [global_costmap.global_costmap]: 
+[planner_server-6] 	global_costmap lifecycle node launched. 
+[planner_server-6] 	Waiting on external lifecycle transitions to activate
+[planner_server-6] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[planner_server-6] [INFO] [1792733882.345209153] [global_costmap.global_costmap]: Creating Costmap
+[lifecycle_manager-3] [INFO] [1792733882.357070013] [lifecycle_manager_static_map]: [34m[1mStarting managed nodes bringup...[0m[0m
+[lifecycle_manager-3] [INFO] [1792733882.357122895] [lifecycle_manager_static_map]: [34m[1mConfiguring map_server[0m[0m
+[controller_server-4] [INFO] [1792733882.358821409] [local_costmap.local_costmap]: 
+[controller_server-4] 	local_costmap lifecycle node launched. 
+[controller_server-4] 	Waiting on external lifecycle transitions to activate
+[controller_server-4] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[controller_server-4] [INFO] [1792733882.360000540] [local_costmap.local_costmap]: Creating Costmap
+[map_server-1] [INFO] [1792733882.364047680] [map_server]: 
+[map_server-1] 	map_server lifecycle node launched. 
+[map_server-1] 	Waiting on external lifecycle transitions to activate
+[map_server-1] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[map_server-1] [INFO] [1792733882.364148434] [map_server]: Creating
+[map_server-1] [INFO] [1792733882.364477659] [map_server]: Configuring
+[map_server-1] [INFO] [1792733882.364517548] [map_io]: Loading yaml file: /home/koko-chan-nuc/robotbase_ws_renya/install/robotbase_sim/share/robotbase_sim/maps/test_arena.yaml
+[map_server-1] [INFO] [1792733882.364962360] [map_io]: resolution: 0.05
+[map_server-1] [INFO] [1792733882.364970847] [map_io]: origin[0]: -6.2
+[map_server-1] [INFO] [1792733882.364973115] [map_io]: origin[1]: -6.2
+[map_server-1] [INFO] [1792733882.364975272] [map_io]: origin[2]: 0
+[map_server-1] [INFO] [1792733882.364977563] [map_io]: free_thresh: 0.25
+[map_server-1] [INFO] [1792733882.364979786] [map_io]: occupied_thresh: 0.65
+[map_server-1] [INFO] [1792733882.364982575] [map_io]: mode: trinary
+[map_server-1] [INFO] [1792733882.364985750] [map_io]: negate: 0
+[map_server-1] [INFO] [1792733882.369333560] [map_io]: Loading image_file: /home/koko-chan-nuc/robotbase_ws_renya/install/robotbase_sim/share/robotbase_sim/maps/test_arena.pgm
+[map_server-1] [INFO] [1792733882.372486714] [map_io]: Read map /home/koko-chan-nuc/robotbase_ws_renya/install/robotbase_sim/share/robotbase_sim/maps/test_arena.pgm: 248 X 248 map @ 0.05 m/cell
+[lifecycle_manager-3] [INFO] [1792733882.387687878] [lifecycle_manager_static_map]: [34m[1mActivating map_server[0m[0m
+[map_server-1] [INFO] [1792733882.388219805] [map_server]: Activating
+[map_server-1] [INFO] [1792733882.388426829] [map_server]: Creating bond (map_server) to lifecycle manager.
+[lifecycle_manager-11] [INFO] [1792733882.397743624] [lifecycle_manager_navigation]: [34m[1mStarting managed nodes bringup...[0m[0m
+[lifecycle_manager-11] [INFO] [1792733882.397809290] [lifecycle_manager_navigation]: [34m[1mConfiguring controller_server[0m[0m
+[controller_server-4] [INFO] [1792733882.398640945] [controller_server]: Configuring controller interface
+[controller_server-4] [INFO] [1792733882.398675607] [controller_server]: getting progress checker plugins..
+[controller_server-4] [INFO] [1792733882.398947483] [controller_server]: getting goal checker plugins..
+[controller_server-4] [INFO] [1792733882.399128261] [controller_server]: Controller frequency set to 10.0000Hz
+[controller_server-4] [INFO] [1792733882.399166780] [local_costmap.local_costmap]: Configuring
+[controller_server-4] [INFO] [1792733882.409767194] [local_costmap.local_costmap]: Using plugin "obstacle_layer"
+[controller_server-4] [INFO] [1792733882.422110901] [local_costmap.local_costmap]: Subscribed to Topics: scan
+[controller_server-4] [INFO] [1792733882.428251500] [local_costmap.local_costmap]: Initialized plugin "obstacle_layer"
+[controller_server-4] [INFO] [1792733882.428590108] [local_costmap.local_costmap]: Using plugin "inflation_layer"
+[controller_server-4] [INFO] [1792733882.430451036] [local_costmap.local_costmap]: Initialized plugin "inflation_layer"
+[controller_server-4] [INFO] [1792733882.465096599] [controller_server]: Created progress_checker : progress_checker of type nav2_controller::SimpleProgressChecker
+[controller_server-4] [INFO] [1792733882.465435694] [controller_server]: Controller Server has progress_checker  progress checkers available.
+[controller_server-4] [INFO] [1792733882.466864524] [controller_server]: Created goal checker : goal_checker of type nav2_controller::SimpleGoalChecker
+[controller_server-4] [INFO] [1792733882.467392520] [controller_server]: Controller Server has goal_checker  goal checkers available.
+[controller_server-4] [INFO] [1792733882.473718571] [controller_server]: Created controller : FollowPath of type nav2_mppi_controller::MPPIController
+[controller_server-4] [INFO] [1792733882.476892750] [controller_server]: Controller period is equal to model dt. Control sequence shifting is ON
+[controller_server-4] [INFO] [1792733882.482269016] [controller_server]: ConstraintCritic instantiated with 1 power and 6.000000 weight.
+[controller_server-4] [INFO] [1792733882.482317464] [controller_server]: Critic loaded : mppi::critics::ConstraintCritic
+[controller_server-4] [INFO] [1792733882.482807820] [controller_server]: InflationCostCritic instantiated with 1 power and 300.000000 / 0.015748 weights. Critic will collision check based on footprint cost.
+[controller_server-4] [INFO] [1792733882.482832895] [controller_server]: Critic loaded : mppi::critics::CostCritic
+[controller_server-4] [INFO] [1792733882.483006530] [controller_server]: GoalCritic instantiated with 1 power and 8.000000 weight.
+[controller_server-4] [INFO] [1792733882.483019740] [controller_server]: Critic loaded : mppi::critics::GoalCritic
+[controller_server-4] [INFO] [1792733882.483201518] [controller_server]: GoalAngleCritic instantiated with 1 power, 3.000000 weight, and 0.500000 angular threshold.
+[controller_server-4] [INFO] [1792733882.483214447] [controller_server]: Critic loaded : mppi::critics::GoalAngleCritic
+[controller_server-4] [INFO] [1792733882.483505823] [controller_server]: ReferenceTrajectoryCritic instantiated with 1 power and 8.000000 weight
+[controller_server-4] [INFO] [1792733882.483520068] [controller_server]: Critic loaded : mppi::critics::PathAlignCritic
+[controller_server-4] [INFO] [1792733882.483770011] [controller_server]: Critic loaded : mppi::critics::PathFollowCritic
+[controller_server-4] [INFO] [1792733882.484129961] [controller_server]: PathAngleCritic instantiated with 1 power and 5.000000 weight. Mode set to: Forward Preference
+[controller_server-4] [INFO] [1792733882.484146923] [controller_server]: Critic loaded : mppi::critics::PathAngleCritic
+[controller_server-4] [INFO] [1792733882.484378660] [controller_server]: PreferForwardCritic instantiated with 1 power and 40.000000 weight.
+[controller_server-4] [INFO] [1792733882.484392767] [controller_server]: Critic loaded : mppi::critics::PreferForwardCritic
+[controller_server-4] [INFO] [1792733882.484925676] [controller_server]: VelocityDeadbandCritic instantiated with 1 power, 35 weight, deadband_velocity [0.1,0,0]
+[controller_server-4] [INFO] [1792733882.484969105] [controller_server]: Critic loaded : mppi::critics::VelocityDeadbandCritic
+[controller_server-4] [INFO] [1792733882.489322418] [controller_server]: Optimizer reset
+[lifecycle_manager-3] [INFO] [1792733882.495447793] [lifecycle_manager_static_map]: Server map_server connected with bond.
+[lifecycle_manager-3] [INFO] [1792733882.495480904] [lifecycle_manager_static_map]: [34m[1mManaged nodes are active[0m[0m
+[lifecycle_manager-3] [INFO] [1792733882.495486494] [lifecycle_manager_static_map]: [34m[1mCreating bond timer...[0m[0m
+[controller_server-4] [INFO] [1792733882.496699366] [MPPIController]: Configured MPPI Controller: FollowPath
+[controller_server-4] [INFO] [1792733882.496805910] [controller_server]: Controller Server has FollowPath  controllers available.
+[lifecycle_manager-11] [INFO] [1792733882.514965555] [lifecycle_manager_navigation]: [34m[1mConfiguring smoother_server[0m[0m
+[smoother_server-5] [INFO] [1792733882.647091310] [smoother_server]: Configuring smoother server
+[smoother_server-5] [INFO] [1792733882.666416720] [smoother_server]: Created smoother : simple_smoother of type nav2_smoother::SimpleSmoother
+[smoother_server-5] [INFO] [1792733882.666680365] [smoother_server]: Smoother Server has simple_smoother  smoothers available.
+[smoother_server-5] [WARN] [1792733882.774364474] [smoother_server.rclcpp]: failed to send response to /smoother_server/change_state (timeout): client will not receive response, at ./src/rmw_response.cpp:153, at ./src/rcl/service.c:400
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [lifecycle_manager-11]: sending signal 'SIGINT' to process[lifecycle_manager-11]
+[INFO] [waypoint_follower-10]: sending signal 'SIGINT' to process[waypoint_follower-10]
+[INFO] [velocity_smoother-9]: sending signal 'SIGINT' to process[velocity_smoother-9]
+[INFO] [bt_navigator-8]: sending signal 'SIGINT' to process[bt_navigator-8]
+[INFO] [behavior_server-7]: sending signal 'SIGINT' to process[behavior_server-7]
+[INFO] [planner_server-6]: sending signal 'SIGINT' to process[planner_server-6]
+[INFO] [smoother_server-5]: sending signal 'SIGINT' to process[smoother_server-5]
+[ERROR] [waypoint_follower-10]: process has died [pid 23697, exit code -2, cmd '/home/koko-chan-nuc/robotbase_ws_renya/install/nav2_waypoint_follower/lib/nav2_waypoint_follower/waypoint_follower --ros-args -r __node:=waypoint_follower --params-file /tmp/launch_params_8v1xjm34 -r /tf:=tf -r /tf_static:=tf_static'].
+[INFO] [controller_server-4]: sending signal 'SIGINT' to process[controller_server-4]
+[ERROR] [velocity_smoother-9]: process has died [pid 23696, exit code -2, cmd '/home/koko-chan-nuc/robotbase_ws_renya/install/nav2_velocity_smoother/lib/nav2_velocity_smoother/velocity_smoother --ros-args -r __node:=velocity_smoother --params-file /tmp/launch_params_8v1xjm34 -r /tf:=tf -r /tf_static:=tf_static -r cmd_vel:=cmd_vel_nav'].
+[ERROR] [behavior_server-7]: process has died [pid 23694, exit code -2, cmd '/home/koko-chan-nuc/robotbase_ws_renya/install/nav2_behaviors/lib/nav2_behaviors/behavior_server --ros-args -r __node:=behavior_server --params-file /tmp/launch_params_8v1xjm34 -r /tf:=tf -r /tf_static:=tf_static -r cmd_vel:=cmd_vel_nav'].
+[INFO] [lifecycle_manager-3]: sending signal 'SIGINT' to process[lifecycle_manager-3]
+[INFO] [static_transform_publisher-2]: sending signal 'SIGINT' to process[static_transform_publisher-2]
+[ERROR] [bt_navigator-8]: process has died [pid 23695, exit code -2, cmd '/home/koko-chan-nuc/robotbase_ws_renya/install/nav2_bt_navigator/lib/nav2_bt_navigator/bt_navigator --ros-args -r __node:=bt_navigator --params-file /tmp/launch_params_8v1xjm34 -r /tf:=tf -r /tf_static:=tf_static'].
+[ERROR] [smoother_server-5]: process has died [pid 23692, exit code -2, cmd '/home/koko-chan-nuc/robotbase_ws_renya/install/nav2_smoother/lib/nav2_smoother/smoother_server --ros-args -r __node:=smoother_server --params-file /tmp/launch_params_8v1xjm34 -r /tf:=tf -r /tf_static:=tf_static'].
+[INFO] [map_server-1]: sending signal 'SIGINT' to process[map_server-1]
+[bt_navigator-8] [INFO] [1792733947.464357267] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[bt_navigator-8] [INFO] [1792733947.464526192] [bt_navigator]: Running Nav2 LifecycleNode rcl preshutdown (bt_navigator)
+[bt_navigator-8] [INFO] [1792733947.464557422] [bt_navigator]: Destroying bond (bt_navigator) to lifecycle manager.
+[waypoint_follower-10] [INFO] [1792733947.464361409] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[waypoint_follower-10] [INFO] [1792733947.464428604] [waypoint_follower]: Running Nav2 LifecycleNode rcl preshutdown (waypoint_follower)
+[waypoint_follower-10] [INFO] [1792733947.464463093] [waypoint_follower]: Destroying bond (waypoint_follower) to lifecycle manager.
+[velocity_smoother-9] [INFO] [1792733947.464366023] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[velocity_smoother-9] [INFO] [1792733947.464428331] [velocity_smoother]: Running Nav2 LifecycleNode rcl preshutdown (velocity_smoother)
+[velocity_smoother-9] [INFO] [1792733947.464459122] [velocity_smoother]: Destroying bond (velocity_smoother) to lifecycle manager.
+[ERROR] [static_transform_publisher-2]: process has died [pid 23689, exit code -2, cmd '/opt/ros/jazzy/lib/tf2_ros/static_transform_publisher --x 0 --y 0 --z 0 --roll 0 --pitch 0 --yaw 0 --frame-id map --child-frame-id robot/odom --ros-args -r __node:=map_to_odom_ground_truth'].
+[controller_server-4] [INFO] [1792733947.464378842] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[controller_server-4] [INFO] [1792733947.464428239] [controller_server]: Running Nav2 LifecycleNode rcl preshutdown (controller_server)
+[controller_server-4] [INFO] [1792733947.464478845] [controller_server]: Cleaning up
+[controller_server-4] [INFO] [1792733947.464547503] [MPPIController]: Cleaned up MPPI Controller: FollowPath
+[controller_server-4] [INFO] [1792733947.464818115] [local_costmap.local_costmap]: Cleaning up
+[behavior_server-7] [INFO] [1792733947.464379431] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[behavior_server-7] [INFO] [1792733947.464428142] [behavior_server]: Running Nav2 LifecycleNode rcl preshutdown (behavior_server)
+[behavior_server-7] [INFO] [1792733947.464462290] [behavior_server]: Destroying bond (behavior_server) to lifecycle manager.
+[ERROR] [planner_server-6]: process has died [pid 23693, exit code -2, cmd '/home/koko-chan-nuc/robotbase_ws_renya/install/nav2_planner/lib/nav2_planner/planner_server --ros-args -r __node:=planner_server --params-file /tmp/launch_params_8v1xjm34 -r /tf:=tf -r /tf_static:=tf_static'].
+[lifecycle_manager-3] [INFO] [1792733947.464381742] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[lifecycle_manager-3] [INFO] [1792733947.464431657] [lifecycle_manager_static_map]: Running Nav2 LifecycleManager rcl preshutdown (lifecycle_manager_static_map)
+[lifecycle_manager-3] [INFO] [1792733947.464460747] [lifecycle_manager_static_map]: [34m[1mTerminating bond timer...[0m[0m
+[ERROR] [lifecycle_manager-3]: process has died [pid 23690, exit code -2, cmd '/home/koko-chan-nuc/robotbase_ws_renya/install/nav2_lifecycle_manager/lib/nav2_lifecycle_manager/lifecycle_manager --ros-args -r __node:=lifecycle_manager_static_map --params-file /tmp/launch_params_jsolweek'].
+[smoother_server-5] [INFO] [1792733947.464395671] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[smoother_server-5] [INFO] [1792733947.464447238] [smoother_server]: Running Nav2 LifecycleNode rcl preshutdown (smoother_server)
+[smoother_server-5] [INFO] [1792733947.464491381] [smoother_server]: Cleaning up
+[lifecycle_manager-11] [INFO] [1792733947.464354207] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[lifecycle_manager-11] [INFO] [1792733947.464853290] [lifecycle_manager_navigation]: Running Nav2 LifecycleManager rcl preshutdown (lifecycle_manager_navigation)
+[planner_server-6] [INFO] [1792733947.464996843] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[planner_server-6] [INFO] [1792733947.465046133] [planner_server]: Running Nav2 LifecycleNode rcl preshutdown (planner_server)
+[planner_server-6] [INFO] [1792733947.465081484] [planner_server]: Destroying bond (planner_server) to lifecycle manager.
+[ERROR] [map_server-1]: process has died [pid 23688, exit code -2, cmd '/home/koko-chan-nuc/robotbase_ws_renya/install/nav2_map_server/lib/nav2_map_server/map_server --ros-args -r __node:=map_server --params-file /tmp/launch_params_8v1xjm34 --params-file /tmp/launch_params_08_hm7c2 -r /tf:=tf -r /tf_static:=tf_static'].
+[map_server-1] [INFO] [1792733947.465039236] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[map_server-1] [INFO] [1792733947.465090883] [map_server]: Running Nav2 LifecycleNode rcl preshutdown (map_server)
+[map_server-1] [INFO] [1792733947.465138695] [map_server]: Deactivating
+[map_server-1] [INFO] [1792733947.465150799] [map_server]: Destroying bond (map_server) to lifecycle manager.
+[behavior_server-7] [INFO] [1792733947.465660875] [behavior_server]: Destroying
+[static_transform_publisher-2] [INFO] [1792733947.465871076] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[velocity_smoother-9] [INFO] [1792733947.466109674] [velocity_smoother]: Destroying
+[waypoint_follower-10] [INFO] [1792733947.466344233] [waypoint_follower]: Destroying
+[bt_navigator-8] [INFO] [1792733947.467050491] [bt_navigator]: Destroying
+[map_server-1] [INFO] [1792733947.475380105] [map_server]: Cleaning up
+[map_server-1] [INFO] [1792733947.475731446] [map_server]: Destroying bond (map_server) to lifecycle manager.
+[smoother_server-5] [INFO] [1792733947.476895197] [smoother_server]: Destroying bond (smoother_server) to lifecycle manager.
+[lifecycle_manager-3] [INFO] [1792733947.484501767] [lifecycle_manager_static_map]: Destroying lifecycle_manager_static_map
+[map_server-1] [INFO] [1792733947.494566047] [map_server]: Destroying
+[controller_server-4] [INFO] [1792733947.513033818] [controller_server]: Destroying bond (controller_server) to lifecycle manager.
+[controller_server-4] [INFO] [1792733947.514673398] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[controller_server-4] [INFO] [1792733947.516062428] [local_costmap.local_costmap]: Destroying
+[controller_server-4] [INFO] [1792733947.522426036] [controller_server]: Destroying
+[INFO] [controller_server-4]: process has finished cleanly [pid 23691]
+[ERROR] [lifecycle_manager-11]: process[lifecycle_manager-11] failed to terminate '5' seconds after receiving 'SIGINT', escalating to 'SIGTERM'
+[INFO] [lifecycle_manager-11]: sending signal 'SIGTERM' to process[lifecycle_manager-11]
+[ERROR] [lifecycle_manager-11]: process[lifecycle_manager-11] failed to terminate '10.0' seconds after receiving 'SIGTERM', escalating to 'SIGKILL'
+[INFO] [lifecycle_manager-11]: sending signal 'SIGKILL' to process[lifecycle_manager-11]
+[ERROR] [lifecycle_manager-11]: process has died [pid 23700, exit code -9, cmd '/home/koko-chan-nuc/robotbase_ws_renya/install/nav2_lifecycle_manager/lib/nav2_lifecycle_manager/lifecycle_manager --ros-args -r __node:=lifecycle_manager_navigation --params-file /tmp/launch_params_wvcg_ife'].

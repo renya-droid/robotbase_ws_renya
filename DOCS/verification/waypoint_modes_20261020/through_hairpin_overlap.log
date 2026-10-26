@@ -1,0 +1,20 @@
+[WARN] [1792483193.376370940] [rcl]: ROS_LOCALHOST_ONLY is deprecated but still honored if it is enabled. Use ROS_AUTOMATIC_DISCOVERY_RANGE and ROS_STATIC_PEERS instead.
+[WARN] [1792483193.376403016] [rcl]: 'localhost_only' is enabled, 'automatic_discovery_range' and 'static_peers' will be ignored.
+[INFO] [1792483193.509878581] [koko_waypoint_follower]: Loaded 4 waypoints from '/tmp/waypoint_validation/through_hairpin_overlap.yaml', start=1, loop=False, frame=robot/base_footprint, stop_on_failure=True, navigation_only=False, navigation_mode=through_poses
+[INFO] [1792483193.760992247] [koko_waypoint_follower]: Waiting for /navigate_through_poses action server...
+[INFO] [1792483194.763937014] [koko_waypoint_follower]: Waiting for /navigate_through_poses action server...
+[INFO] [1792483195.768671211] [koko_waypoint_follower]: [WP:1] 1/4 goal=(0.00, 1.00, 1.57 rad), section_end=WP:2, poses=2
+[INFO] [1792483201.162453443] [koko_waypoint_follower]: [WP:2] next unpassed waypoint (Nav2 remaining=1)
+[INFO] [1792483201.196512230] [koko_waypoint_follower]: [WP:2] distance=2.04 m
+[INFO] [1792483202.198565367] [koko_waypoint_follower]: [WP:2] distance=1.33 m
+[INFO] [1792483203.203753945] [koko_waypoint_follower]: [WP:2] distance=0.83 m
+[INFO] [1792483204.211107576] [koko_waypoint_follower]: [WP:2] distance=0.41 m
+[INFO] [1792483204.880193928] [koko_waypoint_follower]: [WP:2] reached by Nav2
+[INFO] [1792483204.881201267] [koko_waypoint_follower]: [WP:3] 3/4 goal=(0.00, 2.00, -1.57 rad), section_end=WP:4, poses=2
+[INFO] [1792483209.993935297] [koko_waypoint_follower]: [WP:4] next unpassed waypoint (Nav2 remaining=1)
+[INFO] [1792483210.044005158] [koko_waypoint_follower]: [WP:4] distance=2.05 m
+[INFO] [1792483211.047003236] [koko_waypoint_follower]: [WP:4] distance=1.31 m
+[INFO] [1792483212.052372318] [koko_waypoint_follower]: [WP:4] distance=0.79 m
+[INFO] [1792483213.063101792] [koko_waypoint_follower]: [WP:4] distance=0.36 m
+[INFO] [1792483213.532772299] [koko_waypoint_follower]: [WP:4] reached by Nav2
+[INFO] [1792483213.533246824] [koko_waypoint_follower]: All waypoints completed

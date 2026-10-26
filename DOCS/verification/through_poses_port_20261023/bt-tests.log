@@ -1,0 +1,53 @@
+Starting >>> robotbase_bt_nodes
+UpdateCTestConfiguration  from :/home/koko-chan-nuc/robotbase_ws_renya/build/robotbase_bt_nodes/CTestConfiguration.ini
+Parse Config file:/home/koko-chan-nuc/robotbase_ws_renya/build/robotbase_bt_nodes/CTestConfiguration.ini
+   Site: koko-chan-nuc-NUC11PAHi5
+   Build name: (empty)
+ Add coverage exclude regular expressions.
+Create new tag: 20261023-0536 - Experimental
+UpdateCTestConfiguration  from :/home/koko-chan-nuc/robotbase_ws_renya/build/robotbase_bt_nodes/CTestConfiguration.ini
+Parse Config file:/home/koko-chan-nuc/robotbase_ws_renya/build/robotbase_bt_nodes/CTestConfiguration.ini
+Test project /home/koko-chan-nuc/robotbase_ws_renya/build/robotbase_bt_nodes
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: test_passage
+
+1: Test command: /usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/koko-chan-nuc/robotbase_ws_renya/build/robotbase_bt_nodes/test_results/robotbase_bt_nodes/test_passage.gtest.xml" "--package-name" "robotbase_bt_nodes" "--output-file" "/home/koko-chan-nuc/robotbase_ws_renya/build/robotbase_bt_nodes/ament_cmake_gtest/test_passage.txt" "--command" "/home/koko-chan-nuc/robotbase_ws_renya/build/robotbase_bt_nodes/test_passage" "--gtest_output=xml:/home/koko-chan-nuc/robotbase_ws_renya/build/robotbase_bt_nodes/test_results/robotbase_bt_nodes/test_passage.gtest.xml"
+1: Working Directory: /home/koko-chan-nuc/robotbase_ws_renya/build/robotbase_bt_nodes
+1: Test timeout computed to be: 60
+1: -- run_test.py: invoking following command in '/home/koko-chan-nuc/robotbase_ws_renya/build/robotbase_bt_nodes':
+1:  - /home/koko-chan-nuc/robotbase_ws_renya/build/robotbase_bt_nodes/test_passage --gtest_output=xml:/home/koko-chan-nuc/robotbase_ws_renya/build/robotbase_bt_nodes/test_results/robotbase_bt_nodes/test_passage.gtest.xml
+1: Running main() from /opt/ros/jazzy/src/gtest_vendor/src/gtest_main.cc
+1: [==========] Running 3 tests from 1 test suite.
+1: [----------] Global test environment set-up.
+1: [----------] 3 tests from Passage
+1: [ RUN      ] Passage.DoesNotRemoveOneMetreBeforeGoal
+1: [       OK ] Passage.DoesNotRemoveOneMetreBeforeGoal (0 ms)
+1: [ RUN      ] Passage.HandlesSmoothCornerWithoutAnArrivalRadius
+1: [       OK ] Passage.HandlesSmoothCornerWithoutAnArrivalRadius (0 ms)
+1: [ RUN      ] Passage.HandlesReverseDirectionAndInitialCoincidentPoint
+1: [       OK ] Passage.HandlesReverseDirectionAndInitialCoincidentPoint (0 ms)
+1: [----------] 3 tests from Passage (0 ms total)
+1: 
+1: [----------] Global test environment tear-down
+1: [==========] 3 tests from 1 test suite ran. (0 ms total)
+1: [  PASSED  ] 3 tests.
+1: -- run_test.py: return code 0
+1: -- run_test.py: inject classname prefix into gtest result file '/home/koko-chan-nuc/robotbase_ws_renya/build/robotbase_bt_nodes/test_results/robotbase_bt_nodes/test_passage.gtest.xml'
+1: -- run_test.py: verify result file '/home/koko-chan-nuc/robotbase_ws_renya/build/robotbase_bt_nodes/test_results/robotbase_bt_nodes/test_passage.gtest.xml'
+1/1 Test #1: test_passage .....................   Passed    0.06 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Label Time Summary:
+gtest    =   0.06 sec*proc (1 test)
+
+Total Test time (real) =   0.07 sec
+Finished <<< robotbase_bt_nodes [0.12s]
+
+Summary: 1 package finished [0.42s]

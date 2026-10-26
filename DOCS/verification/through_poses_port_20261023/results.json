@@ -1,0 +1,40 @@
+{
+  "start_position": [
+    1.6002923371295827e-10,
+    -1.8072887360168142e-27
+  ],
+  "to_pose": {
+    "returncode": 0,
+    "position": [
+      0.05468360465027956,
+      2.8004336473333753
+    ],
+    "extended": 0,
+    "false_success_retry": 0,
+    "completed": true,
+    "skipped": false
+  },
+  "pause": {
+    "success": true,
+    "resumed": true,
+    "before": [
+      -0.08920212223278154,
+      0.7606633550219422
+    ],
+    "after": [
+      -0.05808534382179651,
+      0.6176371466006124
+    ]
+  },
+  "through_rolling_pause": {
+    "returncode": 0,
+    "position": [
+      0.004855801028577727,
+      -0.798898765396578
+    ],
+    "extended": 1,
+    "false_success_retry": 0,
+    "completed": true,
+    "skipped": false
+  }
+}

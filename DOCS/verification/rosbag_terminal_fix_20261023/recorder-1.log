@@ -1,0 +1,29 @@
+=========================================
+記録を開始します...
+  保存先: /tmp/rosbag-terminal-fix-20261023/live/closed_display
+  保存確認ログ: /tmp/rosbag-terminal-fix-20261023/live/.recording-logs/record_20261023_173456_hQLA6i.log
+  実験メモ: No description
+  停止するには Ctrl+C を押してください
+=========================================
+
+[INFO] [1792744496.624940215] [rosbag2_recorder]: Event publisher thread: Started
+[INFO] [1792744496.627647420] [rosbag2_recorder]: Starting recording to '/tmp/rosbag-terminal-fix-20261023/live/closed_display'
+[INFO] [1792744496.629593355] [rosbag2_recorder]: Subscribed to topic '/rosout'
+[INFO] [1792744496.629702468] [rosbag2_recorder]: Listening for topics...
+[INFO] [1792744496.629719547] [rosbag2_recorder]: Recording...
+[INFO] [1792744496.629734900] [rosbag2_recorder]: Topics discovery started.
+[INFO] [1792744496.884504424] [rosbag2_recorder]: Subscribed to topic '/parameter_events'
+[INFO] [1792744496.887709774] [rosbag2_recorder]: Subscribed to topic '/experiment_metadata'
+
+記録を停止・保存しています。完了までお待ちください...
+[INFO] [1792744511.320108350] [rosbag2_recorder]: Topics discovery stopped.
+[INFO] [1792744511.320358354] [rosbag2_recorder]: Pausing recording.
+[INFO] [1792744511.320468816] [rosbag2_cpp]: Writing remaining messages from cache to the bag. It may take a while
+[INFO] [1792744511.335750156] [rosbag2_recorder]: Recording stopped
+[INFO] [1792744511.336922914] [rosbag2_recorder]: Event publisher thread: Exited
+
+=========================================
+  保存先: /tmp/rosbag-terminal-fix-20261023/live/closed_display
+✓ 保存が完了しました（Foxgloveで開けます）
+  サイズ: 28K
+=========================================

@@ -1,0 +1,16 @@
+[INFO] [1792733994.184575685] [koko_waypoint_follower]: Loaded 4 waypoints from '/tmp/renya-port-sim-udp/through_rolling_pause.yaml', start=1, loop=False, frame=robot/base_footprint, stop_on_failure=False, navigation_only=False, navigation_mode=through_poses
+[INFO] [1792733994.435258461] [koko_waypoint_follower]: Waiting for /navigate_through_poses action server...
+[INFO] [1792733995.440900695] [koko_waypoint_follower]: [WP:1] 1/4 goal=(0.00, 2.00, -1.57 rad), section_end=WP:3, poses=3
+[INFO] [1792734000.664083799] [koko_waypoint_follower]: [WP:2] next unpassed waypoint (Nav2 remaining=2)
+[INFO] [1792734002.333375091] [koko_waypoint_follower]: [WP:3] next unpassed waypoint (Nav2 remaining=1)
+[INFO] [1792734002.370181207] [koko_waypoint_follower]: [WP:3] distance=0.99 m
+[INFO] [1792734002.776660351] [koko_waypoint_follower]: [WP:3] 3/4 goal=(0.00, 0.00, -1.57 rad), section_end=WP:4, poses=2
+[INFO] [1792734002.777562976] [koko_waypoint_follower]: Extended continuous section 0.80 m before WP:3; unpassed waypoints retained
+[INFO] [1792734002.845278018] [koko_waypoint_follower]: Pause requested; resume from waypoint index 3
+[INFO] [1792734004.136573570] [koko_waypoint_follower]: [WP:3] 3/4 goal=(0.00, 0.00, -1.57 rad), section_end=WP:4, poses=2
+[INFO] [1792734006.469529098] [koko_waypoint_follower]: [WP:4] next unpassed waypoint (Nav2 remaining=1)
+[INFO] [1792734006.546681363] [koko_waypoint_follower]: [WP:4] distance=0.97 m
+[INFO] [1792734007.647224558] [koko_waypoint_follower]: [WP:4] distance=0.53 m
+[INFO] [1792734008.651586132] [koko_waypoint_follower]: [WP:4] distance=0.28 m
+[INFO] [1792734008.889216553] [koko_waypoint_follower]: [WP:4] reached by Nav2
+[INFO] [1792734008.889669193] [koko_waypoint_follower]: All waypoints completed

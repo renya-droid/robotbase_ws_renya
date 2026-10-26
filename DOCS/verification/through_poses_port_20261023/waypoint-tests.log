@@ -1,0 +1,48 @@
+Starting >>> robotbase_waypoint
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: /home/koko-chan-nuc/robotbase_ws_renya/build/robotbase_waypoint/.pytest_cache
+rootdir: /home/koko-chan-nuc/robotbase_ws_renya/src/robotbase_waypoint
+plugins: launch-testing-3.4.11, launch-testing-ros-0.26.12, ament-copyright-0.17.5, ament-lint-0.17.5, ament-flake8-0.17.5, ament-xmllint-0.17.5, ament-pep257-0.17.5, cov-4.1.0, typeguard-4.1.5, colcon-core-0.21.0
+collected 76 items
+
+test/test_flake8.py .                                                    [  1%]
+test/test_pep257.py .                                                    [  2%]
+test/test_through_poses.py ..................................            [ 47%]
+test/test_waypoint_follow.py ...............................             [ 88%]
+test/test_waypoint_io.py ....                                            [ 93%]
+
+=============================== warnings summary ===============================
+test/test_flake8.py::test_flake8
+test/test_flake8.py::test_flake8
+test/test_flake8.py::test_flake8
+test/test_flake8.py::test_flake8
+test/test_flake8.py::test_flake8
+test/test_flake8.py::test_flake8
+test/test_flake8.py::test_flake8
+test/test_flake8.py::test_flake8
+  Warning: This process (pid=127) is multi-threaded, use of fork() may lead to deadlocks in the child.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+test/test_waypoint_record.py .....                                       [100%]
+- generated xml file: /home/koko-chan-nuc/robotbase_ws_renya/build/robotbase_waypoint/pytest.xml -
+======================== 76 passed, 8 warnings in 1.89s ========================
+--- stderr: robotbase_waypoint
+
+=============================== warnings summary ===============================
+test/test_flake8.py::test_flake8
+test/test_flake8.py::test_flake8
+test/test_flake8.py::test_flake8
+test/test_flake8.py::test_flake8
+test/test_flake8.py::test_flake8
+test/test_flake8.py::test_flake8
+test/test_flake8.py::test_flake8
+test/test_flake8.py::test_flake8
+  Warning: This process (pid=127) is multi-threaded, use of fork() may lead to deadlocks in the child.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+---
+Finished <<< robotbase_waypoint [3.02s]
+
+Summary: 1 package finished [3.51s]
+  1 package had stderr output: robotbase_waypoint

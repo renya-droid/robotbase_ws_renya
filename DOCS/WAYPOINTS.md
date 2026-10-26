@@ -2,7 +2,7 @@
 
 ## 概要
 
-SIRIUSの`move_goal.py`と位置記録ツールを参考に、ココちゃん専用の`robotbase_waypoint`パッケージを追加した。実機・シミュレーションで同じYAMLを使い、複数地点をNav2の`NavigateToPose`へ順番に送る。
+SIRIUSの`move_goal.py`と位置記録ツールを参考に、ココちゃん専用の`robotbase_waypoint`パッケージを追加した。実機・シミュレーションで同じYAMLを使い、起動時にNav2の`NavigateToPose`（従来方式・既定）と`NavigateThroughPoses`（連続走行）を選択できる。
 
 SIRIUSから引き継いだもの:
 
@@ -16,7 +16,7 @@ SIRIUSから引き継いだもの:
 - 固定の`sirius3/base_footprint`を廃止し、`robot.env`のTF接頭辞を使用
 - SIRIUSの固定パスを廃止し、`robotbase_ws/maps_waypoints/waypoints/`へ集約
 - LLM用`/nav_control`、地図切替shell、SIRIUS固有トピックを含めない
-- 中間点で旧Nav2 goalのキャンセル完了を待ってから次を送る
+- 従来方式の通常中間点では次のgoalを送り、Nav2側でpreemptする。停止・待機・人物探索では既存の停止処理を使う
 - 停止時は`/cmd_vel_direct`へゼロ速度を送り安全に停止を維持する
 - 失敗時は`stop_on_failure: false`（既定）でスキップして次のウェイポイントへ自動遷移する
 - YAMLの値とファイル存在を起動時に検証し、同一goalの周期的な再送を行わない
@@ -51,9 +51,60 @@ koko_nav2_real
 koko_waypoint_follow
 ```
 
-追従コマンドはYAML、開始番号、切替距離、ループ有無を順に質問する。選択するYAMLと、Nav2で選択した地図の座標系が一致している必要がある。
+追従コマンドはYAML、開始番号、走行方式、切替距離、ループ有無を質問する。方式1では中間点の切替距離（既定1.0 m）、方式2では通常区間の切替距離（既定6.0 m）を入力する。
+
+```text
+走行方式を選択：
+  1: NavigateToPose（従来方式）
+  2: NavigateThroughPoses（連続走行）
+番号 [1]:
+```
+
+空入力は1。両コマンドとも`navigation_mode:=to_pose`または`navigation_mode:=through_poses`を明示的に渡し、選択を端末とノードの起動ログに表示する。ノードを直接起動して`navigation_mode`を省略した場合も`to_pose`になる。
+
+- `to_pose`: 1点ずつ送信する。通常中間点の切替距離、各点の`threshold`、最終点のNav2成功待ち、停止・待機・人物探索の判定は従来どおり。
+- `through_poses`: 通常の中間点をまとめて送り、停止・待機・人物探索の点を区間終端にする。急な切り返し、区間終点付近を先に通る経路、現在地に終点が重なるループも区間分割し、YAML順で送る。通常中間点の削除は`RemoveTraversedGoals`の通過判定で行い、`default_threshold`やYAMLの`threshold`を早期削除に使わない。区間終端の停止・人物探索では既存の精密到着・停止処理を使う。
+
+`through_poses`は`max_section_length`（既定40.0 m）でも区間を分ける。現在位置から未通過waypointを順につないだ折れ線距離を合計し、上限を超える前の地点を終端にする。固定点数や始点・終点間の直線距離は使わない。最初の1点への距離だけで上限を超える場合は、その点を単独で送り、地点を飛ばさない。障害物回避を含む計画経路の長さを制限するものではない。
+
+距離上限だけで分割した通常区間は、終端まで`section_switch_distance`（既定6.0 m）以内で次の区間へ更新する。旧区間の未通過点も新しい目標列に残し、新終端が先へ延びる場合だけ更新する。通過済み番号はBTの`RemoveTraversedGoals`が返す残り点数で管理し、距離だけでは進めない。停止・待機・人物探索・最終地点、急な折り返しや終端近接による分割では早期更新せず、従来の到着確認を維持する。直接起動時に`section_switch_distance:=0.0`を渡すと通常区間も到着完了を待つ。
+
+早期更新後は、旧区間のFollowPath完了が新しいaction全体の成功として通知される場合があるため、成功通知に加えてTFで新終端への到達を確認する。`precise_threshold`（既定0.35 m）より遠い、または位置が取得できない場合はindexを終端へ進めず、未通過地点を保持して再送する。旧goalの遅延した結果・feedbackは新しい進捗に反映しない。区間失敗時は次の未通過点を単独で再試行し、終了・一時停止時は更新前後の未終了goalをすべて管理・キャンセルする。
+
+方式変更は追従を`Ctrl+C`で終了し、同じ追従コマンドを再起動して選択し直す。通常の切替でNav2全体の再起動は不要。今回のプラグインを導入する初回だけは、ビルド後にNav2を起動し直してライブラリを読み込む。
+
+走行中の一時停止・再開は追従ノードのサービスでも行える（同じ実機／sim環境の端末を使う）。
+
+```bash
+ros2 service call /koko_waypoint_follower/set_paused std_srvs/srv/SetBool '{data: true}'
+ros2 service call /koko_waypoint_follower/set_paused std_srvs/srv/SetBool '{data: false}'
+```
+
+停止要求ではgoalのキャンセルとゼロ速度を維持し、キャンセル終了と停止安定を確認してから再開する。再開応答が待機中を示した場合は、確認後に再試行する。停止・待機・人物探索処理中の要求はそのタスクを変更しない。人物探索の既存トピック、ACK、完了通知、タイムアウト、Navigation-onlyの扱いは共通。
+
+選択するYAMLと、Nav2で選択した地図の座標系が一致している必要がある。
 
 MPPIは後退より前進を強く優先する。最初の地点は、現在姿勢から見て前方に置く。後方から開始すると、到達まで大きく旋回する場合がある。
+
+## RVizでウェイポイントを表示
+
+追従ノードは、読み込んだ全地点の番号・向きの矢印・地点を順に結ぶ線を
+`/waypoint_markers`（`visualization_msgs/msg/MarkerArray`）へ配信する。
+RViz設定には「Waypoints」を追加済み。停止・待機地点の矢印は黄色、通常地点は緑色になる。
+
+走行前に表示だけ確認する場合は、追従ノードを起動せず次を実行する。
+このコマンドはナビゲーションgoalや速度指令を送らない。
+
+```bash
+source install/setup.bash
+ros2 run robotbase_waypoint waypoint_visualize --ros-args \
+  -p waypoint_file:="$PWD/maps_waypoints/waypoints/1024-nakanoshima-2.yaml"
+```
+
+RVizのFixed Frameを`map`にする。すでに開いているRVizでは、Add → MarkerArrayを選び、
+Topicを`/waypoint_markers`に設定する。後から開いたRVizにも表示される。
+YAML変更後は表示ノードを再起動する。追従を開始する前に表示専用ノードを`Ctrl+C`で終了し、
+同じトピックへ複数のルートを同時配信しないようにする。
 
 ## 地点の記録
 
@@ -138,11 +189,11 @@ waypoints:
 | `number` | 省略可 | 表示上の地点番号。省略時はリスト順 |
 | `x`, `y` | 必須 | `map`座標系の位置[m] |
 | `angle_radians` | 必須 | 到着姿勢のyaw[rad] |
-| `threshold` | 省略可 | この中間点から次へ切り替える距離[m] |
+| `threshold` | 省略可 | `to_pose`でこの中間点から次へ切り替える距離[m] |
 | `stop` | 省略可 | 地点で停止する。既定停止時間は5秒 |
 | `wait_time` | 省略可 | 停止時間[秒]。`stop`より優先 |
 
-通常の中間点は距離閾値で次の`NavigateToPose` goalを送り、現在のgoalをNav2内で更新する。この切替では明示的なキャンセルやゼロ速度指令を送らない。最終点はNav2が姿勢を含めて`SUCCEEDED`を返すまで待つ。`stop`または`wait_time`を持つ中間点は従来どおり停止し、`precise_threshold`（既定0.35 m）を使用する。
+`to_pose`では通常の中間点は距離閾値で次の`NavigateToPose` goalを送り、現在のgoalをNav2内で更新する。この切替では明示的なキャンセルやゼロ速度指令を送らない。最終点はNav2が姿勢を含めて`SUCCEEDED`を返すまで待つ。`stop`または`wait_time`を持つ中間点は従来どおり停止し、`precise_threshold`（既定0.35 m）を使用する。
 
 サンプルは`maps_waypoints/waypoints/koko-sim-example.yaml`にある。
 
@@ -150,7 +201,7 @@ waypoints:
 
 `robotbase_bringup/launch/nav2.launch.py`はNav2標準の`waypoint_follower`もLifecycle管理下で起動する。実機・シミュレーションの設定はそれぞれ`params/real/nav2.yaml`と`params/sim/nav2.yaml`内の`waypoint_follower`に置く。RViz Navigation 2パネルなど、`/follow_waypoints` actionを使うクライアント向けである。
 
-`koko_waypoint_follow*`はYAMLの距離閾値やループに対応する独自クライアントで、標準サーバーの`/follow_waypoints`ではなく`/navigate_to_pose`を使う。同時に別クライアントからナビゲーションgoalを送らない。
+`koko_waypoint_follow*`はYAMLの距離閾値やループに対応する独自クライアントで、標準サーバーの`/follow_waypoints`ではなく、選択した方式に応じて`/navigate_to_pose`または`/navigate_through_poses`を使う。同時に別クライアントからナビゲーションgoalを送らない。
 
 ## 停止と異常終了
 
@@ -162,7 +213,7 @@ waypoints:
                              /stop=trueで入力をロック
 ```
 
-Gazeboや一部モータdriverは最後に受けた速度を保持するため、`/stop`だけでmux出力を無通信にすると停止しない可能性がある。このためゼロ指令を先に通す。追従端末を`Ctrl+C`で閉じると、現在goalをキャンセルしてゼロ指令を送り、スクリプトの終了処理が`/stop=false`を送る。
+Gazeboや一部モータdriverは最後に受けた速度を保持するため、`/stop`だけでmux出力を無通信にすると停止しない可能性がある。このためゼロ指令を先に通す。追従端末を`Ctrl+C`で閉じると、所有するgoalをキャンセルしてゼロ指令を送る。終了処理はgoal終了の確認とゼロ速度の安定時間を満たした場合に`/stop=false`を送り、確認できない場合は停止要求を維持する。
 
 ## 切り分け
 

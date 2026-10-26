@@ -1,0 +1,10 @@
+Starting >>> robotbase_bt_nodes
+Finished <<< robotbase_bt_nodes [0.20s]
+Starting >>> robotbase_bringup
+Finished <<< robotbase_bringup [0.19s]
+Starting >>> robotbase_waypoint
+Finished <<< robotbase_waypoint [1.98s]
+Starting >>> robotbase_sim
+Finished <<< robotbase_sim [0.22s]
+
+Summary: 4 packages finished [2.97s]

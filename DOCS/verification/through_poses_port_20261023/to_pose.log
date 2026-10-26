@@ -1,0 +1,17 @@
+[INFO] [1792733983.361013934] [koko_waypoint_follower]: Loaded 3 waypoints from '/tmp/renya-port-sim-udp/to_pose.yaml', start=1, loop=False, frame=robot/base_footprint, stop_on_failure=False, navigation_only=False, navigation_mode=to_pose
+[INFO] [1792733983.611751244] [koko_waypoint_follower]: Waiting for /navigate_to_pose action server...
+[INFO] [1792733984.113563904] [koko_waypoint_follower]: [WP:1] 1/3 goal=(0.00, 1.00, 1.57 rad), section_end=WP:1, poses=1
+[WARN] [1792733984.687064913] [koko_waypoint_follower]: TF map -> robot/base_footprint unavailable: "map" passed to lookupTransform argument target_frame does not exist. 
+[INFO] [1792733985.564094086] [koko_waypoint_follower]: [WP:1] distance=0.99 m
+[INFO] [1792733985.564622559] [koko_waypoint_follower]: [WP:1] threshold reached at 0.99 m
+[INFO] [1792733985.565112632] [koko_waypoint_follower]: [WP:2] 2/3 goal=(0.00, 2.00, 1.57 rad), section_end=WP:2, poses=1
+[INFO] [1792733986.573445338] [koko_waypoint_follower]: [WP:2] distance=1.71 m
+[INFO] [1792733987.573816016] [koko_waypoint_follower]: [WP:2] distance=1.19 m
+[INFO] [1792733987.976961745] [koko_waypoint_follower]: [WP:2] threshold reached at 1.00 m
+[INFO] [1792733987.977741095] [koko_waypoint_follower]: [WP:3] 3/3 goal=(0.00, 3.00, 1.57 rad), section_end=WP:3, poses=1
+[INFO] [1792733988.577196809] [koko_waypoint_follower]: [WP:3] distance=1.67 m
+[INFO] [1792733989.586109018] [koko_waypoint_follower]: [WP:3] distance=1.10 m
+[INFO] [1792733990.601597123] [koko_waypoint_follower]: [WP:3] distance=0.62 m
+[INFO] [1792733991.601729414] [koko_waypoint_follower]: [WP:3] distance=0.28 m
+[INFO] [1792733991.777421782] [koko_waypoint_follower]: [WP:3] reached by Nav2
+[INFO] [1792733991.777884501] [koko_waypoint_follower]: All waypoints completed

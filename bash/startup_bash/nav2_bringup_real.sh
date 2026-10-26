@@ -20,7 +20,7 @@ select_map() {
     echo "  利用可能な地図一覧"
     echo "========================================="
     
-    maps=($(get_map_list))
+    mapfile -t maps < <(get_map_list)
     
     if [ ${#maps[@]} -eq 0 ]; then
         echo "エラー: $MAPS_DIR に地図ファイルが見つかりません"

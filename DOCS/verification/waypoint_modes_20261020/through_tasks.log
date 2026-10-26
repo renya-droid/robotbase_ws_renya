@@ -1,0 +1,35 @@
+[WARN] [1792483374.279567491] [rcl]: ROS_LOCALHOST_ONLY is deprecated but still honored if it is enabled. Use ROS_AUTOMATIC_DISCOVERY_RANGE and ROS_STATIC_PEERS instead.
+[WARN] [1792483374.279599956] [rcl]: 'localhost_only' is enabled, 'automatic_discovery_range' and 'static_peers' will be ignored.
+[INFO] [1792483374.407315364] [koko_waypoint_follower]: Loaded 5 waypoints from '/tmp/waypoint_validation/through_tasks.yaml', start=1, loop=False, frame=robot/base_footprint, stop_on_failure=True, navigation_only=False, navigation_mode=through_poses
+[INFO] [1792483374.658400603] [koko_waypoint_follower]: Waiting for /navigate_through_poses action server...
+[INFO] [1792483375.663715575] [koko_waypoint_follower]: [WP:1] 1/5 goal=(0.00, 1.00, 1.57 rad), section_end=WP:2, poses=2
+[INFO] [1792483379.337431914] [koko_waypoint_follower]: [WP:2] next unpassed waypoint (Nav2 remaining=1)
+[INFO] [1792483379.397748591] [koko_waypoint_follower]: [WP:2] distance=1.01 m
+[INFO] [1792483380.400944075] [koko_waypoint_follower]: [WP:2] distance=0.54 m
+[INFO] [1792483381.004615048] [koko_waypoint_follower]: [WP:2] threshold reached at 0.33 m
+[INFO] [1792483381.028847675] [koko_waypoint_follower]: [WP:2] waiting for 1.0 seconds
+[INFO] [1792483382.116505723] [koko_waypoint_follower]: [WP:3] 3/5 goal=(0.00, 3.00, 1.57 rad), section_end=WP:3, poses=1
+[INFO] [1792483382.215707496] [koko_waypoint_follower]: [WP:3] distance=1.26 m
+[INFO] [1792483383.231414980] [koko_waypoint_follower]: [WP:3] distance=1.16 m
+[INFO] [1792483384.236666243] [koko_waypoint_follower]: [WP:3] distance=0.79 m
+[INFO] [1792483385.250512558] [koko_waypoint_follower]: [WP:3] distance=0.39 m
+[INFO] [1792483385.453101122] [koko_waypoint_follower]: [WP:3] threshold reached at 0.34 m
+[INFO] [1792483385.480273434] [koko_waypoint_follower]: [WP:3] waiting for 1.0 seconds
+[INFO] [1792483386.556575649] [koko_waypoint_follower]: [WP:4] 4/5 goal=(0.00, 4.00, 1.57 rad), section_end=WP:4, poses=1
+[INFO] [1792483386.656368875] [koko_waypoint_follower]: [WP:4] distance=1.28 m
+[INFO] [1792483387.659271780] [koko_waypoint_follower]: [WP:4] distance=1.17 m
+[INFO] [1792483388.664798794] [koko_waypoint_follower]: [WP:4] distance=0.78 m
+[INFO] [1792483389.681406127] [koko_waypoint_follower]: [WP:4] distance=0.38 m
+[INFO] [1792483389.781741918] [koko_waypoint_follower]: [WP:4] threshold reached at 0.35 m
+[INFO] [1792483390.381039553] [koko_waypoint_follower]: [WP:4] /person_area_arrived=true
+[INFO] [1792483390.381569777] [koko_waypoint_follower]: [WP:4] waiting for Camera arrival ACK (session=1, ack_timeout=5.0s)
+[INFO] [1792483390.383125250] [koko_waypoint_follower]: [WP:4] Camera arrival ACK received (session=1)
+[INFO] [1792483390.395675468] [koko_waypoint_follower]: [WP:4] waiting for Camera safe-to-advance (session=1, search_timeout=60.0s)
+[INFO] [1792483391.385955885] [koko_waypoint_follower]: [WP:4] /person_area_arrived=false
+[INFO] [1792483391.386429068] [koko_waypoint_follower]: [WP:4] Camera reported safe-to-advance
+[INFO] [1792483391.388060292] [koko_waypoint_follower]: [WP:5] 5/5 goal=(0.00, 4.50, 1.57 rad), section_end=WP:5, poses=1
+[INFO] [1792483391.484839480] [koko_waypoint_follower]: [WP:5] distance=0.79 m
+[INFO] [1792483392.487541189] [koko_waypoint_follower]: [WP:5] distance=0.68 m
+[INFO] [1792483393.501778792] [koko_waypoint_follower]: [WP:5] distance=0.34 m
+[INFO] [1792483393.940087695] [koko_waypoint_follower]: [WP:5] reached by Nav2
+[INFO] [1792483393.940611054] [koko_waypoint_follower]: All waypoints completed

@@ -1,0 +1,5 @@
+[bt_navigator-8] [INFO] [1792483217.244919098] [bt_navigator]: Begin navigating from current location through 1 poses to (0.00, 1.00)
+[bt_navigator-8] [WARN] [1792483217.285421160] [bt_navigator_navigate_through_poses_rclcpp_node]: Timed out while waiting for action server to acknowledge goal request for follow_path
+[bt_navigator-8] [WARN] [1792483217.295458248] [bt_navigator]: [navigate_through_poses] [ActionServer] Aborting handle.
+[bt_navigator-8] [ERROR] [1792483217.295790880] [bt_navigator]: Goal failed
+[controller_server-4] [INFO] [1792483217.474285773] [controller_server]: Received a goal, begin computing control effort.

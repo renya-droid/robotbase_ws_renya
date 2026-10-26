@@ -3,6 +3,7 @@
 import os
 import re
 import shlex
+import signal
 import subprocess
 import tempfile
 import psutil
@@ -31,6 +32,34 @@ class ProcessManager:
         self.tab_title = f"{TAB_PREFIX} {name}"
         self.script_path = None
         self.pid_file_content = None
+        self.recording_stop_handles = None
+
+    @property
+    def waits_for_recording_save(self):
+        """Recording owns its writer and must finish saving without escalation."""
+        return (self.name in ('koko_record_rosbag', 'koko_record_rosbag_sim')
+                or 'record_rosbag.sh' in self.command)
+
+    def request_recording_stop(self, pids):
+        """Signal only the recording wrapper, leaving writer/finalizer/tee alive."""
+        if self.recording_stop_handles is not None:
+            return {'pids': pids, 'terminator_pid': None, 'wait_for_save': True}
+        wrappers = []
+        for pid in pids:
+            try:
+                process = psutil.Process(pid)
+                if any(os.path.basename(arg) == 'record_rosbag.sh'
+                       for arg in process.cmdline()[1:]):
+                    wrappers.append(process)
+            except psutil.NoSuchProcess:
+                continue
+        if not wrappers:
+            return None
+        for process in wrappers:
+            process.send_signal(signal.SIGTERM)
+        self.recording_stop_handles = wrappers
+        print(f"保存終了を待っています: {self.name}（強制終了しません）")
+        return {'pids': pids, 'terminator_pid': None, 'wait_for_save': True}
     
     def launch(self):
         """コマンドを新しいターミナルタブで起動"""
@@ -163,6 +192,13 @@ class ProcessManager:
                 return False
             
             pids = self.get_process_tree_pids(self.pid_file_content)
+
+            if self.waits_for_recording_save:
+                result = self.request_recording_stop(pids)
+                if result:
+                    return result
+                print(f"記録ラッパーを確認できないため強制終了しません: {self.name}")
+                return False
             
             if len(pids) > 1:
                 print(f"停止対象PID: Bash={self.pid_file_content}, 子孫={len(pids)-1}個")
@@ -219,6 +255,8 @@ class ProcessManager:
     
     def force_kill_tree(self, pids, terminator_pid=None):
         """プロセスツリーを強制終了"""
+        if self.waits_for_recording_save:
+            return
         killed_count = 0
         for pid in reversed(pids):
             if pid == terminator_pid:
@@ -328,6 +366,19 @@ class ProcessManager:
 
     def is_running(self):
         """プロセスが実行中かチェック"""
+        if self.recording_stop_handles is not None:
+            for proc in self.recording_stop_handles:
+                try:
+                    if proc.is_running() and proc.status() != psutil.STATUS_ZOMBIE:
+                        return True
+                except psutil.NoSuchProcess:
+                    pass
+            self.recording_stop_handles = None
+            self.pid_file_content = None
+            if os.path.exists(self.pid_file):
+                os.remove(self.pid_file)
+            # Keep the terminal open so the save/recovery result remains visible.
+            return False
         if self.pid_file_content and psutil.pid_exists(self.pid_file_content):
             return True
         else:

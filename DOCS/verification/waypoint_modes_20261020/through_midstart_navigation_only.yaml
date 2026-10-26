@@ -1,0 +1,11 @@
+waypoints:
+- angle_radians: 1.5707963267948966
+  x: 0.0
+  y: 5.0
+- angle_radians: 1.5707963267948966
+  person_area: true
+  x: 0.0
+  y: 3.5
+- angle_radians: 1.5707963267948966
+  x: 0.0
+  y: 2.0

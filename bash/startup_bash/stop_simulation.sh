@@ -29,6 +29,15 @@ is_protected() {
     [[ "${PROTECTED_PIDS}" == *" $1 "* ]]
 }
 
+is_recording_save_process() {
+    local entry
+    [ -r "/proc/$1/environ" ] || return 1
+    while IFS= read -r -d '' entry; do
+        [ "${entry}" = ROBOTBASE_ROSBAG_SAVE=1 ] && return 0
+    done < "/proc/$1/environ"
+    return 1
+}
+
 is_simulation_process() {
     local pid="$1"
     local process_uid
@@ -48,9 +57,55 @@ is_simulation_process() {
 }
 
 targets=()
+# Recording wrappers own their writer/finalizer. Request their normal save path
+# and exclude that tree (and its terminal shell/tee) from timed escalation.
+recording_protected="$(python3 - "${TARGET_DOMAIN}" <<'PY'
+import os
+import signal
+import sys
+import psutil
+
+domain = sys.argv[1]
+wrappers = {}
+for process in psutil.process_iter(['pid', 'uids', 'cmdline']):
+    try:
+        if process.info['uids'].real != os.getuid():
+            continue
+        args = process.info['cmdline'] or []
+        if not any(os.path.basename(arg) == 'record_rosbag.sh' for arg in args[1:]):
+            continue
+        tree = [process] + process.children(recursive=True)
+        for child in tree:
+            try:
+                if child.environ().get('ROS_DOMAIN_ID') == domain:
+                    wrappers[process.pid] = process
+                    break
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+    except (psutil.NoSuchProcess, psutil.AccessDenied):
+        continue
+protected = set()
+for wrapper in wrappers.values():
+    try:
+        protected.update(p.pid for p in [wrapper] + wrapper.children(recursive=True))
+        for parent in wrapper.parents():
+            protected.add(parent.pid)
+            args = parent.cmdline()
+            if '--rcfile' in args:
+                protected.update(child.pid for child in parent.children(recursive=True))
+        wrapper.send_signal(signal.SIGTERM)
+        print(f'rosbag PID {wrapper.pid}: 保存終了を待っています。記録端末の結果を確認してください。',
+              file=sys.stderr)
+    except (psutil.NoSuchProcess, psutil.AccessDenied):
+        continue
+print(' '.join(str(pid) for pid in protected))
+PY
+)" || exit 1
+PROTECTED_PIDS+="${recording_protected} "
 for process_dir in /proc/[0-9]*; do
     pid="${process_dir##*/}"
     is_protected "${pid}" && continue
+    is_recording_save_process "${pid}" && continue
     if is_simulation_process "${pid}"; then
         targets+=("${pid}")
     fi
@@ -103,12 +158,14 @@ fi
 # Close launcher shells for simulation buttons after their ROS children stopped.
 # Validate the command line so a stale PID file cannot terminate an unrelated PID.
 launcher_id="${ROBOTBASE_LAUNCHER_ID:-${ROBOTBASE_ID}_launcher}"
-launcher_prefix="/tmp/${launcher_id}_"
+launcher_prefix="${ROBOTBASE_STOP_LAUNCHER_PREFIX:-/tmp/${launcher_id}_}"
 launcher_shells=()
 for pid_file in "${launcher_prefix}"*.pid; do
     [ -e "${pid_file}" ] || continue
     button_name="${pid_file#${launcher_prefix}}"
     button_name="${button_name%.pid}"
+    # The recording terminal must remain available until its save result appears.
+    [ "${button_name}" = koko_record_rosbag_sim ] && continue
     case "${button_name}" in
         koko_sim|koko_*_sim|koko_*_sim_*)
             launcher_pid="$(sed -n '1p' "${pid_file}" 2>/dev/null)"

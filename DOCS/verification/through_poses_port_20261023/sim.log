@@ -1,0 +1,62 @@
+[INFO] [launch]: All log files can be found below /tmp/renya-port-sim-udp/roslog/2026-10-23-14-39-29-881918-koko-chan-nuc-NUC11PAHi5-24959
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [launch.user]: Gazebo session partition: renya_port_retry_20261023_sim_24959
+[INFO] [gz-1]: process started with pid [24962]
+[INFO] [robot_state_publisher-2]: process started with pid [24963]
+[robot_state_publisher-2] [INFO] [1792733969.980219382] [robot_state_publisher]: Robot initialized
+[INFO] [create-3]: process started with pid [25034]
+[create-3] [INFO] [1792733971.488210683] [ros_gz_sim]: Requesting list of world names.
+[create-3] [INFO] [1792733971.846756720] [ros_gz_sim]: Entity creation successful.
+[INFO] [parameter_bridge-4]: process started with pid [25058]
+[INFO] [velodyne_laserscan_node-5]: process started with pid [25059]
+[INFO] [twist_mux-6]: process started with pid [25060]
+[INFO] [idle_twist_publisher.py-7]: process started with pid [25061]
+[twist_mux-6] [INFO] [1792733971.985334504] [twist_mux]: Topic handler 'topics.direct' subscribed to topic 'cmd_vel_direct': timeout = 0.500000s , priority = 90.
+[twist_mux-6] [INFO] [1792733971.986403604] [twist_mux]: Topic handler 'topics.idle' subscribed to topic 'cmd_vel_idle': timeout = 0.500000s , priority = 1.
+[twist_mux-6] [INFO] [1792733971.986565268] [twist_mux]: Topic handler 'topics.navigation' subscribed to topic 'cmd_vel_smoothed': timeout = 0.500000s , priority = 10.
+[twist_mux-6] [INFO] [1792733971.986703971] [twist_mux]: Topic handler 'topics.teleop' subscribed to topic 'cmd_vel_teleop': timeout = 0.500000s , priority = 100.
+[twist_mux-6] [INFO] [1792733971.986849914] [twist_mux]: Topic handler 'locks.stop' subscribed to topic '/stop': timeout = None , priority = 255.
+[parameter_bridge-4] [INFO] [1792733972.011302231] [robotbase_gz_bridge]: Creating GZ->ROS Bridge: [/clock (gz.msgs.Clock) -> /clock (rosgraph_msgs/msg/Clock)] (Lazy 0)
+[parameter_bridge-4] [INFO] [1792733972.012361509] [robotbase_gz_bridge]: Creating ROS->GZ Bridge: [/robot/cmd_vel (geometry_msgs/msg/Twist) -> /robot/cmd_vel (gz.msgs.Twist)] (Lazy 0)
+[parameter_bridge-4] [INFO] [1792733972.013886287] [robotbase_gz_bridge]: Creating GZ->ROS Bridge: [/robot/odom (gz.msgs.Odometry) -> /robot/odom (nav_msgs/msg/Odometry)] (Lazy 0)
+[parameter_bridge-4] [INFO] [1792733972.015145715] [robotbase_gz_bridge]: Creating GZ->ROS Bridge: [/robot/tf (gz.msgs.Pose_V) -> /robot/tf (tf2_msgs/msg/TFMessage)] (Lazy 0)
+[parameter_bridge-4] [INFO] [1792733972.016317065] [robotbase_gz_bridge]: Creating GZ->ROS Bridge: [/robot/joint_states (gz.msgs.Model) -> /robot/joint_states (sensor_msgs/msg/JointState)] (Lazy 0)
+[parameter_bridge-4] [INFO] [1792733972.017537633] [robotbase_gz_bridge]: Creating GZ->ROS Bridge: [/robot/velodyne_points/points (gz.msgs.PointCloudPacked) -> /robot/velodyne_points/points (sensor_msgs/msg/PointCloud2)] (Lazy 0)
+[parameter_bridge-4] [INFO] [1792733972.017919666] [robotbase_gz_bridge]: Creating GZ->ROS Bridge: [/robot/imu (gz.msgs.IMU) -> /robot/imu (sensor_msgs/msg/Imu)] (Lazy 0)
+[INFO] [create-3]: process has finished cleanly [pid 25034]
+[gz-1] [1;33mWarning [Utils.cc:132][0m [/sdf/model[@name="robot"]/link[@name="lidar_link"]/sensor[@name="vlp16"]/gz_frame_id:/tmp/tmps1c2kmmt:L105]: XML Element[gz_frame_id], child of element[sensor], not defined in SDF. Copying[gz_frame_id] as children of [sensor].
+[gz-1] [1;33mWarning [Utils.cc:132][0m [/sdf/model[@name="robot"]/link[@name="imu_link"]/sensor[@name="imu"]/gz_frame_id:/tmp/tmps1c2kmmt:L135]: XML Element[gz_frame_id], child of element[sensor], not defined in SDF. Copying[gz_frame_id] as children of [sensor].
+[parameter_bridge-4] [INFO] [1792733972.535742128] [robotbase_gz_bridge]: Passing message from ROS geometry_msgs/msg/Twist to Gazebo gz.msgs.Twist (showing msg only once per type)
+[velodyne_laserscan_node-5] [INFO] [1792733972.536716742] [vlp16_to_scan]: Latched ring count of 16
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [idle_twist_publisher.py-7]: sending signal 'SIGINT' to process[idle_twist_publisher.py-7]
+[INFO] [twist_mux-6]: sending signal 'SIGINT' to process[twist_mux-6]
+[INFO] [velodyne_laserscan_node-5]: sending signal 'SIGINT' to process[velodyne_laserscan_node-5]
+[INFO] [parameter_bridge-4]: sending signal 'SIGINT' to process[parameter_bridge-4]
+[INFO] [robot_state_publisher-2]: sending signal 'SIGINT' to process[robot_state_publisher-2]
+[INFO] [gz-1]: sending signal 'SIGINT' to process[gz-1]
+[parameter_bridge-4] [INFO] [1792734011.381318937] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ERROR] [twist_mux-6]: process has died [pid 25060, exit code -2, cmd '/opt/ros/jazzy/lib/twist_mux/twist_mux --ros-args -r __node:=twist_mux --params-file /home/koko-chan-nuc/robotbase_ws_renya/params/sim/twist_mux.yaml -r cmd_vel_out:=/cmd_vel'].
+[robot_state_publisher-2] [INFO] [1792734011.381318341] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[twist_mux-6] [INFO] [1792734011.381445077] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[velodyne_laserscan_node-5] [INFO] [1792734011.381548795] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[idle_twist_publisher.py-7] Traceback (most recent call last):
+[idle_twist_publisher.py-7]   File "/home/koko-chan-nuc/robotbase_ws_renya/install/robotbase_sim/lib/robotbase_sim/idle_twist_publisher.py", line 35, in <module>
+[idle_twist_publisher.py-7]     main()
+[idle_twist_publisher.py-7]   File "/home/koko-chan-nuc/robotbase_ws_renya/install/robotbase_sim/lib/robotbase_sim/idle_twist_publisher.py", line 29, in main
+[idle_twist_publisher.py-7]     node.destroy_node()
+[idle_twist_publisher.py-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/node.py", line 1962, in destroy_node
+[idle_twist_publisher.py-7]     self.destroy_service(self._services[0])
+[idle_twist_publisher.py-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/node.py", line 1886, in destroy_service
+[idle_twist_publisher.py-7]     service.destroy()
+[idle_twist_publisher.py-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/service.py", line 123, in destroy
+[idle_twist_publisher.py-7]     self.__service.destroy_when_not_in_use()
+[idle_twist_publisher.py-7] KeyboardInterrupt
+[velodyne_laserscan_node-5] [INFO] [1792734011.387823870] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[parameter_bridge-4] [INFO] [1792734011.388144345] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[robot_state_publisher-2] [INFO] [1792734011.388450168] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ERROR] [idle_twist_publisher.py-7]: process has died [pid 25061, exit code -2, cmd '/home/koko-chan-nuc/robotbase_ws_renya/install/robotbase_sim/lib/robotbase_sim/idle_twist_publisher.py --ros-args -r __node:=idle_twist_publisher --params-file /home/koko-chan-nuc/robotbase_ws_renya/params/sim/idle_twist.yaml'].
+[INFO] [gz-1]: process has finished cleanly [pid 24962]
+[INFO] [robot_state_publisher-2]: process has finished cleanly [pid 24963]
+[INFO] [parameter_bridge-4]: process has finished cleanly [pid 25058]
+[INFO] [velodyne_laserscan_node-5]: process has finished cleanly [pid 25059]
