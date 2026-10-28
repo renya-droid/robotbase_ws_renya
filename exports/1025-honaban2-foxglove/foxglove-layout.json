@@ -1,0 +1,103 @@
+{
+  "configById": {
+    "3D!honban2-0": {
+      "topics": {
+        "/map": {
+          "visible": true,
+          "colorMode": "map",
+          "drawBehind": true,
+          "alpha": 0.8
+        },
+        "/scan3": {
+          "visible": true,
+          "pointSize": 3,
+          "cubeOutline": false,
+          "pointShape": "circle",
+          "colorMode": "flat",
+          "flatColor": "#ff3030"
+        },
+        "/hokuyo_scan": {
+          "visible": false,
+          "cubeOutline": false,
+          "pointShape": "circle"
+        },
+        "/amcl_pose": {
+          "visible": true,
+          "type": "arrow",
+          "color": "#00e5ff",
+          "showCovariance": false
+        },
+        "/plan": {
+          "visible": true,
+          "type": "line",
+          "lineWidth": 0.15
+        },
+        "/global_costmap/costmap": {
+          "visible": false
+        },
+        "/local_costmap/costmap": {
+          "visible": false
+        }
+      },
+      "cameraState": {
+        "distance": 35,
+        "perspective": false,
+        "phi": 0,
+        "targetOffset": [
+          0,
+          0,
+          0
+        ],
+        "thetaOffset": 0
+      },
+      "followTf": "robot/base_footprint",
+      "fixedFrame": "map",
+      "followMode": "follow-position",
+      "title": "地図・LiDAR・自己位置"
+    },
+    "Image!honban2-1": {
+      "synchronize": false,
+      "imageMode": {
+        "imageTopic": "/external_video/image/compressed",
+        "rectifyImage": false
+      },
+      "title": "外部動画（撮影時刻で同期）"
+    },
+    "Plot!honban2-2": {
+      "paths": [
+        {
+          "enabled": true,
+          "label": "command",
+          "value": "/cmd_vel.linear.x"
+        },
+        {
+          "enabled": true,
+          "label": "odometry",
+          "value": "/odom/filtered.twist.twist.linear.x"
+        }
+      ],
+      "showLegend": true,
+      "isSynced": true,
+      "xAxisVal": "timestamp",
+      "timeRange": "all",
+      "title": "前進速度 m/s"
+    }
+  },
+  "globalVariables": {},
+  "userNodes": {},
+  "linkedGlobalVariables": [],
+  "playbackConfig": {
+    "speed": 1
+  },
+  "layout": {
+    "direction": "row",
+    "first": "3D!honban2-0",
+    "second": {
+      "direction": "column",
+      "first": "Image!honban2-1",
+      "second": "Plot!honban2-2",
+      "splitPercentage": 75.0
+    },
+    "splitPercentage": 50.0
+  }
+}

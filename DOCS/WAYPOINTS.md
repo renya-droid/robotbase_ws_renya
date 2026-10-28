@@ -15,13 +15,13 @@ SIRIUSから引き継いだもの:
 
 - 固定の`sirius3/base_footprint`を廃止し、`robot.env`のTF接頭辞を使用
 - SIRIUSの固定パスを廃止し、`robotbase_ws/maps_waypoints/waypoints/`へ集約
-- LLM用`/nav_control`、地図切替shell、SIRIUS固有トピックを含めない
+- LLM用`/nav_control`、SIRIUS固有トピックを含めない。地図切替はshellを介さずROSサービスで実行する
 - 従来方式の通常中間点では次のgoalを送り、Nav2側でpreemptする。停止・待機・人物探索では既存の停止処理を使う
 - 停止時は`/cmd_vel_direct`へゼロ速度を送り安全に停止を維持する
 - 失敗時は`stop_on_failure: false`（既定）でスキップして次のウェイポイントへ自動遷移する
 - YAMLの値とファイル存在を起動時に検証し、同一goalの周期的な再送を行わない
 
-`change_map`と`rotate`は未対応。地図は先に`koko_nav2_real`または`koko_nav2_sim_map`で選択する。
+`change_map`は到達時の地図切替に対応。`rotate`は未対応。最初の地図は`koko_nav2_real`または`koko_nav2_sim_map`で選択する。
 
 ## 起動順
 
@@ -241,3 +241,51 @@ source install/setup.bash
 colcon test --packages-select robotbase_waypoint
 colcon test-result --verbose
 ```
+
+
+## waypoint 到達時の地図切り替え
+
+切り替え地点に `change_map: next_map` を指定する（拡張子なし）。
+既存の `koko_waypoint_follow` / `koko_waypoint_follow_sim` で利用でき、
+`to_pose` / `through_poses` の両方式で切り替え地点を停止境界として扱う。
+`--navigation-only` でも地図切替は有効。
+
+```yaml
+format_version: '1.0'
+waypoints:
+  - number: 1
+    x: 5.0
+    y: 2.0
+    angle_radians: 0.0
+    wait_time: 3.0
+    change_map: next_map
+```
+
+上記は地点到達後に3秒待機して地図を切り替える例。座標・地図名は実際の経路に合わせる。
+切り替え先として、次のファイルを用意する。
+
+- `maps_waypoints/maps/next_map.yaml` と、そのYAMLが参照する地図画像
+- `maps_waypoints/waypoints/next_map.yaml`
+
+切り替え先waypointファイルの**先頭座標・向きには、切り替え地点でのロボットの姿勢を新しい地図の座標で設定する**。
+切り替え地点までの到達判定は `precise_threshold`（既定0.35 m）を使う。
+Nav2のgoal終了・キャンセルを確認してゼロ速度を維持し、停止後に `/map_server/load_map` を非同期で呼ぶ。
+応答の成功コードを確認し、新しい先頭waypointの姿勢を `/initialpose` に送信する。
+新しい `/amcl_pose` がその位置から `precise_threshold` 以内・向きの誤差0.5 rad以内になり、
+`map_switch_settle_sec`（既定2秒）が経過した後、新経路の先頭から走行を再開する。
+RVizの `/waypoint_markers` も新経路へ更新する。
+
+- **AMCLによる既存地図ナビゲーションが対象**。SLAM実行中やstatic自己位置推定では切り替えない。
+- Keepoutの `filter_mask_server` が存在する場合は切り替えない。目的の地図でNav2を起動し直す。
+- `wait_time` は切替前に実行する。`stop: true` のみを併記した場合は `stop_duration` 秒待機する。
+- 同じ地点に `person_area: true` と `change_map` は指定できない。別のwaypointに分ける。
+- 切り替え先waypointの読込・検証は、地図変更前に行う。通常のファイルへの代替読込は行わない。
+- 地図切替地点へのナビゲーション失敗は、`stop_on_failure: false` でもスキップせず終了する。
+- ファイル不備・サービス失敗・AMCL確認タイムアウトでは停止を維持する。
+  地図が既に変更された可能性があるため、自動で旧経路へ戻さない。地図・自己位置を確認して追従を起動し直す。
+- `map_switch_timeout_sec` は既定60秒（停止準備からAMCL確認まで、実時間で計測）。
+  手動の一時停止・再開操作は切替中には受け付けない。
+
+地図ディレクトリは、選択したwaypointファイルの親ディレクトリと同階層の `maps/` を使う。
+別配置の場合はROSパラメータ `maps_dir` で地図ディレクトリを指定できる。
+切り替え先waypointは最初に選択したファイルと同じディレクトリから読む。

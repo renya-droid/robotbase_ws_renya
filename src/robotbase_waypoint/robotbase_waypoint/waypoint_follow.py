@@ -11,8 +11,9 @@ from uuid import uuid4
 
 from action_msgs.msg import GoalInfo, GoalStatus
 from ament_index_python.packages import get_package_share_directory
-from geometry_msgs.msg import PoseStamped, Twist
+from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, Twist
 from nav2_msgs.action import NavigateThroughPoses, NavigateToPose
+from nav2_msgs.srv import LoadMap
 import rclpy
 from rclpy.action import ActionClient
 from rclpy.duration import Duration
@@ -24,7 +25,7 @@ from std_srvs.srv import SetBool
 from tf2_ros import Buffer, TransformException, TransformListener
 
 from .waypoint_io import load_waypoints
-from .waypoint_visualize import RouteMarkerPublisher
+from .waypoint_visualize import route_markers, RouteMarkerPublisher
 
 
 TERMINAL_STATUSES = {
@@ -194,6 +195,7 @@ def waypoint_arrival_threshold(
     """Select the existing precise threshold for any waypoint that must pause."""
     if (
             waypoint.stop
+            or waypoint.change_map
             or waypoint.wait_time > 0.0
             or waypoint_uses_person_search(waypoint, navigation_only)
     ):
@@ -207,7 +209,7 @@ def navigation_segment_end(waypoints, start_index: int, navigation_only: bool = 
     """Include the first task/stop waypoint as this continuous section's endpoint."""
     for index in range(start_index, len(waypoints)):
         waypoint = waypoints[index]
-        if (waypoint.stop or waypoint.wait_time > 0.0
+        if (waypoint.stop or waypoint.wait_time > 0.0 or waypoint.change_map
                 or waypoint_uses_person_search(waypoint, navigation_only)):
             return index
     return len(waypoints) - 1
@@ -282,6 +284,9 @@ class WaypointFollower(Node):
         self._init_shutdown_state(shutdown_request)
         default_prefix = os.environ.get('ROBOTBASE_TF_PREFIX', 'robot')
         self.declare_parameter('waypoint_file', '')
+        self.declare_parameter('maps_dir', '')
+        self.declare_parameter('map_switch_timeout_sec', 60.0)
+        self.declare_parameter('map_switch_settle_sec', 2.0)
         self.declare_parameter('start_index', 1)
         self.declare_parameter('loop', False)
         self.declare_parameter('default_threshold', 1.0)
@@ -304,6 +309,23 @@ class WaypointFollower(Node):
         if not waypoint_file:
             raise ValueError('waypoint_file parameter is required')
         self.waypoints = load_waypoints(waypoint_file)
+        self.waypoints_dir = Path(waypoint_file).expanduser().resolve().parent
+        maps_dir = str(self.get_parameter('maps_dir').value)
+        self.maps_dir = (Path(maps_dir).expanduser().resolve() if maps_dir
+                         else self.waypoints_dir.parent / 'maps')
+        self.map_switch_timeout_sec = float(self.get_parameter('map_switch_timeout_sec').value)
+        self.map_switch_settle_sec = float(self.get_parameter('map_switch_settle_sec').value)
+        for value in (self.map_switch_timeout_sec, self.map_switch_settle_sec):
+            if not math.isfinite(value) or value <= 0.0:
+                raise ValueError('map switch timeout and settle seconds must be positive')
+        self.map_switch = None
+        self.map_client = self.create_client(LoadMap, '/map_server/load_map')
+        self.initial_pose_publisher = self.create_publisher(
+            PoseWithCovarianceStamped, '/initialpose', 10)
+        self.amcl_pose_subscription = self.create_subscription(
+            PoseWithCovarianceStamped, '/amcl_pose', self._map_switch_amcl_pose,
+            QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
+                       durability=DurabilityPolicy.TRANSIENT_LOCAL))
         requested_index = int(self.get_parameter('start_index').value)
         if requested_index < 1 or requested_index > len(self.waypoints):
             raise ValueError(
@@ -374,19 +396,7 @@ class WaypointFollower(Node):
         self.person_search_done_subscription = None
         self.person_search_detail_subscription = None
         self.person_search_ack_subscription = None
-        if route_uses_person_search(self.waypoints, self.navigation_only):
-            self.person_area_arrived_publisher = self.create_publisher(
-                Bool, '/person_area_arrived', person_area_arrival_qos())
-            response_qos = person_search_response_qos()
-            self.person_search_done_subscription = self.create_subscription(
-                Bool, '/person_search_done', self._person_search_done_callback,
-                response_qos)
-            self.person_search_detail_subscription = self.create_subscription(
-                String, '/person_search_done_detail',
-                self._person_search_detail_callback, response_qos)
-            self.person_search_ack_subscription = self.create_subscription(
-                Bool, '/person_search/arrival_received',
-                self._person_search_ack_callback, response_qos)
+        self._configure_person_search()
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
         self.goal_handle = None
@@ -426,6 +436,23 @@ class WaypointFollower(Node):
             self.get_logger().warning(
                 'Navigation-only mode: person_area markers are ignored and Camera '
                 'topics are not used')
+
+    def _configure_person_search(self) -> None:
+        """Connect Camera when the current route requires it."""
+        if (self.person_area_arrived_publisher is None
+                and route_uses_person_search(self.waypoints, self.navigation_only)):
+            self.person_area_arrived_publisher = self.create_publisher(
+                Bool, '/person_area_arrived', person_area_arrival_qos())
+            response_qos = person_search_response_qos()
+            self.person_search_done_subscription = self.create_subscription(
+                Bool, '/person_search_done', self._person_search_done_callback,
+                response_qos)
+            self.person_search_detail_subscription = self.create_subscription(
+                String, '/person_search_done_detail',
+                self._person_search_detail_callback, response_qos)
+            self.person_search_ack_subscription = self.create_subscription(
+                Bool, '/person_search/arrival_received',
+                self._person_search_ack_callback, response_qos)
 
     def start(self) -> None:
         """Wait for Nav2 and dispatch the first waypoint."""
@@ -549,6 +576,7 @@ class WaypointFollower(Node):
                 self.person_search_waiting,
                 self.person_search_faulted,
                 self.manual_paused,
+                getattr(self, 'map_switch', None) is not None,
         )):
             return False
         waypoint = self.waypoints[self.index]
@@ -679,6 +707,9 @@ class WaypointFollower(Node):
         response.success = False
         if self._is_shutting_down() or self.finished:
             response.message = 'Waypoint follower is stopping or finished'
+            return response
+        if getattr(self, 'map_switch', None) is not None:
+            response.message = 'Map switch in progress; robot is held stopped'
             return response
         if request.data:
             if self.manual_paused:
@@ -819,6 +850,9 @@ class WaypointFollower(Node):
     def _timer_callback(self) -> None:
         if self._is_shutting_down():
             return
+        if getattr(self, 'map_switch', None) is not None:
+            self._continue_map_switch()
+            return
         if self.manual_paused:
             self._continue_manual_pause()
             return
@@ -845,7 +879,9 @@ class WaypointFollower(Node):
             if self.get_clock().now() >= self.waiting_until:
                 if not self._commit_state(holding_stop=False, waiting_until=None):
                     return
-                if self.waiting_finishes_route:
+                if self.waypoints[self.index].change_map:
+                    self._start_map_switch()
+                elif self.waiting_finishes_route:
                     self._complete_or_loop()
                 else:
                     self._advance()
@@ -879,7 +915,8 @@ class WaypointFollower(Node):
 
         uses_person_search = waypoint_uses_person_search(
             waypoint, self.navigation_only)
-        needs_pause = waypoint.stop or waypoint.wait_time > 0.0 or uses_person_search
+        needs_pause = (waypoint.stop or waypoint.wait_time > 0.0
+                       or waypoint.change_map or uses_person_search)
         is_last = self.index == len(self.waypoints) - 1
         if self.navigation_mode == 'through_poses' and not needs_pause:
             # A short recovery/loop section is also one action: wait for its
@@ -913,8 +950,8 @@ class WaypointFollower(Node):
             transition_generation = self.cancel_transition_generation + 1
             started_at = (
                 self.get_clock().now()
-                if waypoint_uses_person_search(waypoint, self.navigation_only)
-                else None)
+                if (waypoint_uses_person_search(waypoint, self.navigation_only)
+                    or waypoint.change_map) else None)
             if not self._commit_state(
                     transition_in_progress=True, goal_serial=self.goal_serial + 1,
                     cancel_transition_generation=transition_generation,
@@ -1014,6 +1051,9 @@ class WaypointFollower(Node):
         transition_generation = self.active_cancel_transition_generation
         if transition_generation is None:
             return False
+        if self.waypoints[self.index].change_map:
+            self.request_shutdown('Map switch Nav2 cancellation timed out')
+            return True
         return self._fail_person_area_cancel(
             f'Nav2 cancel confirmation timed out after '
             f'{self.person_area_cancel_timeout_sec:.1f}s',
@@ -1076,10 +1116,145 @@ class WaypointFollower(Node):
                 return
             self.get_logger().info(
                 f'[WP:{waypoint.number}] waiting for {wait_seconds:.1f} seconds')
+        elif waypoint.change_map:
+            self._start_map_switch()
         elif is_last:
             self._complete_or_loop()
         else:
             self._advance()
+
+    def _start_map_switch(self) -> None:
+        """Validate both destination files before changing any map server state."""
+        if self._is_shutting_down():
+            return
+        name = self.waypoints[self.index].change_map
+        self._begin_holding_stop()
+        try:
+            names = set(self.get_node_names())
+            if 'filter_mask_server' in names:
+                raise ValueError('Keepout is active; restart Nav2 with the destination map')
+            if 'amcl' not in names or 'slam_toolbox' in names:
+                raise ValueError('Map switching requires AMCL localization (not SLAM/static)')
+            map_path = self.maps_dir / f'{name}.yaml'
+            if not map_path.is_file():
+                raise FileNotFoundError(f'Map file not found: {map_path}')
+            waypoints = load_waypoints(str(self.waypoints_dir / f'{name}.yaml'))
+            validate_person_search_route(waypoints, 1, self.loop, self.navigation_only)
+            if not self._commit_state(map_switch={
+                    'stage': 'ready', 'name': name, 'path': map_path,
+                    'waypoints': waypoints, 'started': monotonic(),
+                    'ready_at': monotonic() + SHUTDOWN_ZERO_SETTLE_SEC,
+                    'future': None, 'pose_confirmed': False}):
+                return
+            self.get_logger().info(f'Stopped at map boundary; switching to {name}')
+        except Exception as error:  # noqa: BLE001
+            self._map_switch_failed(str(error))
+
+    def _map_switch_failed(self, reason: str) -> None:
+        """Keep the robot stopped after a possibly partial map change."""
+        if self._is_shutting_down():
+            return
+        if not self._commit_state(
+                map_switch={'stage': 'fault'}, holding_stop=True, finished=True):
+            return
+        self._publish_safety_zero()
+        self.get_logger().error(
+            f'Map switch failed: {reason}. Navigation is held stopped; '
+            'check the map/localization and restart waypoint following.')
+
+    def _continue_map_switch(self) -> None:
+        """Poll asynchronous map loading while continuously commanding zero."""
+        if self._is_shutting_down():
+            return
+        self._publish_safety_zero()
+        state = self.map_switch
+        if state['stage'] == 'fault':
+            return
+        if monotonic() - state['started'] > self.map_switch_timeout_sec:
+            self._map_switch_failed('map service/localization confirmation timed out')
+            return
+        if state['stage'] == 'ready':
+            if monotonic() < state['ready_at']:
+                return
+            if any(not record.resolved for record in self.goal_records.values()):
+                return
+            if not self.map_client.service_is_ready():
+                return
+            request = LoadMap.Request()
+            request.map_url = str(state['path'])
+
+            def dispatch():
+                state['stage'] = 'loading'
+                state['future'] = self.map_client.call_async(request)
+
+            try:
+                self._commit_mission(dispatch)
+            except Exception as error:  # noqa: BLE001
+                self._map_switch_failed(str(error))
+        elif state['stage'] == 'loading':
+            if not state['future'].done():
+                return
+            try:
+                result = state['future'].result()
+                if result.result != LoadMap.Response.RESULT_SUCCESS:
+                    raise RuntimeError(f'LoadMap returned result={result.result}')
+                first = state['waypoints'][0]
+                pose = PoseWithCovarianceStamped()
+                pose.header.frame_id = self.map_frame
+                pose.header.stamp = self.get_clock().now().to_msg()
+                pose.pose.pose.position.x, pose.pose.pose.position.y = first.x, first.y
+                pose.pose.pose.orientation.z, pose.pose.pose.orientation.w = (
+                    yaw_to_quaternion(first.angle_radians))
+                pose.pose.covariance[0] = pose.pose.covariance[7] = 0.25
+                pose.pose.covariance[35] = math.radians(15.0) ** 2
+                state['pose_stamp'] = pose.header.stamp
+                if not self._commit_mission(self.initial_pose_publisher.publish, pose):
+                    return
+                state['stage'] = 'localizing'
+                state['ready_at'] = monotonic() + self.map_switch_settle_sec
+            except Exception as error:  # noqa: BLE001
+                self._map_switch_failed(str(error))
+        elif (state['stage'] == 'localizing' and state['pose_confirmed']
+                and monotonic() >= state['ready_at']):
+            if not self._commit_state(
+                    waypoints=state['waypoints'], index=0, goal_serial=self.goal_serial + 1,
+                    goal_handle=None, goal_result_future=None, single_goal_recovery=False,
+                    waiting_until=None, waiting_finishes_route=False):
+                return
+            self._configure_person_search()
+            if not self._commit_mission(
+                    setattr, self.route_markers, 'message',
+                    route_markers(self.waypoints, self.map_frame)):
+                return
+            if not self._commit_mission(self.route_markers.publish):
+                return
+            if not self._publish_stop(False):
+                self._map_switch_failed('could not release stop')
+                return
+            if not self._commit_state(map_switch=None, holding_stop=False):
+                return
+            self.get_logger().info(f"Map {state['name']} ready; restarting at waypoint 1")
+            self._send_current_goal()
+
+    def _map_switch_amcl_pose(self, message) -> None:
+        """Require a fresh AMCL estimate near the destination's first waypoint."""
+        state = self.map_switch
+        if (self._is_shutting_down() or state is None
+                or state['stage'] != 'localizing'):
+            return
+        stamp = message.header.stamp
+        initial = state['pose_stamp']
+        if ((stamp.sec, stamp.nanosec) < (initial.sec, initial.nanosec)
+                or message.header.frame_id != self.map_frame):
+            return
+        first = state['waypoints'][0]
+        pose = message.pose.pose
+        yaw = 2.0 * math.atan2(pose.orientation.z, pose.orientation.w)
+        angle_error = math.atan2(math.sin(yaw - first.angle_radians),
+                                 math.cos(yaw - first.angle_radians))
+        if (math.hypot(pose.position.x - first.x, pose.position.y - first.y)
+                <= self.precise_threshold and abs(angle_error) <= 0.5):
+            self._commit_mission(state.__setitem__, 'pose_confirmed', True)
 
     def _publish_person_area_arrival(self, arrived: bool) -> None:
         if arrived and self._is_shutting_down():
@@ -1363,7 +1538,7 @@ class WaypointFollower(Node):
         self.get_logger().error(f'[WP:{waypoint.number}] {message}')
         if self._fail_person_area_navigation(message):
             return
-        if unconfirmed or self.stop_on_failure:
+        if unconfirmed or self.stop_on_failure or waypoint.change_map:
             if not self._commit_state(finished=True):
                 return
             self.request_shutdown(message)

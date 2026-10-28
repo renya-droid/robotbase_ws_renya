@@ -21,6 +21,7 @@ class Waypoint:
     stop: bool = False
     wait_time: float = 0.0
     person_area: bool = False
+    change_map: str = ''
 
 
 def _as_waypoint(raw: Dict[str, Any], index: int) -> Waypoint:
@@ -30,12 +31,20 @@ def _as_waypoint(raw: Dict[str, Any], index: int) -> Waypoint:
     if missing:
         raise ValueError(f'waypoints[{index}] is missing: {", ".join(missing)}')
     unsupported = [
-        key for key in ('change_map', 'rotate') if raw.get(key) not in (None, '', 0, 0.0)
+        key for key in ('rotate',) if raw.get(key) not in (None, '', 0, 0.0)
     ]
     if unsupported:
         raise ValueError(
             f'waypoints[{index}] uses unsupported fields: '
             f'{", ".join(unsupported)}')
+    change_map = raw.get('change_map', '')
+    if not isinstance(change_map, str) or (change_map and (
+            change_map in ('.', '..') or '/' in change_map or '\\' in change_map
+            or change_map.endswith('.yaml'))):
+        raise ValueError(
+            f'waypoints[{index}].change_map must be a map name without path or .yaml')
+    if change_map and raw.get('person_area', False):
+        raise ValueError(f'waypoints[{index}]: change_map cannot be combined with person_area')
     person_area = raw.get('person_area', False)
     if not isinstance(person_area, bool):
         raise ValueError(f'waypoints[{index}].person_area must be true or false')
@@ -66,6 +75,7 @@ def _as_waypoint(raw: Dict[str, Any], index: int) -> Waypoint:
             **values,
             stop=stop,
             person_area=person_area,
+            change_map=change_map,
         )
     except (TypeError, ValueError, OverflowError) as error:
         raise ValueError(f'waypoints[{index}].number: {error}') from error
@@ -100,6 +110,8 @@ def waypoint_to_dict(waypoint: Waypoint) -> Dict[str, Any]:
         result.pop('wait_time')
     if not result['person_area']:
         result.pop('person_area')
+    if not result['change_map']:
+        result.pop('change_map')
     return result
 
 

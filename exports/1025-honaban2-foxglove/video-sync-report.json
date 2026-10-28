@@ -1,0 +1,12 @@
+{
+  "source": "/home/koko-chan-nuc/Downloads/1025-honban2.MOV",
+  "output": "/home/koko-chan-nuc/robotbase_ws_renya/exports/1025-honaban2-foxglove/1025-honban2-video.mcap",
+  "capture_time": "2026-10-25T14:02:33+0900",
+  "duration_sec": 551.266667,
+  "frame_count": 5513,
+  "fps": 10,
+  "topic": "/external_video/image/compressed",
+  "sync_basis": "QuickTime capture date; device clock offset not calibrated",
+  "start_time_ns": 1792904553000000000,
+  "last_frame_ns": 1792905104200000000
+}

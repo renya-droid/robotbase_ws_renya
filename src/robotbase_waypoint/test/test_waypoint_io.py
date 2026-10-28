@@ -44,7 +44,7 @@ def test_rejects_missing_pose_field(tmp_path: Path):
         load_waypoints(str(waypoint_file))
 
 
-def test_rejects_sirius_map_switch(tmp_path: Path):
+def test_loads_sirius_map_switch(tmp_path: Path):
     waypoint_file = tmp_path / 'map-switch.yaml'
     waypoint_file.write_text(
         'waypoints:\n'
@@ -54,5 +54,27 @@ def test_rejects_sirius_map_switch(tmp_path: Path):
         '    change_map: second-floor\n',
         encoding='utf-8')
 
+    loaded = load_waypoints(str(waypoint_file))
+    assert loaded[0].change_map == 'second-floor'
+    append_waypoint(str(waypoint_file), 3.0, 4.0, 0.0)
+    assert load_waypoints(str(waypoint_file))[0].change_map == 'second-floor'
+
+
+@pytest.mark.parametrize('value', ['../floor', '/tmp/floor', 'floor.yaml', '..', 1, True])
+def test_rejects_invalid_map_name(tmp_path, value):
+    """Only a map basename may be used for a route boundary."""
+    import yaml
+    path = tmp_path / 'route.yaml'
+    path.write_text(yaml.safe_dump({'waypoints': [{
+        'x': 0.0, 'y': 0.0, 'angle_radians': 0.0, 'change_map': value}]}))
     with pytest.raises(ValueError, match='change_map'):
-        load_waypoints(str(waypoint_file))
+        load_waypoints(str(path))
+
+
+def test_rejects_person_search_at_map_boundary(tmp_path):
+    """Camera arrival ordering and map transitions use separate waypoints."""
+    path = tmp_path / 'route.yaml'
+    path.write_text('waypoints:\n- x: 0\n  y: 0\n  angle_radians: 0\n'
+                    '  change_map: next\n  person_area: true\n')
+    with pytest.raises(ValueError, match='person_area'):
+        load_waypoints(str(path))

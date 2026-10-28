@@ -1,0 +1,43 @@
+{
+  "source": "/home/koko-chan-nuc/rosbag2_data/1025-honaban2/1025-honaban2_0.mcap",
+  "output": "/home/koko-chan-nuc/robotbase_ws_renya/exports/1025-honaban2-foxglove/1025-honaban2-foxglove.mcap",
+  "bytes": 1026859480,
+  "messages": 390951,
+  "channels": 32,
+  "schema_repaired": [
+    "action_msgs/msg/GoalStatusArray",
+    "nav2_msgs/action/Spin_FeedbackMessage",
+    "nav2_msgs/action/NavigateThroughPoses_FeedbackMessage",
+    "nav2_msgs/action/NavigateToPose_FeedbackMessage",
+    "nav2_msgs/action/FollowPath_FeedbackMessage"
+  ],
+  "validation": "CRCs, schemas, first message decoding per topic, all message counts and per-topic SHA256 of payloads/log-time/publish-time/sequence matched",
+  "topics": {
+    "/amcl_pose": 1352,
+    "/cmd_vel": 12744,
+    "/cmd_vel_direct": 53,
+    "/cmd_vel_nav": 6512,
+    "/cmd_vel_smoothed": 13215,
+    "/cmd_vel_teleop": 718,
+    "/experiment_metadata": 1,
+    "/follow_path/_action/feedback": 6189,
+    "/follow_path/_action/status": 786,
+    "/global_costmap/costmap": 775,
+    "/hokuyo_scan": 42007,
+    "/imu": 106019,
+    "/initialpose": 1,
+    "/local_costmap/costmap": 1755,
+    "/local_costmap/published_footprint": 5266,
+    "/map": 1,
+    "/navigate_to_pose/_action/feedback": 71956,
+    "/navigate_to_pose/_action/status": 140,
+    "/odom": 35079,
+    "/odom/filtered": 31598,
+    "/plan": 383,
+    "/rosout": 1898,
+    "/scan3": 10445,
+    "/stop": 1,
+    "/tf": 42056,
+    "/tf_static": 1
+  }
+}

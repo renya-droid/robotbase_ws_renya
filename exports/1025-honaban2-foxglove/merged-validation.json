@@ -1,0 +1,14 @@
+{
+  "messages": 396464,
+  "channels": 27,
+  "video_frames": 5513,
+  "video_offset_sec": 425.300294233,
+  "schema_validation": "all present and non-empty",
+  "counts": "all original topic counts preserved",
+  "video_validation": "first/last JPEG decoded, first/last timestamps match",
+  "clock_sync": "MOV capture-date based; device clock offset not calibrated",
+  "foxglove_gui_tested": false,
+  "mcap_doctor": "passed: zero warnings or errors",
+  "output": "/home/koko-chan-nuc/robotbase_ws_renya/exports/1025-honaban2-foxglove/1025-honban2-with-video.mcap",
+  "output_bytes": 1868697877
+}

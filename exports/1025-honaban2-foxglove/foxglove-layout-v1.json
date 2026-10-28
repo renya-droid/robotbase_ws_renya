@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "content": {
+    "type": "split",
+    "direction": "row",
+    "items": [
+      {
+        "proportion": 1,
+        "content": {
+          "type": "panel",
+          "panelType": "ThreeDee",
+          "config": {
+            "topics": {
+              "/map": {
+                "visible": true,
+                "colorMode": "map",
+                "drawBehind": true,
+                "alpha": 0.8
+              },
+              "/scan3": {
+                "visible": true,
+                "pointSize": 3,
+                "cubeOutline": false,
+                "pointShape": "circle",
+                "colorMode": "flat",
+                "flatColor": "#ff3030"
+              },
+              "/hokuyo_scan": {
+                "visible": false,
+                "cubeOutline": false,
+                "pointShape": "circle"
+              },
+              "/amcl_pose": {
+                "visible": true,
+                "type": "arrow",
+                "color": "#00e5ff",
+                "showCovariance": false
+              },
+              "/plan": {
+                "visible": true,
+                "type": "line",
+                "lineWidth": 0.15
+              },
+              "/global_costmap/costmap": {
+                "visible": false
+              },
+              "/local_costmap/costmap": {
+                "visible": false
+              }
+            },
+            "cameraState": {
+              "distance": 35,
+              "perspective": false,
+              "phi": 0,
+              "targetOffset": [
+                0,
+                0,
+                0
+              ],
+              "thetaOffset": 0
+            },
+            "followTf": "robot/base_footprint",
+            "fixedFrame": "map",
+            "followMode": "follow-position"
+          },
+          "title": "地図・LiDAR・自己位置",
+          "version": 1
+        }
+      },
+      {
+        "proportion": 1,
+        "content": {
+          "type": "split",
+          "direction": "column",
+          "items": [
+            {
+              "proportion": 3,
+              "content": {
+                "type": "panel",
+                "panelType": "Image",
+                "config": {
+                  "synchronize": false,
+                  "imageMode": {
+                    "imageTopic": "/external_video/image/compressed",
+                    "rectifyImage": false
+                  }
+                },
+                "title": "外部動画（撮影時刻で同期）",
+                "version": 1
+              }
+            },
+            {
+              "proportion": 1,
+              "content": {
+                "type": "panel",
+                "panelType": "Plot",
+                "config": {
+                  "paths": [
+                    {
+                      "enabled": true,
+                      "label": "command",
+                      "value": "/cmd_vel.linear.x"
+                    },
+                    {
+                      "enabled": true,
+                      "label": "odometry",
+                      "value": "/odom/filtered.twist.twist.linear.x"
+                    }
+                  ],
+                  "showLegend": true,
+                  "isSynced": true,
+                  "xAxisVal": "timestamp",
+                  "timeRange": "all"
+                },
+                "title": "前進速度 m/s",
+                "version": 1
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
