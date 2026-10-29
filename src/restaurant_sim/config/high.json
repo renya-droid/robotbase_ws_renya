@@ -1,0 +1,149 @@
+{
+  "seed": 42,
+  "agents": [
+    {
+      "name": "customer_00",
+      "seat": 0,
+      "arrival": 0,
+      "initial_seated": false,
+      "behavior": "water",
+      "meal_seconds": 100
+    },
+    {
+      "name": "customer_01",
+      "seat": 1,
+      "arrival": 2,
+      "initial_seated": true,
+      "behavior": "stay",
+      "meal_seconds": 107
+    },
+    {
+      "name": "customer_02",
+      "seat": 2,
+      "arrival": 4,
+      "initial_seated": false,
+      "behavior": "stay",
+      "meal_seconds": 114
+    },
+    {
+      "name": "customer_03",
+      "seat": 3,
+      "arrival": 6,
+      "initial_seated": true,
+      "behavior": "water",
+      "meal_seconds": 121
+    },
+    {
+      "name": "customer_04",
+      "seat": 4,
+      "arrival": 8,
+      "initial_seated": false,
+      "behavior": "stroll",
+      "meal_seconds": 128
+    },
+    {
+      "name": "customer_05",
+      "seat": 5,
+      "arrival": 10,
+      "initial_seated": true,
+      "behavior": "stay",
+      "meal_seconds": 135
+    },
+    {
+      "name": "customer_06",
+      "seat": 6,
+      "arrival": 12,
+      "initial_seated": false,
+      "behavior": "water",
+      "meal_seconds": 142
+    },
+    {
+      "name": "customer_07",
+      "seat": 7,
+      "arrival": 14,
+      "initial_seated": true,
+      "behavior": "stay",
+      "meal_seconds": 149
+    },
+    {
+      "name": "customer_08",
+      "seat": 8,
+      "arrival": 16,
+      "initial_seated": false,
+      "behavior": "stay",
+      "meal_seconds": 156
+    },
+    {
+      "name": "customer_09",
+      "seat": 9,
+      "arrival": 18,
+      "initial_seated": true,
+      "behavior": "water",
+      "meal_seconds": 163
+    },
+    {
+      "name": "customer_10",
+      "seat": 10,
+      "arrival": 20,
+      "initial_seated": false,
+      "behavior": "stay",
+      "meal_seconds": 170
+    },
+    {
+      "name": "customer_11",
+      "seat": 11,
+      "arrival": 22,
+      "initial_seated": true,
+      "behavior": "stay",
+      "meal_seconds": 177
+    },
+    {
+      "name": "customer_12",
+      "seat": 12,
+      "arrival": 24,
+      "initial_seated": false,
+      "behavior": "water",
+      "meal_seconds": 184
+    },
+    {
+      "name": "customer_13",
+      "seat": 13,
+      "arrival": 26,
+      "initial_seated": true,
+      "behavior": "stay",
+      "meal_seconds": 191
+    },
+    {
+      "name": "customer_14",
+      "seat": 14,
+      "arrival": 28,
+      "initial_seated": false,
+      "behavior": "stay",
+      "meal_seconds": 198
+    },
+    {
+      "name": "customer_15",
+      "seat": 15,
+      "arrival": 30,
+      "initial_seated": true,
+      "behavior": "water",
+      "meal_seconds": 205
+    },
+    {
+      "name": "customer_16",
+      "seat": 16,
+      "arrival": 32,
+      "initial_seated": false,
+      "behavior": "stay",
+      "meal_seconds": 212
+    },
+    {
+      "name": "customer_17",
+      "seat": 17,
+      "arrival": 34,
+      "initial_seated": true,
+      "behavior": "stay",
+      "meal_seconds": 219
+    }
+  ]
+}
