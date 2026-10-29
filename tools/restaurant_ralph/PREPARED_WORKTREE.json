@@ -1,0 +1,9 @@
+{
+  "original": "/home/ren/robotbase_ws_renya",
+  "worktree": "/tmp/restaurant-ralph-research-20261029",
+  "branch": "ralph/restaurant-research-20261029",
+  "base_commit": "36cc7c3060836c28a7885c0bf9c8cdc95d0ee725",
+  "reference_image": "/tmp/restaurant-ralph-research-20261029/tools/restaurant_ralph/reference/floorplan.jpeg",
+  "image_sha256": "9c54a265411c2ea10bbac399ae4885849ee07c8d1ad64a4b5a623e99902ec760",
+  "loop_started": false
+}
