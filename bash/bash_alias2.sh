@@ -52,6 +52,18 @@ alias koko_imu='koko_src && ros2 launch robotbase_bringup imu.launch.py tf_prefi
 # TAB: シミュレーション
 # GROUP: シミュレーション
 
+# レストラン（人なし）：専用Domain 89 / Gazebo領域、ロボットなし
+alias koko_restaurant_base='bash "${_KOKO_WS}/bash/startup_bash/start_restaurant.sh" base'
+
+# レストラン（低混雑・5人）：専用Domain 89 / Gazebo領域、ロボットなし
+alias koko_restaurant_low='bash "${_KOKO_WS}/bash/startup_bash/start_restaurant.sh" low'
+
+# レストラン（中混雑・10人）：専用Domain 89 / Gazebo領域、ロボットなし
+alias koko_restaurant_medium='bash "${_KOKO_WS}/bash/startup_bash/start_restaurant.sh" medium'
+
+# レストラン（高混雑・18人）：専用Domain 89 / Gazebo領域、ロボットなし
+alias koko_restaurant_high='bash "${_KOKO_WS}/bash/startup_bash/start_restaurant.sh" high'
+
 # Gazebo Sim本体（VLP16 + IMU、RViz/SLAM/Nav2は起動しない）
 alias koko_sim='koko_sim_src && bash "${_KOKO_WS}/bash/startup_bash/start_sim.sh" tf_prefix:=${ROBOTBASE_TF_PREFIX}'
 

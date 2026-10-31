@@ -102,7 +102,11 @@ class TestTabSelection(unittest.TestCase):
         simulation_commands = {
             name: command for name, command, _description in groups['シミュレーション']
         }
-        for command in simulation_commands.values():
+        for name, command in simulation_commands.items():
+            if name.startswith('koko_restaurant_'):
+                self.assertIn('start_restaurant.sh', command)
+                self.assertNotIn('/install/setup.bash', command)
+                continue
             self.assertIn('activate_koko_sim_env.sh', command)
             self.assertNotIn('koko_sim_src', command)
             self.assertNotIn('koko_sim_env &&', command)

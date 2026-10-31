@@ -4,4 +4,8 @@ set -e
 workspace="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "${workspace}/bash/activate_koko_env.sh"
 cd "${workspace}"
-exec /usr/bin/python3 "${workspace}/other_programs/sirius_launcher/robot_launcher.py" "$@"
+launcher_python=/usr/bin/python3
+if [[ -x "${workspace}/.venv/bin/python" ]]; then
+  launcher_python="${workspace}/.venv/bin/python"
+fi
+exec "${launcher_python}" "${workspace}/other_programs/sirius_launcher/robot_launcher.py" "$@"

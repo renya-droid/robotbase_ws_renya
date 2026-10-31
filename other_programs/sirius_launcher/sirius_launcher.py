@@ -10,7 +10,6 @@ import psutil
 from PySide6.QtWidgets import QApplication, QInputDialog, QMainWindow, QMessageBox, QPushButton
 from PySide6.QtCore import QTimer, QEvent, QProcess
 
-from keepout_editor import KeepoutEditor
 from alias_parser import parse_bash_aliases
 from ui_components import LaunchButtonUI, MainWindowUI
 from process_manager import ProcessManager
@@ -197,6 +196,12 @@ class RobotLauncher(QMainWindow):
         self.save_sim_domain_btn.clicked.connect(self.save_simulation_domain)
 
     def open_keepout_editor(self):
+        try:
+            from keepout_editor import KeepoutEditor
+        except ModuleNotFoundError as error:
+            QMessageBox.warning(self, 'エディターを利用できません',
+                                f'エディターの依存ファイルがありません: {error.name}')
+            return
         KeepoutEditor(self, WORKSPACE).exec()
 
     def simulation_processes_running(self):
@@ -489,6 +494,16 @@ class RobotLauncher(QMainWindow):
         button.process_manager.command = button.command + ' --world-id ' + shlex.quote(world['id'])
         return True
     
+    def prepare_restaurant_launch(self, button):
+        labels = ['等倍（1倍）', '2倍速']
+        selected, accepted = QInputDialog.getItem(
+            self, 'レストランの速度', 'シミュレーション速度を選択してください', labels, 0, False)
+        if not accepted:
+            return False
+        speed = str(labels.index(selected) + 1)
+        button.process_manager.command = button.command + ' speed:=' + speed
+        return True
+
     def add_button(self, layout, name, command, description, group_widget=None):
         """ボタンを追加"""
         tab_index = None
@@ -503,6 +518,8 @@ class RobotLauncher(QMainWindow):
         button = LaunchButton(name, command, description, tab_widget=self.tab_widget, tab_index=tab_index)
         if name == f'{ROBOT_ID}_sim':
             button.prepare_launch = self.prepare_simulation_launch
+        elif name.startswith(f'{ROBOT_ID}_restaurant_'):
+            button.prepare_launch = self.prepare_restaurant_launch
         layout.addWidget(button)
         self.buttons.append(button)
         self.button_map[name] = button

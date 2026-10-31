@@ -1,0 +1,349 @@
+{
+  "schema_version": 1,
+  "layout_sha256": "690c87a2c8f6ae15c9a695bf4c9bd10754ef02a2dbaf33fed8988b3505206b54",
+  "method": "One-to-one minimum squared XY distance from legacy anchors among chairs with a clear 0.55m access segment. Facing inferred towards owning table, not measured from a drawing.",
+  "bindings": [
+    {
+      "slot": 0,
+      "seat_id": "diamond_00_chair_1",
+      "legacy_anchor": [
+        7.35,
+        6.45
+      ],
+      "approach": [
+        10.098025612106914,
+        6.620208152801713
+      ],
+      "center": [
+        9.709116882454314,
+        7.009116882454315
+      ],
+      "surface_z": 0.45,
+      "yaw": -2.356194490192345,
+      "assignment_distance": 2.424467808267702
+    },
+    {
+      "slot": 1,
+      "seat_id": "diamond_00_chair_0",
+      "legacy_anchor": [
+        7.949999999999999,
+        5.55
+      ],
+      "approach": [
+        8.233574830779284,
+        5.685319489384904
+      ],
+      "center": [
+        8.690883117545685,
+        5.990883117545685
+      ],
+      "surface_z": 0.45,
+      "yaw": 0.7853981633974483,
+      "assignment_distance": 0.8621401957924341
+    },
+    {
+      "slot": 2,
+      "seat_id": "diamond_03_chair_1",
+      "legacy_anchor": [
+        9.15,
+        5.25
+      ],
+      "approach": [
+        11.798025612106915,
+        5.4980256121069155
+      ],
+      "center": [
+        11.409116882454315,
+        5.109116882454314
+      ],
+      "surface_z": 0.45,
+      "yaw": -2.356194490192345,
+      "assignment_distance": 2.263505498424842
+    },
+    {
+      "slot": 3,
+      "seat_id": "diamond_01_chair_0",
+      "legacy_anchor": [
+        10.049999999999999,
+        7.35
+      ],
+      "approach": [
+        10.601974387893085,
+        6.379791847198287
+      ],
+      "center": [
+        10.990883117545685,
+        5.990883117545685
+      ],
+      "surface_z": 0.45,
+      "yaw": 0.7853981633974483,
+      "assignment_distance": 1.6530153481001997
+    },
+    {
+      "slot": 4,
+      "seat_id": "diamond_02_chair_0",
+      "legacy_anchor": [
+        12.45,
+        7.35
+      ],
+      "approach": [
+        12.901974387893086,
+        6.379791847198287
+      ],
+      "center": [
+        13.290883117545686,
+        5.990883117545685
+      ],
+      "surface_z": 0.45,
+      "yaw": 0.7853981633974483,
+      "assignment_distance": 1.5982124757195733
+    },
+    {
+      "slot": 5,
+      "seat_id": "diamond_02_chair_1",
+      "legacy_anchor": [
+        14.549999999999999,
+        7.5
+      ],
+      "approach": [
+        14.519592770255114,
+        7.517250625335523
+      ],
+      "center": [
+        14.309116882454315,
+        7.009116882454315
+      ],
+      "surface_z": 0.45,
+      "yaw": -2.356194490192345,
+      "assignment_distance": 0.5468006139443323
+    },
+    {
+      "slot": 6,
+      "seat_id": "north_00_chair_0",
+      "legacy_anchor": [
+        7.05,
+        9.45
+      ],
+      "approach": [
+        7.0,
+        10.049999999999999
+      ],
+      "center": [
+        7.0,
+        10.6
+      ],
+      "surface_z": 0.45,
+      "yaw": 0.0,
+      "assignment_distance": 1.1510864433221342
+    },
+    {
+      "slot": 7,
+      "seat_id": "island_00_chair_0",
+      "legacy_anchor": [
+        9.299999999999999,
+        9.45
+      ],
+      "approach": [
+        8.105,
+        8.9
+      ],
+      "center": [
+        8.105,
+        8.35
+      ],
+      "surface_z": 0.45,
+      "yaw": 0.0,
+      "assignment_distance": 1.6241998029799154
+    },
+    {
+      "slot": 8,
+      "seat_id": "diamond_01_chair_1",
+      "legacy_anchor": [
+        10.95,
+        9.45
+      ],
+      "approach": [
+        12.314680510615096,
+        7.466425169220715
+      ],
+      "center": [
+        12.009116882454315,
+        7.009116882454315
+      ],
+      "surface_z": 0.45,
+      "yaw": -2.356194490192345,
+      "assignment_distance": 2.660759095487468
+    },
+    {
+      "slot": 9,
+      "seat_id": "island_03_chair_1",
+      "legacy_anchor": [
+        12.45,
+        9.45
+      ],
+      "approach": [
+        13.695,
+        8.9
+      ],
+      "center": [
+        13.695,
+        8.35
+      ],
+      "surface_z": 0.45,
+      "yaw": 3.141592653589793,
+      "assignment_distance": 1.6613322966823951
+    },
+    {
+      "slot": 10,
+      "seat_id": "north_05_chair_1",
+      "legacy_anchor": [
+        13.95,
+        9.45
+      ],
+      "approach": [
+        15.5,
+        10.049999999999999
+      ],
+      "center": [
+        15.5,
+        10.6
+      ],
+      "surface_z": 0.45,
+      "yaw": 3.141592653589793,
+      "assignment_distance": 1.930025906561879
+    },
+    {
+      "slot": 11,
+      "seat_id": "east_04_chair_0",
+      "legacy_anchor": [
+        15.299999999999999,
+        9.45
+      ],
+      "approach": [
+        15.494524112199203,
+        9.108133742881208
+      ],
+      "center": [
+        15.705000000000002,
+        8.6
+      ],
+      "surface_z": 0.45,
+      "yaw": 0.0,
+      "assignment_distance": 0.9415545655988301
+    },
+    {
+      "slot": 12,
+      "seat_id": "diamond_03_chair_0",
+      "legacy_anchor": [
+        9.15,
+        3.5999999999999996
+      ],
+      "approach": [
+        9.882749374664478,
+        3.8804072297448857
+      ],
+      "center": [
+        10.390883117545686,
+        4.090883117545685
+      ],
+      "surface_z": 0.45,
+      "yaw": 0.7853981633974483,
+      "assignment_distance": 1.3344501288925226
+    },
+    {
+      "slot": 13,
+      "seat_id": "communal_chair_0",
+      "legacy_anchor": [
+        10.049999999999999,
+        3.0
+      ],
+      "approach": [
+        10.471866257118792,
+        2.4604758878007993
+      ],
+      "center": [
+        10.98,
+        2.25
+      ],
+      "surface_z": 0.45,
+      "yaw": 0.0,
+      "assignment_distance": 1.1947384651043937
+    },
+    {
+      "slot": 14,
+      "seat_id": "communal_chair_0_1",
+      "legacy_anchor": [
+        11.25,
+        3.5999999999999996
+      ],
+      "approach": [
+        11.4895241121992,
+        3.6081337428812077
+      ],
+      "center": [
+        11.7,
+        3.1
+      ],
+      "surface_z": 0.45,
+      "yaw": -0.6578886051822095,
+      "assignment_distance": 0.6726812023536847
+    },
+    {
+      "slot": 15,
+      "seat_id": "diamond_04_chair_0",
+      "legacy_anchor": [
+        12.9,
+        3.5999999999999996
+      ],
+      "approach": [
+        12.901359005346483,
+        3.5827493746644774
+      ],
+      "center": [
+        12.690883117545685,
+        4.090883117545685
+      ],
+      "surface_z": 0.45,
+      "yaw": 0.7853981633974483,
+      "assignment_distance": 0.5335692135222789
+    },
+    {
+      "slot": 16,
+      "seat_id": "communal_chair_3_1",
+      "legacy_anchor": [
+        14.25,
+        3.5999999999999996
+      ],
+      "approach": [
+        14.100475887800798,
+        3.6081337428812077
+      ],
+      "center": [
+        13.889999999999999,
+        3.1
+      ],
+      "surface_z": 0.45,
+      "yaw": -2.4792804498873497,
+      "assignment_distance": 0.6161168720299749
+    },
+    {
+      "slot": 17,
+      "seat_id": "communal_chair_1",
+      "legacy_anchor": [
+        15.149999999999999,
+        2.25
+      ],
+      "approach": [
+        15.170000000000002,
+        2.25
+      ],
+      "center": [
+        14.620000000000001,
+        2.25
+      ],
+      "surface_z": 0.45,
+      "yaw": 3.141592653589793,
+      "assignment_distance": 0.5299999999999976
+    }
+  ]
+}
