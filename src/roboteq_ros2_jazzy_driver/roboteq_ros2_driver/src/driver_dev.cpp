@@ -160,6 +160,14 @@ Roboteq::Roboteq() : Node("roboteq_ros2_driver")
 
     // Start reading only after the serial connection, controller setup,
     // odometry stream setup, publisher, and shared state are ready.
+    drive_diagnostics_pub_ = this->create_publisher<diagnostic_msgs::msg::DiagnosticArray>(
+        "/roboteq/drive_diagnostics", 50);
+    drive_serial_rx_pub_ = this->create_publisher<diagnostic_msgs::msg::DiagnosticArray>(
+        "/roboteq/serial_rx", 1000);
+    drive_serial_tx_pub_ = this->create_publisher<diagnostic_msgs::msg::DiagnosticArray>(
+        "/roboteq/serial_tx", 1000);
+    drive_diagnostics_timer_ = this->create_wall_timer(
+        200ms, std::bind(&Roboteq::publish_drive_diagnostics, this));
     odom_thread_ = std::thread(&Roboteq::odom_loop, this);
 }
 
@@ -275,6 +283,12 @@ void Roboteq::connect() {
 
 void Roboteq::bumper_callback(const std_msgs::msg::Bool::SharedPtr stop_msg)
 {
+    {
+        std::lock_guard<std::mutex> lock(drive_diagnostics_mutex_);
+        drive_stop_seen_ = true;
+        drive_stop_requested_ = stop_msg->data;
+        drive_last_stop_ = std::chrono::steady_clock::now();
+    }
     if (stop_msg->data)
     {
         RCLCPP_INFO(this->get_logger(), "Bumper!!!");
@@ -310,27 +324,37 @@ bool Roboteq::safe_serial_write(const std::string &cmd) {
             connect();
         } catch (const std::exception &e) {
             RCLCPP_ERROR_STREAM(this->get_logger(), "Failed to reconnect: " << e.what());
+            record_drive_serial(cmd, true, false);
             return false;
         }
     }
-    
+
     try {
-        controller.write(cmd);
-        return true;
+        const bool complete = controller.write(cmd) == cmd.size();
+        record_drive_serial(cmd, true, complete);
+        return complete;
     } catch (const serial::IOException &e) {
         RCLCPP_ERROR_STREAM(this->get_logger(), "Serial write failed: " << e.what());
+        record_drive_serial(cmd, true, false);
         return false;
     } catch (const serial::PortNotOpenedException &e) {
         RCLCPP_ERROR_STREAM(this->get_logger(), "Port not opened: " << e.what());
+        record_drive_serial(cmd, true, false);
         return false;
     } catch (const std::exception &e) {
         RCLCPP_ERROR_STREAM(this->get_logger(), "Unknown error during serial write: " << e.what());
+        record_drive_serial(cmd, true, false);
         return false;
     }
 }
 
 void Roboteq::cmdvel_callback(const geometry_msgs::msg::Twist::SharedPtr twist_msg)
 {
+    {
+        std::lock_guard<std::mutex> lock(drive_diagnostics_mutex_);
+        ++drive_cmdvel_count_;
+        drive_last_cmdvel_ = std::chrono::steady_clock::now();
+    }
     // 車輪速度の計算 (m/s)
     // 右モーター(M1): 正(+)の指令で前進
     // 左モーター(M2): 負(-)の指令で前進
@@ -877,6 +901,7 @@ void Roboteq::odom_loop()
                     if (ch == '\r') {
                         packet_count++;
                         
+                        record_drive_serial(line_buffer, false, true);
                         // 行の終わり - データを処理
                         if (line_buffer.length() >= 3 && 
                             line_buffer[0] == 'C' && 
@@ -1161,6 +1186,8 @@ Roboteq::~Roboteq()
         controller.close();
     }
 }
+
+#include "drive_diagnostics.inc"
 
 } // end of namespace
 

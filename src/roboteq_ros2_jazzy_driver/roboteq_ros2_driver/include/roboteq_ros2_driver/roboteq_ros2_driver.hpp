@@ -9,6 +9,9 @@
 #include <chrono>
 #include <cstdint>
 #include <deque>
+#include <map>
+#include <string>
+#include "diagnostic_msgs/msg/diagnostic_array.hpp"
 #include <iostream>
 #include <limits>
 #include <memory>
@@ -102,6 +105,33 @@ class Roboteq : public rclcpp::Node
 
   uint32_t odom_last_time{};
 
+
+  // Bag diagnostics. Never read the serial port from a second consumer.
+  struct DriveSerialEvent {
+    rclcpp::Time stamp;
+    std::chrono::steady_clock::time_point steady;
+    std::string line;
+    bool tx;
+    bool ok;
+    uint64_t sequence;
+  };
+  std::mutex drive_diagnostics_mutex_;
+  std::deque<DriveSerialEvent> drive_serial_events_;
+  std::map<std::string, std::pair<std::string, std::chrono::steady_clock::time_point>> drive_replies_;
+  uint64_t drive_serial_sequence_{};
+  uint64_t drive_serial_dropped_{};
+  bool drive_stop_seen_{};
+  bool drive_stop_requested_{};
+  uint64_t drive_cmdvel_count_{};
+  std::chrono::steady_clock::time_point drive_last_cmdvel_{};
+  std::chrono::steady_clock::time_point drive_last_stop_{};
+  std::chrono::steady_clock::time_point drive_last_query_{};
+  rclcpp::TimerBase::SharedPtr drive_diagnostics_timer_;
+  rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr drive_diagnostics_pub_;
+  rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr drive_serial_rx_pub_;
+  rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr drive_serial_tx_pub_;
+  void record_drive_serial(const std::string &line, bool tx, bool ok);
+  void publish_drive_diagnostics();
 
   // settings
   bool pub_odom_tf{};
