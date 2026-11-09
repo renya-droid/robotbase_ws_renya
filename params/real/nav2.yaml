@@ -52,10 +52,16 @@ global_costmap:
       update_frequency: 2.0
       publish_frequency: 1.0
       resolution: 0.05
+      # 地図全体(約4500万セル/45MB)だと重いので、ロボット周辺50m四方(100万セル)に限定。
+      # ウェイポイント間隔は最大16m程度なので±25mで足りる。
+      rolling_window: true
+      width: 50
+      height: 50
       track_unknown_space: true
       # 全長0.60 m（前後各0.30）、全幅0.58 m（左右各0.29）。
       footprint: "[[0.30, 0.29], [0.30, -0.29], [-0.30, -0.29], [-0.30, 0.29]]"
-      plugins: [static_layer, velodyne_obstacle_layer, hokuyo_obstacle_layer, inflation_layer]
+      # Hokuyoは足元用サブのためlocalのみで使用（屋外の無反射でクリアできず跡が残るため）。
+      plugins: [static_layer, velodyne_obstacle_layer, inflation_layer]
       static_layer:
         plugin: nav2_costmap_2d::StaticLayer
         map_subscribe_transient_local: true
@@ -70,17 +76,6 @@ global_costmap:
           clearing: true
           obstacle_max_range: 15.0
           raytrace_max_range: 20.0
-      hokuyo_obstacle_layer:
-        plugin: nav2_costmap_2d::ObstacleLayer
-        observation_sources: hokuyo_scan
-        hokuyo_scan:
-          topic: /hokuyo_scan
-          data_type: LaserScan
-          max_obstacle_height: 2.0
-          marking: true
-          clearing: true
-          obstacle_max_range: 10.0
-          raytrace_max_range: 15.0
       inflation_layer:
         plugin: nav2_costmap_2d::InflationLayer
         inflation_radius: 0.70
@@ -247,13 +242,18 @@ local_costmap:
         plugin: nav2_costmap_2d::ObstacleLayer
         observation_sources: hokuyo_scan
         hokuyo_scan:
-          topic: /hokuyo_scan
+          # nav2.launch.pyのhokuyo_no_return_filterが無反射値(65.5m)をinfにして配信する。
+          # inf_is_valid: trueでinfの光線もraytrace_max_rangeまでクリアに使う。
+          topic: /hokuyo_scan_filtered
+          inf_is_valid: true
           data_type: LaserScan
           max_obstacle_height: 2.0
           marking: true
           clearing: true
-          obstacle_max_range: 10.0
-          raytrace_max_range: 15.0
+          # 足元用サブ。屋外では無反射(range_max超)の光線がクリアに使われず跡が残るため、
+          # 書き込み・クリアとも近距離に限定する。
+          obstacle_max_range: 3.0   # local窓(6m四方=±3m)の端まで
+          raytrace_max_range: 4.5   # 窓の角(約4.24m)までクリアできるように
       inflation_layer:
         plugin: nav2_costmap_2d::InflationLayer
         inflation_radius: 0.70

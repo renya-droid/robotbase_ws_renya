@@ -197,6 +197,14 @@ def generate_launch_description():
         name='waypoint_follower', output='screen', parameters=[parameters],
         remappings=tf_remaps,
     )
+    # 実機のみ: Hokuyoの無反射値(range_max超)をinfにしてlocal_costmapのクリアに使えるようにする。
+    hokuyo_no_return_filter = Node(
+        package='robotbase_bringup', executable='hokuyo_no_return_filter.py',
+        name='hokuyo_no_return_filter', output='screen',
+        condition=IfCondition(PythonExpression([
+            "'", LaunchConfiguration('hokuyo_no_return_filter'), "' == 'true' and '",
+            use_sim_time, "' != 'true'"])),
+    )
     navigation_lifecycle = Node(
         package='nav2_lifecycle_manager', executable='lifecycle_manager',
         name='lifecycle_manager_navigation', output='screen',
@@ -222,6 +230,9 @@ def generate_launch_description():
         DeclareLaunchArgument('params_file', default_value=default_params),
         DeclareLaunchArgument('tf_prefix', default_value='robot'),
         DeclareLaunchArgument('odom_topic', default_value='/odom/filtered'),
+        DeclareLaunchArgument(
+            'hokuyo_no_return_filter', default_value='true',
+            description='Publish /hokuyo_scan_filtered (no-return -> inf) on the real robot.'),
         OpaqueFunction(function=configure_keepout),
         map_server,
         amcl,
@@ -235,5 +246,6 @@ def generate_launch_description():
         navigator,
         velocity_smoother,
         waypoint_follower,
+        hokuyo_no_return_filter,
         navigation_lifecycle,
     ])

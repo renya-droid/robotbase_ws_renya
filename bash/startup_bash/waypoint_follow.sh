@@ -103,7 +103,7 @@ fi
 echo "ウェイポイント: ${waypoint_file}"
 echo "開始番号: ${start_index}, loop: ${loop_value}"
 if [ "$navigation_mode" = through_poses ]; then
-    echo "走行方式: NavigateThroughPoses（区間上限40 m、通常区間の切替距離: ${threshold} m）"
+    echo "走行方式: NavigateThroughPoses（区間上限20 m、通常区間の切替距離: ${threshold} m）"
 else
     echo "走行方式: NavigateToPose（中間点の切替距離: ${threshold} m）"
 fi

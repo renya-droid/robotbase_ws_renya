@@ -38,6 +38,9 @@
   <exec_depend>velodyne_driver</exec_depend>
   <exec_depend>velodyne_laserscan</exec_depend>
   <exec_depend>velodyne_pointcloud</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
   <exec_depend>witmotion_ros</exec_depend>
 
   <export>

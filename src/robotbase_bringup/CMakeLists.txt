@@ -9,4 +9,9 @@ install(
   PATTERN "__pycache__" EXCLUDE
 )
 
+install(
+  PROGRAMS scripts/hokuyo_no_return_filter.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 ament_package()

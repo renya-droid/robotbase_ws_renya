@@ -304,7 +304,8 @@ class WaypointFollower(ElevatorTaskLink, Node):
         self.declare_parameter('person_area_zero_settle_sec', 0.5)
         self.declare_parameter('navigation_only', False)
         self.declare_parameter('navigation_mode', 'to_pose')
-        self.declare_parameter('max_section_length', 40.0)
+        # global_costmapは50m四方のrolling window(±25m)なので、区間終端がその外に出ないよう20mに制限する。
+        self.declare_parameter('max_section_length', 20.0)
         self.declare_parameter('section_switch_distance', 6.0)
 
         waypoint_file = str(self.get_parameter('waypoint_file').value)
