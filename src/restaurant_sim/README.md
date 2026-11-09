@@ -35,7 +35,7 @@ ros2 run restaurant_sim people --ros-args -p use_sim_time:=true -p scenario:=low
 - 給水: (8.5,1.3)が停止位置。下側設備帯を給水と仮定。図面上の給水器を特定したものではありません。
 - 上辺6組、中央上部4組、中央菱形5組、右辺5組、下側共用テーブル1組と厨房沿いのカウンター椅子を配置。椅子数・各席の細部は簡略化しています。
 
-各テーブルの中心・寸法・角度は `config/layout.json` の `tables`、全壁・家具は `obstacles`、人の着席停止位置は `seats`、設備利用位置は `goals` が正本です。`north_*`は上辺、`island_*`は上側の島、`diamond_*`は中央、`east_*`は右辺、`communal`は下側共用席です。
+各テーブルの中心・寸法・角度は `config/layout.json` の `tables`、全壁・家具は `obstacles`、設備利用位置は `goals` が正本です。旧着席停止位置 `seats` は保全し、現在の歩行停止位置と座面中心の対応は `config/seat_bindings.json` に分離しています。割当と形状・高さ・向きの根拠、未解決事項は [docs/seating.md](docs/seating.md) を参照してください。`north_*`は上辺、`island_*`は上側の島、`diamond_*`は中央、`east_*`は右辺、`communal`は下側共用席です。
 
 主な通路は厨房右側x≈7〜8、上側客席間y≈9.4、中央テーブル間、下側共用席の周囲。人用に障害物を0.29 m膨張した0.15 mグリッドで到達性を検査しています。すべての隙間がロボットに十分な幅とは限りません。
 
@@ -43,7 +43,7 @@ ros2 run restaurant_sim people --ros-args -p use_sim_time:=true -p scenario:=low
 
 各人は時間差で入店し指定位置へ移動、滞在、給水または短い散歩、席に戻り、会計、退出します。半数は初期着席相当として指定時刻に席へ出現します。乱数seed=42で速度・滞在時間を変化させます。lowは1人だけ給水、medium/highは約3分の1が給水。会計は全員が順番に目標とし、高混雑では集中が発生し得ますが時間帯や人数は設定変更で調整してください。C/Dの同行同期や空席選択は未実装です。
 
-人は半径0.23 mの円柱（visual/collision両方）で、着席は椅子横の静止として表現します。椅子に身体を乗せるアニメーションはありません。A*の4近傍経路なので曲がり角は角ばります。他人から0.62 m未満への接近を停止で回避します。1秒以上接近停止した場合、他人を障害物として再経路探索します。退避場所のない狭路や占有中の目的地では待機を続けます。経路や状態遷移をROSログへ出力し、位置を `/restaurant/people` (PoseArray, world)へ配信します。
+人は半径0.23 mの円柱（visual/collision両方）で、通常経路で椅子前のapproachに到達し、段階的に座面中心へ移動してSEATEDとなります。起立場所が占有されている間は座面に留まります。骨格を曲げるアニメーションはありません。A*の4近傍経路なので曲がり角は角ばります。静的家具と人物間0.66 mの掃引を検査し、1秒以上接近停止した場合、他人を障害物として再経路探索します。移動状態で20 sim秒の移動距離が0.10 m未満なら原因を記録し非ゼロ終了します。対向停止時は安全な退避先と相手の通過経路を確認し、15sim秒の期限付きで退避場所を予約します。seed42のlow/mediumは純粋ロジック上で完走しましたが、highの多人数閉塞・設備FIFO・公平性とGazebo整合は未完了です。範囲と制限は [docs/passage.md](docs/passage.md) を参照してください。位置と向きを `/restaurant/people` (PoseArray, world)へ、永続ID・seat_id・姿勢・行動を `/restaurant/agents_snapshot` (String内JSON)へ同じsim時刻で配信します。型付きスナップショットとGazebo通信確定に基づく配信は未実装です。
 
 ## ロボット実験
 
@@ -68,3 +68,29 @@ LiDAR、接触、最小離隔、通過時間、到着成功率は実際のロボ
 - 全18停止位置から全サービス目標への経路テスト成功（pytest 1件）。
 - Gazeboサーバー起動、set_poseによる人モデル移動要求に `data: true` を確認。
 - 結合試験では当初200 msのサービス待機がタイムアウト。2000 msへ変更。変更後の全シナリオ完走、GUIの自然な移動、複数人の渋滞解消は未確認。
+
+## 反復6の診断と未達条件
+
+`/restaurant/agents_snapshot`には同じtimestampの要求状態に加え、
+`elapsed_sim_seconds`と各人物の`diagnostics`（行動index、残り待機時間、
+連続blocked時間、最後の経路失敗理由）を記録する。実Gazebo位置は別途
+`/world/restaurant/pose/info`から観測する必要がある。JSON診断を追加しても
+型付き契約・twist・Gazebo確認済み配信の未実装は解消しない。
+
+`tools/restaurant_ralph/reproduce_issues.py`の全tick記録は退避計画をコピーし、
+失敗tickも保存する。反復5以前のraw passage phaseを過去時刻の正確な状態と
+解釈しない。反復6の差分、再現コマンド、終了code、未達検証は
+`artifacts/restaurant/issues/6/REPRODUCE.md`と`HANDOFF.md`を参照。
+
+
+## 反復7での停止と再開資料
+
+ユーザーの追加指示により反復7で記録して停止する。スタックと通信整合は未解決であり、
+修正完了や研究READYではない。最終検証のコマンド・終了codeは
+`artifacts/restaurant/issues/7/REPRODUCE.md`、残存原因・次の具体的修正・
+未実施gateは同ディレクトリの`FINAL_HANDOFF.md`に記録する。
+
+時刻を切り分けた診断では、production tickの1秒ギャップから内部経過時間が
+0.2秒だけ進み、0.8秒が失われる。到着前の人物だけの条件では巻戻りも例外にならない。
+動く人物のMotionMonitorには巻戻り検出があるため、全状態の挙動を示す試験ではない。
+これらは未修正であり、診断器の非ゼロ終了を保持する。

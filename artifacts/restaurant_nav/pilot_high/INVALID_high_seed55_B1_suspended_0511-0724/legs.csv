@@ -1,0 +1,4 @@
+condition,scenario,seed,trip,leg,slot,seat_id,start_sim,end_sim,duration,result,path_length,robot_stopped_s,min_gap_any,min_gap_walking,near_miss_events,contact_samples,human_stopped_near_robot_s,seat_occupied_at_end
+B1,high,55,0,to_table,16,communal_chair_3_1,40.0,63.5,23.5,SUCCEEDED,11.15,4.2,0.075,0.712,0,0,0.0,False
+B1,high,55,0,to_base,-1,base,68.5,95.85,27.35,SUCCEEDED,10.441,8.7,0.07,0.138,4,0,4.5,
+B1,high,55,1,to_table,13,communal_chair_0,95.85,109.37,13.52,SUCCEEDED,3.343,2.9,0.09,0.144,2,0,0.0,True

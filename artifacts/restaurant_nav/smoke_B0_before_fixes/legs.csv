@@ -1,0 +1,6 @@
+condition,scenario,seed,trip,leg,slot,seat_id,start_sim,end_sim,duration,result,path_length,robot_stopped_s,min_gap_any,min_gap_walking,near_miss_events,contact_samples,human_stopped_near_robot_s,seat_occupied_at_end
+B0,high,42,0,to_table,11,east_04_chair_0,40.0,47.5,7.5,FAILED,1.467,0.8,1.747,1.747,0,0,0.0,True
+B0,high,42,1,to_table,10,north_05_chair_1,49.5,106.5,57.0,FAILED,15.62,33.5,0.121,2.209,0,0,0.0,True
+B0,high,42,2,to_table,5,diamond_02_chair_1,108.6,112.8,4.2,FAILED,1.855,0.6,0.738,0.738,0,0,0.0,True
+B0,high,42,3,to_table,13,communal_chair_0,114.9,128.0,13.1,SUCCEEDED,4.482,0.6,-0.076,-0.076,1,16,1.1,True
+B0,high,42,3,to_base,-1,base,133.1,253.2,120.1,TIMEOUT,3.565,109.8,0.13,0.63,0,0,0.0,

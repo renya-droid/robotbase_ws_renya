@@ -1,0 +1,29 @@
+{
+ "condition": "P",
+ "scenario": "high",
+ "seed": 22,
+ "trips": 4,
+ "legs": 7,
+ "succeeded": 6,
+ "mean_duration": 49.309,
+ "mean_path_length": 13.796,
+ "mean_robot_stopped_s": 23.529,
+ "min_gap_walking": -0.001,
+ "near_miss_events": 14,
+ "contact_samples": 35,
+ "human_stopped_near_robot_s": 13.1,
+ "seat_occupied_on_arrival": 1,
+ "people_failures_reported": 6,
+ "resets": [
+  {
+   "trip": 1,
+   "sim": 266.23,
+   "ok": true
+  }
+ ],
+ "lifecycle_retries": [],
+ "table_legs": 4,
+ "table_succeeded": 3,
+ "mean_table_duration_succeeded": 46.317,
+ "wall_clock_finished": "2026-10-31T04:12:09"
+}

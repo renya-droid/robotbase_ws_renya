@@ -1,0 +1,4 @@
+run,condition,seed,table_legs,table_succeeded,mean_table_duration_succeeded,legs,succeeded,mean_duration,mean_path_length,mean_robot_stopped_s,min_gap_walking,near_miss_events,contact_samples,human_stopped_near_robot_s,seat_occupied_on_arrival,resets,people_failures_reported
+high_seed11_P,P,11,4,3,23.04,7,6,42.014,10.79,20.214,-0.004,14,10,52.3,2,1,2
+high_seed22_P,P,22,4,4,53.977,8,8,40.9,15.752,11.238,-0.004,14,40,6.4,3,0,1
+high_seed42_P,P,42,5,4,12.422,9,8,31.28,5.993,16.022,-0.001,10,6,1.2,2,1,0
