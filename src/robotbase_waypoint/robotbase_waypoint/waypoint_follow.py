@@ -24,6 +24,7 @@ from std_msgs.msg import Bool, String
 from std_srvs.srv import SetBool
 from tf2_ros import Buffer, TransformException, TransformListener
 
+from .elevator_task import ElevatorTaskLink
 from .waypoint_io import load_waypoints
 from .waypoint_visualize import route_markers, RouteMarkerPublisher
 
@@ -196,6 +197,7 @@ def waypoint_arrival_threshold(
     if (
             waypoint.stop
             or waypoint.change_map
+            or waypoint.elevator
             or waypoint.wait_time > 0.0
             or waypoint_uses_person_search(waypoint, navigation_only)
     ):
@@ -209,7 +211,7 @@ def navigation_segment_end(waypoints, start_index: int, navigation_only: bool = 
     """Include the first task/stop waypoint as this continuous section's endpoint."""
     for index in range(start_index, len(waypoints)):
         waypoint = waypoints[index]
-        if (waypoint.stop or waypoint.wait_time > 0.0 or waypoint.change_map
+        if (waypoint.stop or waypoint.wait_time > 0.0 or waypoint.change_map or waypoint.elevator
                 or waypoint_uses_person_search(waypoint, navigation_only)):
             return index
     return len(waypoints) - 1
@@ -276,7 +278,7 @@ def split_ambiguous_section(waypoints, start: int, end: int) -> int:
     return end
 
 
-class WaypointFollower(Node):
+class WaypointFollower(ElevatorTaskLink, Node):
     """Send continuous route sections and preserve task-specific stop handshakes."""
 
     def __init__(self, *, shutdown_request=None) -> None:
@@ -397,6 +399,7 @@ class WaypointFollower(Node):
         self.person_search_detail_subscription = None
         self.person_search_ack_subscription = None
         self._configure_person_search()
+        self._configure_elevator()
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
         self.goal_handle = None
@@ -577,6 +580,7 @@ class WaypointFollower(Node):
                 self.person_search_faulted,
                 self.manual_paused,
                 getattr(self, 'map_switch', None) is not None,
+                getattr(self, 'elevator_task', None) is not None,
         )):
             return False
         waypoint = self.waypoints[self.index]
@@ -710,6 +714,9 @@ class WaypointFollower(Node):
             return response
         if getattr(self, 'map_switch', None) is not None:
             response.message = 'Map switch in progress; robot is held stopped'
+            return response
+        if getattr(self, 'elevator_task', None) is not None:
+            response.message = 'Elevator task is active; cancel from the elevator tool'
             return response
         if request.data:
             if self.manual_paused:
@@ -850,6 +857,9 @@ class WaypointFollower(Node):
     def _timer_callback(self) -> None:
         if self._is_shutting_down():
             return
+        if getattr(self, 'elevator_task', None) is not None:
+            self._continue_elevator()
+            return
         if getattr(self, 'map_switch', None) is not None:
             self._continue_map_switch()
             return
@@ -879,7 +889,9 @@ class WaypointFollower(Node):
             if self.get_clock().now() >= self.waiting_until:
                 if not self._commit_state(holding_stop=False, waiting_until=None):
                     return
-                if self.waypoints[self.index].change_map:
+                if self.waypoints[self.index].elevator:
+                    self._start_elevator()
+                elif self.waypoints[self.index].change_map:
                     self._start_map_switch()
                 elif self.waiting_finishes_route:
                     self._complete_or_loop()
@@ -916,8 +928,10 @@ class WaypointFollower(Node):
         uses_person_search = waypoint_uses_person_search(
             waypoint, self.navigation_only)
         needs_pause = (waypoint.stop or waypoint.wait_time > 0.0
-                       or waypoint.change_map or uses_person_search)
+                       or waypoint.change_map or waypoint.elevator or uses_person_search)
         is_last = self.index == len(self.waypoints) - 1
+        if waypoint.elevator:
+            return  # Handoff only after the owned Nav2 action succeeds.
         if self.navigation_mode == 'through_poses' and not needs_pause:
             # A short recovery/loop section is also one action: wait for its
             # terminal result before changing BT files or starting another.
@@ -1116,6 +1130,8 @@ class WaypointFollower(Node):
                 return
             self.get_logger().info(
                 f'[WP:{waypoint.number}] waiting for {wait_seconds:.1f} seconds')
+        elif waypoint.elevator:
+            self._start_elevator()
         elif waypoint.change_map:
             self._start_map_switch()
         elif is_last:
@@ -1222,6 +1238,7 @@ class WaypointFollower(Node):
                     waiting_until=None, waiting_finishes_route=False):
                 return
             self._configure_person_search()
+            self._configure_elevator()
             if not self._commit_mission(
                     setattr, self.route_markers, 'message',
                     route_markers(self.waypoints, self.map_frame)):
@@ -1538,7 +1555,7 @@ class WaypointFollower(Node):
         self.get_logger().error(f'[WP:{waypoint.number}] {message}')
         if self._fail_person_area_navigation(message):
             return
-        if unconfirmed or self.stop_on_failure or waypoint.change_map:
+        if unconfirmed or self.stop_on_failure or waypoint.change_map or waypoint.elevator:
             if not self._commit_state(finished=True):
                 return
             self.request_shutdown(message)
@@ -1600,6 +1617,8 @@ class WaypointFollower(Node):
         settle_until = None
         try:
             self.timer.cancel()
+            if getattr(self, 'elevator_task', None) is not None:
+                self._cleanup_publish(self.elevator_cancel_publisher.publish, String(data='stop'))
             self._cleanup_publish(self._publish_safety_zero)
             self._cleanup_publish(self._publish_stop, True)
             if had_active_arrival:

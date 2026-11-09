@@ -3,6 +3,11 @@ twist_mux:
   ros__parameters:
     use_stamped: false
     topics:
+      # Dedicated elevator zero-velocity input, paired with the persistent lock.
+      elevator_stop:
+        topic: /cmd_vel_stop
+        timeout: 0.5
+        priority: 254
       teleop:
         topic: cmd_vel_teleop
         timeout: 0.5
@@ -20,6 +25,10 @@ twist_mux:
         timeout: 0.5
         priority: 1
     locks:
+      elevator_stop:
+        topic: /elevator_safety_stop
+        timeout: 0.0
+        priority: 254
       stop:
         topic: /stop
         timeout: 0.0

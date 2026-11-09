@@ -22,6 +22,7 @@ class Waypoint:
     wait_time: float = 0.0
     person_area: bool = False
     change_map: str = ''
+    elevator: bool = False
 
 
 def _as_waypoint(raw: Dict[str, Any], index: int) -> Waypoint:
@@ -45,6 +46,11 @@ def _as_waypoint(raw: Dict[str, Any], index: int) -> Waypoint:
             f'waypoints[{index}].change_map must be a map name without path or .yaml')
     if change_map and raw.get('person_area', False):
         raise ValueError(f'waypoints[{index}]: change_map cannot be combined with person_area')
+    elevator = raw.get('elevator', False)
+    if type(elevator) is not bool:
+        raise ValueError(f'waypoints[{index}].elevator must be true or false')
+    if elevator and (change_map or raw.get('person_area', False)):
+        raise ValueError(f'waypoints[{index}]: elevator cannot be combined with change_map or person_area')
     person_area = raw.get('person_area', False)
     if not isinstance(person_area, bool):
         raise ValueError(f'waypoints[{index}].person_area must be true or false')
@@ -76,6 +82,7 @@ def _as_waypoint(raw: Dict[str, Any], index: int) -> Waypoint:
             stop=stop,
             person_area=person_area,
             change_map=change_map,
+            elevator=elevator,
         )
     except (TypeError, ValueError, OverflowError) as error:
         raise ValueError(f'waypoints[{index}].number: {error}') from error
@@ -110,6 +117,8 @@ def waypoint_to_dict(waypoint: Waypoint) -> Dict[str, Any]:
         result.pop('wait_time')
     if not result['person_area']:
         result.pop('person_area')
+    if not result['elevator']:
+        result.pop('elevator')
     if not result['change_map']:
         result.pop('change_map')
     return result
