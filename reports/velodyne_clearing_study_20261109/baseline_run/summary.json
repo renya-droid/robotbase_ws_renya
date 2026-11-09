@@ -1,0 +1,249 @@
+{
+  "world": "velodyne_clearing_study",
+  "timeline": [
+    {
+      "phase": "warmup",
+      "duration": 4.0,
+      "obstacles": []
+    },
+    {
+      "phase": "pedestrian_near_static",
+      "duration": 5.0,
+      "obstacles": [
+        "pedestrian"
+      ]
+    },
+    {
+      "phase": "pedestrian_near_removed",
+      "duration": 10.0,
+      "obstacles": []
+    },
+    {
+      "phase": "pedestrian_far_static",
+      "duration": 5.0,
+      "obstacles": [
+        "pedestrian"
+      ]
+    },
+    {
+      "phase": "pedestrian_far_removed",
+      "duration": 10.0,
+      "obstacles": []
+    },
+    {
+      "phase": "pedestrian_walk_x4",
+      "duration": 7.692307692307692,
+      "obstacles": [
+        "pedestrian"
+      ]
+    },
+    {
+      "phase": "pedestrian_walk_removed",
+      "duration": 10.0,
+      "obstacles": []
+    },
+    {
+      "phase": "car_pass_x9",
+      "duration": 7.5,
+      "obstacles": [
+        "car"
+      ]
+    },
+    {
+      "phase": "car_pass_removed",
+      "duration": 10.0,
+      "obstacles": []
+    },
+    {
+      "phase": "low_box_static",
+      "duration": 5.0,
+      "obstacles": [
+        "low_box"
+      ]
+    },
+    {
+      "phase": "low_box_removed",
+      "duration": 10.0,
+      "obstacles": []
+    },
+    {
+      "phase": "indoor_ref_static",
+      "duration": 5.0,
+      "obstacles": [
+        "pedestrian",
+        "reference_wall"
+      ]
+    },
+    {
+      "phase": "indoor_ref_pedestrian_removed",
+      "duration": 10.0,
+      "obstacles": [
+        "reference_wall"
+      ]
+    },
+    {
+      "phase": "wall_removed",
+      "duration": 10.0,
+      "obstacles": []
+    }
+  ],
+  "present_margin_m": 0.3,
+  "recent_window_s": 0.6,
+  "robot_max_offset_from_origin_m": 0.0,
+  "phases": [
+    {
+      "phase": "warmup",
+      "cycle": 0,
+      "samples": 10,
+      "max_residual": 0,
+      "first_residual": 0,
+      "last_residual": 0,
+      "first_zero_time": 0.141,
+      "max_present": 0,
+      "last_phase_time": 3.741
+    },
+    {
+      "phase": "pedestrian_near_static",
+      "cycle": 0,
+      "samples": 13,
+      "max_residual": 0,
+      "first_residual": 0,
+      "last_residual": 0,
+      "first_zero_time": 0.141,
+      "max_present": 10,
+      "last_phase_time": 4.941
+    },
+    {
+      "phase": "pedestrian_near_removed",
+      "cycle": 0,
+      "samples": 28,
+      "max_residual": 10,
+      "first_residual": 0,
+      "last_residual": 10,
+      "first_zero_time": 0.341,
+      "max_present": 0,
+      "last_phase_time": 9.939
+    },
+    {
+      "phase": "pedestrian_far_static",
+      "cycle": 0,
+      "samples": 13,
+      "max_residual": 10,
+      "first_residual": 10,
+      "last_residual": 10,
+      "first_zero_time": null,
+      "max_present": 12,
+      "last_phase_time": 4.939
+    },
+    {
+      "phase": "pedestrian_far_removed",
+      "cycle": 0,
+      "samples": 27,
+      "max_residual": 19,
+      "first_residual": 10,
+      "last_residual": 19,
+      "first_zero_time": null,
+      "max_present": 0,
+      "last_phase_time": 9.739
+    },
+    {
+      "phase": "pedestrian_walk_x4",
+      "cycle": 0,
+      "samples": 20,
+      "max_residual": 161,
+      "first_residual": 19,
+      "last_residual": 161,
+      "first_zero_time": null,
+      "max_present": 11,
+      "last_phase_time": 7.339
+    },
+    {
+      "phase": "pedestrian_walk_removed",
+      "cycle": 0,
+      "samples": 27,
+      "max_residual": 185,
+      "first_residual": 169,
+      "last_residual": 185,
+      "first_zero_time": null,
+      "max_present": 0,
+      "last_phase_time": 9.847
+    },
+    {
+      "phase": "car_pass_x9",
+      "cycle": 0,
+      "samples": 19,
+      "max_residual": 409,
+      "first_residual": 185,
+      "last_residual": 409,
+      "first_zero_time": null,
+      "max_present": 85,
+      "last_phase_time": 7.447
+    },
+    {
+      "phase": "car_pass_removed",
+      "cycle": 0,
+      "samples": 27,
+      "max_residual": 426,
+      "first_residual": 423,
+      "last_residual": 426,
+      "first_zero_time": null,
+      "max_present": 0,
+      "last_phase_time": 9.947
+    },
+    {
+      "phase": "low_box_static",
+      "cycle": 0,
+      "samples": 13,
+      "max_residual": 426,
+      "first_residual": 426,
+      "last_residual": 426,
+      "first_zero_time": null,
+      "max_present": 37,
+      "last_phase_time": 4.747
+    },
+    {
+      "phase": "low_box_removed",
+      "cycle": 0,
+      "samples": 26,
+      "max_residual": 460,
+      "first_residual": 426,
+      "last_residual": 460,
+      "first_zero_time": null,
+      "max_present": 0,
+      "last_phase_time": 9.747
+    },
+    {
+      "phase": "indoor_ref_static",
+      "cycle": 0,
+      "samples": 13,
+      "max_residual": 277,
+      "first_residual": 277,
+      "last_residual": 260,
+      "first_zero_time": null,
+      "max_present": 387,
+      "last_phase_time": 4.946
+    },
+    {
+      "phase": "indoor_ref_pedestrian_removed",
+      "cycle": 0,
+      "samples": 26,
+      "max_residual": 260,
+      "first_residual": 260,
+      "last_residual": 260,
+      "first_zero_time": null,
+      "max_present": 413,
+      "last_phase_time": 9.947
+    },
+    {
+      "phase": "wall_removed",
+      "cycle": 0,
+      "samples": 26,
+      "max_residual": 667,
+      "first_residual": 260,
+      "last_residual": 667,
+      "first_zero_time": null,
+      "max_present": 0,
+      "last_phase_time": 9.747
+    }
+  ]
+}

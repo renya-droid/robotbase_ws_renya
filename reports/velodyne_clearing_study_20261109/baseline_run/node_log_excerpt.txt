@@ -1,0 +1,47 @@
+[INFO] [1794211583.979124547] [velodyne_coverage_viz]: rings=[1, 2, 3, 4, 5, 6, 8] max=[1.25, 1.5, 1.75, 2.0, 2.5, 3.5, 100.0] height=0.72 m imu_tilt=False
+[INFO] [1794211583.980185088] [velodyne_coverage_viz]: ring 1: elev -13.0 deg, ground contact 3.12 m, max 1.25 m, beam height at max 0.43 m
+[INFO] [1794211583.981216064] [velodyne_coverage_viz]: ring 2: elev -11.0 deg, ground contact 3.70 m, max 1.50 m, beam height at max 0.43 m
+[INFO] [1794211583.982089054] [velodyne_coverage_viz]: ring 3: elev -9.0 deg, ground contact 4.55 m, max 1.75 m, beam height at max 0.44 m
+[INFO] [1794211583.982889894] [velodyne_coverage_viz]: ring 4: elev -7.0 deg, ground contact 5.86 m, max 2.00 m, beam height at max 0.47 m
+[INFO] [1794211583.983694017] [velodyne_coverage_viz]: ring 5: elev -5.0 deg, ground contact 8.23 m, max 2.50 m, beam height at max 0.50 m
+[INFO] [1794211583.984721565] [velodyne_coverage_viz]: ring 6: elev -3.0 deg, ground contact 13.74 m, max 3.50 m, beam height at max 0.54 m
+[INFO] [1794211583.985741959] [velodyne_coverage_viz]: ring 8: elev +1.0 deg, ground contact none, max 100.00 m, beam height at max 2.47 m
+[INFO] [1794211587.397457082] [velodyne_clearing_scenario]: output: /tmp/claude-1000/-home-ren-robotbase-ws-renya/fcbb8542-12e8-4138-b4e1-2a8d8aa4478d/scratchpad/run1/result  timeline 109.2 s
+[INFO] [1794211589.631369591] [velodyne_coverage_viz]: scan3 +Inf bins 100.0% (clear_candidate 0.1%), adopted 0 / excluded 4314 pts, /scan3 reproduction: 37 frames compared, max mismatch 0 bins
+[INFO] [1794211594.738750245] [velodyne_coverage_viz]: scan3 +Inf bins 100.0% (clear_candidate 0.1%), adopted 0 / excluded 4314 pts, /scan3 reproduction: 87 frames compared, max mismatch 0 bins
+[INFO] [1794211599.748933792] [velodyne_coverage_viz]: scan3 +Inf bins 98.3% (clear_candidate 0.1%), adopted 36 / excluded 4290 pts, /scan3 reproduction: 137 frames compared, max mismatch 0 bins
+[INFO] [1794211604.739838776] [velodyne_coverage_viz]: scan3 +Inf bins 100.0% (clear_candidate 0.1%), adopted 0 / excluded 4314 pts, /scan3 reproduction: 187 frames compared, max mismatch 0 bins
+[INFO] [1794211609.742378849] [velodyne_coverage_viz]: scan3 +Inf bins 100.0% (clear_candidate 0.1%), adopted 0 / excluded 4314 pts, /scan3 reproduction: 237 frames compared, max mismatch 0 bins
+[INFO] [1794211614.740400482] [velodyne_coverage_viz]: scan3 +Inf bins 99.2% (clear_candidate 0.1%), adopted 6 / excluded 4314 pts, /scan3 reproduction: 287 frames compared, max mismatch 0 bins
+[INFO] [1794211619.740709932] [velodyne_coverage_viz]: scan3 +Inf bins 100.0% (clear_candidate 0.1%), adopted 0 / excluded 4314 pts, /scan3 reproduction: 337 frames compared, max mismatch 0 bins
+[INFO] [1794211624.741625886] [velodyne_coverage_viz]: scan3 +Inf bins 100.0% (clear_candidate 0.1%), adopted 0 / excluded 4314 pts, /scan3 reproduction: 387 frames compared, max mismatch 0 bins
+[INFO] [1794211629.742033081] [velodyne_coverage_viz]: scan3 +Inf bins 99.3% (clear_candidate 0.1%), adopted 5 / excluded 4314 pts, /scan3 reproduction: 437 frames compared, max mismatch 0 bins
+[INFO] [1794211634.742121365] [velodyne_coverage_viz]: scan3 +Inf bins 99.3% (clear_candidate 0.1%), adopted 5 / excluded 4314 pts, /scan3 reproduction: 487 frames compared, max mismatch 0 bins
+[INFO] [1794211639.740861210] [velodyne_coverage_viz]: scan3 +Inf bins 100.0% (clear_candidate 0.1%), adopted 0 / excluded 4314 pts, /scan3 reproduction: 537 frames compared, max mismatch 0 bins
+[INFO] [1794211644.748651398] [velodyne_coverage_viz]: scan3 +Inf bins 100.0% (clear_candidate 0.1%), adopted 0 / excluded 4314 pts, /scan3 reproduction: 587 frames compared, max mismatch 0 bins
+[INFO] [1794211649.741050170] [velodyne_coverage_viz]: scan3 +Inf bins 92.8% (clear_candidate 0.1%), adopted 52 / excluded 4314 pts, /scan3 reproduction: 637 frames compared, max mismatch 0 bins
+[INFO] [1794211654.740715395] [velodyne_coverage_viz]: scan3 +Inf bins 100.0% (clear_candidate 0.1%), adopted 0 / excluded 4314 pts, /scan3 reproduction: 687 frames compared, max mismatch 0 bins
+[INFO] [1794211659.741062277] [velodyne_coverage_viz]: scan3 +Inf bins 100.0% (clear_candidate 0.1%), adopted 0 / excluded 4314 pts, /scan3 reproduction: 737 frames compared, max mismatch 0 bins
+[INFO] [1794211664.740240438] [velodyne_coverage_viz]: scan3 +Inf bins 89.2% (clear_candidate 0.1%), adopted 189 / excluded 4125 pts, /scan3 reproduction: 787 frames compared, max mismatch 0 bins
+[INFO] [1794211669.749097939] [velodyne_coverage_viz]: scan3 +Inf bins 100.0% (clear_candidate 0.1%), adopted 0 / excluded 4314 pts, /scan3 reproduction: 837 frames compared, max mismatch 0 bins
+[INFO] [1794211674.741410637] [velodyne_coverage_viz]: scan3 +Inf bins 100.0% (clear_candidate 0.1%), adopted 0 / excluded 4314 pts, /scan3 reproduction: 887 frames compared, max mismatch 0 bins
+[INFO] [1794211679.744527421] [velodyne_coverage_viz]: scan3 +Inf bins 81.9% (clear_candidate 0.1%), adopted 140 / excluded 4304 pts, /scan3 reproduction: 937 frames compared, max mismatch 0 bins
+[INFO] [1794211684.741444600] [velodyne_coverage_viz]: scan3 +Inf bins 81.9% (clear_candidate 0.1%), adopted 130 / excluded 4314 pts, /scan3 reproduction: 987 frames compared, max mismatch 0 bins
+[INFO] [1794211689.744455698] [velodyne_coverage_viz]: scan3 +Inf bins 81.9% (clear_candidate 0.1%), adopted 130 / excluded 4314 pts, /scan3 reproduction: 1037 frames compared, max mismatch 0 bins
+[INFO] [1794211694.741545402] [velodyne_coverage_viz]: scan3 +Inf bins 100.0% (clear_candidate 0.1%), adopted 0 / excluded 4314 pts, /scan3 reproduction: 1087 frames compared, max mismatch 0 bins
+[INFO] [1794211699.740139842] [velodyne_coverage_viz]: scan3 +Inf bins 100.0% (clear_candidate 0.1%), adopted 0 / excluded 4314 pts, /scan3 reproduction: 1137 frames compared, max mismatch 0 bins
+[INFO] [1794211702.219539160] [velodyne_clearing_scenario]: scenario finished; summary.json written
+[INFO] [1794211702.220075024] [velodyne_clearing_scenario]: warmup                           residual first/max/last    0/   0/   0  zero at 0.141
+[INFO] [1794211702.220564706] [velodyne_clearing_scenario]: pedestrian_near_static           residual first/max/last    0/   0/   0  zero at 0.141
+[INFO] [1794211702.221030301] [velodyne_clearing_scenario]: pedestrian_near_removed          residual first/max/last    0/  10/  10  zero at 0.341
+[INFO] [1794211702.221394693] [velodyne_clearing_scenario]: pedestrian_far_static            residual first/max/last   10/  10/  10  zero at None
+[INFO] [1794211702.221710003] [velodyne_clearing_scenario]: pedestrian_far_removed           residual first/max/last   10/  19/  19  zero at None
+[INFO] [1794211702.222251282] [velodyne_clearing_scenario]: pedestrian_walk_x4               residual first/max/last   19/ 161/ 161  zero at None
+[INFO] [1794211702.222595640] [velodyne_clearing_scenario]: pedestrian_walk_removed          residual first/max/last  169/ 185/ 185  zero at None
+[INFO] [1794211702.223032350] [velodyne_clearing_scenario]: car_pass_x9                      residual first/max/last  185/ 409/ 409  zero at None
+[INFO] [1794211702.223460826] [velodyne_clearing_scenario]: car_pass_removed                 residual first/max/last  423/ 426/ 426  zero at None
+[INFO] [1794211702.223778383] [velodyne_clearing_scenario]: low_box_static                   residual first/max/last  426/ 426/ 426  zero at None
+[INFO] [1794211702.224304796] [velodyne_clearing_scenario]: low_box_removed                  residual first/max/last  426/ 460/ 460  zero at None
+[INFO] [1794211702.224625124] [velodyne_clearing_scenario]: indoor_ref_static                residual first/max/last  277/ 277/ 260  zero at None
+[INFO] [1794211702.225087307] [velodyne_clearing_scenario]: indoor_ref_pedestrian_removed    residual first/max/last  260/ 260/ 260  zero at None
+[INFO] [1794211702.225465183] [velodyne_clearing_scenario]: wall_removed                     residual first/max/last  260/ 667/ 667  zero at None

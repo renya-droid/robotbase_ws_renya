@@ -1,0 +1,69 @@
+{
+ "1_flat_before": {
+  "R6_front": {
+   "points": 162,
+   "median_dist_m": 3.46
+  },
+  "R8_rear": {
+   "points": 346,
+   "median_dist_m": 19.67
+  },
+  "R8_side": {
+   "points": 25,
+   "median_dist_m": 27.64
+  }
+ },
+ "2_uphill": {
+  "R6_rear": {
+   "points": 55,
+   "median_dist_m": 3.48
+  },
+  "R8_rear": {
+   "points": 20351,
+   "median_dist_m": 8.0
+  },
+  "R8_side": {
+   "points": 11559,
+   "median_dist_m": 15.12
+  }
+ },
+ "3_plateau": {
+  "R8_front": {
+   "points": 46,
+   "median_dist_m": 29.52
+  },
+  "R8_rear": {
+   "points": 383,
+   "median_dist_m": 25.17
+  }
+ },
+ "4_downhill": {
+  "R6_front": {
+   "points": 142,
+   "median_dist_m": 3.47
+  },
+  "R8_front": {
+   "points": 20150,
+   "median_dist_m": 7.9
+  },
+  "R8_side": {
+   "points": 11279,
+   "median_dist_m": 15.06
+  }
+ },
+ "5_flat_after": {
+  "R6_rear": {
+   "points": 76,
+   "median_dist_m": 3.48
+  },
+  "R8_front": {
+   "points": 952,
+   "median_dist_m": 15.13
+  },
+  "R8_side": {
+   "points": 228,
+   "median_dist_m": 21.39
+  }
+ },
+ "?": {}
+}

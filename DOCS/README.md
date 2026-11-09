@@ -15,6 +15,7 @@
 9. [SLAM_TOOLBOX.md](SLAM_TOOLBOX.md) — シリウスとの差分、地図のゴミに関係する値、調整方針
 10. [WAYPOINTS.md](WAYPOINTS.md) — ウェイポイントの記録、YAML追従、停止仕様
 11. [HOKUYO.md](HOKUYO.md) — Ethernet Hokuyoの起動、トピック・TF確認、Nav2 costmap連携
+12. [VELODYNE_CLEARING_STUDY.md](VELODYNE_CLEARING_STUDY.md) — Velodyne観測範囲と障害物コスト残留の可視化（sim）
 
 ## AIへ調査を依頼するとき
 

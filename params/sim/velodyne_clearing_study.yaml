@@ -1,0 +1,34 @@
+# Velodyne障害物コスト残留の調査用（シミュレーション専用）。
+# 実機 params/real/nav2.yaml の global_costmap の velodyne_obstacle_layer と同じ値を、
+# 単体のcostmapノード（/velodyne_study/costmap）で再現する。
+# Hokuyoはシミュレーションモデルに無いため含めない。inflationとstaticは残留セルの判定を
+# 単純にするため外している（評価対象はVelodyneレイヤーの登録・消去のみ）。
+velodyne_study:
+  costmap:
+    ros__parameters:
+      use_sim_time: true
+      global_frame: robot/odom  # launchのtf_prefixで上書き
+      robot_base_frame: robot/base_footprint  # launchのtf_prefixで上書き
+      update_frequency: 5.0
+      publish_frequency: 5.0
+      rolling_window: true
+      width: 40
+      height: 40
+      resolution: 0.05
+      track_unknown_space: false
+      footprint: "[[0.30, 0.29], [0.30, -0.29], [-0.30, -0.29], [-0.30, 0.29]]"
+      plugins: [velodyne_obstacle_layer]
+      velodyne_obstacle_layer:
+        plugin: nav2_costmap_2d::ObstacleLayer
+        observation_sources: velodyne_scan
+        velodyne_scan:
+          topic: /scan3
+          data_type: LaserScan
+          max_obstacle_height: 2.0
+          marking: true
+          clearing: true
+          inf_is_valid: false  # 実機と同じ既定値
+          obstacle_max_range: 15.0  # 実機global_costmapと同じ
+          raytrace_max_range: 20.0  # 実機global_costmapと同じ
+      always_send_full_costmap: true
+

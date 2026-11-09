@@ -21,7 +21,7 @@ def generate_launch_description():
     pkg_share = get_package_share_directory('robotbase_sim')
     bringup_share = get_package_share_directory('robotbase_bringup')
     world = LaunchConfiguration('world')
-    model = os.path.join(pkg_share, 'models', 'robotbase.sdf')
+    model = LaunchConfiguration('model_file')
     urdf = os.path.join(bringup_share, 'urdf', 'robotbase.urdf')
     params_root = os.environ.get(
         'ROBOTBASE_PARAMS_DIR',
@@ -156,6 +156,9 @@ def generate_launch_description():
             description='Start the Gazebo GUI. Set false for a headless run.'),
         DeclareLaunchArgument('tf_prefix', default_value='robot'),
         DeclareLaunchArgument('world', default_value=os.path.join(pkg_share, 'worlds', 'test_arena.sdf')),
+        DeclareLaunchArgument(
+            'model_file', default_value=os.path.join(pkg_share, 'models', 'robotbase.sdf'),
+            description='Robot SDF (default: models/robotbase.sdf)'),
         DeclareLaunchArgument('spawn_x', default_value='0.0'),
         DeclareLaunchArgument('spawn_y', default_value='0.0'),
         DeclareLaunchArgument('spawn_yaw', default_value='0.0'),

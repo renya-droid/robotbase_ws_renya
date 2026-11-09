@@ -1,0 +1,20 @@
+{"event": "start", "sim_time": 8.291}
+{"event": "set_pose", "model": "pedestrian", "state": "parked", "sim_time_sent": 5.291, "sim_time_done": 5.293, "x": 60.0, "y": 60.0, "yaw": 0.0, "success": true}
+{"event": "set_pose", "model": "car", "state": "parked", "sim_time_sent": 5.291, "sim_time_done": 5.2940000000000005, "x": 70.0, "y": 60.0, "yaw": 0.0, "success": true}
+{"event": "set_pose", "model": "low_box", "state": "parked", "sim_time_sent": 5.291, "sim_time_done": 5.295, "x": 75.0, "y": 60.0, "yaw": 0.0, "success": true}
+{"event": "set_pose", "model": "reference_wall", "state": "parked", "sim_time_sent": 5.291, "sim_time_done": 5.297000000000001, "x": 80.0, "y": 60.0, "yaw": 0.0, "success": true}
+{"event": "set_pose", "model": "pedestrian", "state": "placed", "sim_time_sent": 12.3, "sim_time_done": 12.301, "x": 2.5, "y": 0.0, "yaw": 0.0, "success": true}
+{"event": "set_pose", "model": "pedestrian", "state": "parked", "sim_time_sent": 17.3, "sim_time_done": 17.301000000000002, "x": 60.0, "y": 60.0, "yaw": 0.0, "success": true}
+{"event": "set_pose", "model": "pedestrian", "state": "placed", "sim_time_sent": 27.3, "sim_time_done": 27.301000000000002, "x": 6.0, "y": 1.0, "yaw": 0.0, "success": true}
+{"event": "set_pose", "model": "pedestrian", "state": "parked", "sim_time_sent": 32.300000000000004, "sim_time_done": 32.301, "x": 60.0, "y": 60.0, "yaw": 0.0, "success": true}
+{"event": "set_pose", "model": "pedestrian", "state": "placed", "sim_time_sent": 42.300000000000004, "sim_time_done": 42.300000000000004, "x": 4.0, "y": -4.9883, "yaw": 1.5707963267948966, "success": true}
+{"event": "set_pose", "model": "pedestrian", "state": "parked", "sim_time_sent": 50.0, "sim_time_done": 50.0, "x": 60.0, "y": 60.0, "yaw": 0.0, "success": true}
+{"event": "set_pose", "model": "car", "state": "placed", "sim_time_sent": 60.00000000000001, "sim_time_done": 60.00000000000001, "x": 9.0, "y": -14.93323076923076, "yaw": 1.5707963267948966, "success": true}
+{"event": "set_pose", "model": "car", "state": "parked", "sim_time_sent": 67.5, "sim_time_done": 67.501, "x": 70.0, "y": 60.0, "yaw": 0.0, "success": true}
+{"event": "set_pose", "model": "low_box", "state": "placed", "sim_time_sent": 77.5, "sim_time_done": 77.501, "x": 1.0, "y": -0.6, "yaw": 0.0, "success": true}
+{"event": "set_pose", "model": "low_box", "state": "parked", "sim_time_sent": 82.5, "sim_time_done": 82.501, "x": 75.0, "y": 60.0, "yaw": 0.0, "success": true}
+{"event": "set_pose", "model": "pedestrian", "state": "placed", "sim_time_sent": 92.5, "sim_time_done": 92.501, "x": 3.0, "y": 0.0, "yaw": 0.0, "success": true}
+{"event": "set_pose", "model": "reference_wall", "state": "placed", "sim_time_sent": 92.5, "sim_time_done": 92.501, "x": 8.0, "y": 0.0, "yaw": 0.0, "success": true}
+{"event": "set_pose", "model": "pedestrian", "state": "parked", "sim_time_sent": 97.5, "sim_time_done": 97.501, "x": 60.0, "y": 60.0, "yaw": 0.0, "success": true}
+{"event": "set_pose", "model": "reference_wall", "state": "parked", "sim_time_sent": 107.5, "sim_time_done": 107.501, "x": 80.0, "y": 60.0, "yaw": 0.0, "success": true}
+{"event": "finished", "sim_time": 117.50000000000001}

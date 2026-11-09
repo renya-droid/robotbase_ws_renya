@@ -1,0 +1,73 @@
+{
+  "course": {
+    "slope_deg": 18.0,
+    "grade_percent": 32.49,
+    "rise": 0.8,
+    "up_start": 4.0,
+    "up_end": 6.462146829740203,
+    "down_start": 11.462146829740202,
+    "down_end": 13.924293659480405,
+    "end_x": 19.924293659480405
+  },
+  "speed_mps": 0.4,
+  "final_gt": [
+    19.924,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "final_odom": [
+    19.924,
+    0.0,
+    0.0
+  ],
+  "distinct_lethal_cells_ever": 45720,
+  "motion": "kinematic set_pose; pitch = caster chord; nose-up positive",
+  "phases": {
+    "1_flat_before": {
+      "samples": 25,
+      "max_lethal": 359,
+      "min_pitch_noseup_deg": -0.0,
+      "max_pitch_noseup_deg": 6.28,
+      "scan3_inf_ratio_min": 0.4069,
+      "scan3_inf_ratio_max": 1.0,
+      "closest_lethal_ahead": 1.67
+    },
+    "2_uphill": {
+      "samples": 15,
+      "max_lethal": 827,
+      "min_pitch_noseup_deg": 10.76,
+      "max_pitch_noseup_deg": 18.0,
+      "scan3_inf_ratio_min": 0.5486,
+      "scan3_inf_ratio_max": 0.5833,
+      "closest_lethal_ahead": 0.33
+    },
+    "3_plateau": {
+      "samples": 33,
+      "max_lethal": 811,
+      "min_pitch_noseup_deg": -7.34,
+      "max_pitch_noseup_deg": 9.43,
+      "scan3_inf_ratio_min": 0.6222,
+      "scan3_inf_ratio_max": 1.0,
+      "closest_lethal_ahead": null
+    },
+    "4_downhill": {
+      "samples": 16,
+      "max_lethal": 1022,
+      "min_pitch_noseup_deg": -18.0,
+      "max_pitch_noseup_deg": -12.36,
+      "scan3_inf_ratio_min": 0.5472,
+      "scan3_inf_ratio_max": 0.6153,
+      "closest_lethal_ahead": 1.77
+    },
+    "5_flat_after": {
+      "samples": 48,
+      "max_lethal": 1449,
+      "min_pitch_noseup_deg": -8.37,
+      "max_pitch_noseup_deg": -0.0,
+      "scan3_inf_ratio_min": 0.4292,
+      "scan3_inf_ratio_max": 1.0,
+      "closest_lethal_ahead": 0.33
+    }
+  }
+}

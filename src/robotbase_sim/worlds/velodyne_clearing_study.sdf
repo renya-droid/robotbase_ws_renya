@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<!--
+  Velodyne障害物コスト残留の調査用ワールド。
+  - 壁のない200 m四方の平地（屋外の開けた場所を想定）。VLP-16の最大30 m内に反射物はない。
+  - 歩行者・自動車・低い箱・参照用の壁は、平常時は (60..80, 60) の観測範囲外に待機させ、
+    velodyne_clearing_scenario.py が /world/<name>/set_pose で設置・移動・撤去する。
+  - 形状寸法は検証用の代表値（推定）であり、実在の歩行者・車両の実測値ではない。
+-->
+<sdf version="1.9">
+  <world name="velodyne_clearing_study">
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <light type="directional" name="sun">
+      <pose>0 0 10 0 0 0</pose>
+      <cast_shadows>false</cast_shadows>
+      <diffuse>0.9 0.9 0.9 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.5 0.2 -0.9</direction>
+    </light>
+
+    <model name="ground">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision"><geometry><plane><normal>0 0 1</normal><size>200 200</size></plane></geometry></collision>
+        <visual name="visual">
+          <geometry><plane><normal>0 0 1</normal><size>200 200</size></plane></geometry>
+          <material><ambient>0.35 0.35 0.37 1</ambient><diffuse>0.40 0.40 0.42 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- 歩行者（代表値）: 脚0.00-0.85 m、胴0.85-1.50 m、頭1.50-1.72 m -->
+    <model name="pedestrian">
+      <pose>60 60 0 0 0 0</pose>
+      <link name="link">
+        <gravity>false</gravity>
+        <kinematic>true</kinematic>
+        <inertial><mass>60</mass><inertia><ixx>10</ixx><iyy>10</iyy><izz>10</izz></inertia></inertial>
+        <visual name="leg_l"><pose>0 0.10 0.425 0 0 0</pose><geometry><cylinder><radius>0.07</radius><length>0.85</length></cylinder></geometry>
+          <material><ambient>0.1 0.2 0.7 1</ambient><diffuse>0.1 0.2 0.8 1</diffuse></material></visual>
+        <visual name="leg_r"><pose>0 -0.10 0.425 0 0 0</pose><geometry><cylinder><radius>0.07</radius><length>0.85</length></cylinder></geometry>
+          <material><ambient>0.1 0.2 0.7 1</ambient><diffuse>0.1 0.2 0.8 1</diffuse></material></visual>
+        <visual name="torso"><pose>0 0 1.175 0 0 0</pose><geometry><cylinder><radius>0.20</radius><length>0.65</length></cylinder></geometry>
+          <material><ambient>0.8 0.3 0.1 1</ambient><diffuse>0.9 0.35 0.1 1</diffuse></material></visual>
+        <visual name="head"><pose>0 0 1.61 0 0 0</pose><geometry><sphere><radius>0.11</radius></sphere></geometry>
+          <material><ambient>0.9 0.75 0.6 1</ambient><diffuse>0.9 0.75 0.6 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- 自動車（代表値）: 車体4.4 x 1.8 m、高さ0.20-0.90 m、キャビン0.90-1.50 m -->
+    <model name="car">
+      <pose>70 60 0 0 0 0</pose>
+      <link name="link">
+        <gravity>false</gravity>
+        <kinematic>true</kinematic>
+        <inertial><mass>1200</mass><inertia><ixx>500</ixx><iyy>2000</iyy><izz>2000</izz></inertia></inertial>
+        <visual name="body"><pose>0 0 0.55 0 0 0</pose><geometry><box><size>4.4 1.8 0.7</size></box></geometry>
+          <material><ambient>0.7 0.1 0.1 1</ambient><diffuse>0.8 0.1 0.1 1</diffuse></material></visual>
+        <visual name="cabin"><pose>-0.2 0 1.2 0 0 0</pose><geometry><box><size>2.4 1.6 0.6</size></box></geometry>
+          <material><ambient>0.2 0.2 0.25 1</ambient><diffuse>0.25 0.25 0.3 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- 低い箱: 0.6 x 0.6 x 0.50 m -->
+    <model name="low_box">
+      <pose>75 60 0 0 0 0</pose>
+      <link name="link">
+        <gravity>false</gravity>
+        <kinematic>true</kinematic>
+        <inertial><mass>5</mass><inertia><ixx>1</ixx><iyy>1</iyy><izz>1</izz></inertia></inertial>
+        <visual name="visual"><pose>0 0 0.25 0 0 0</pose><geometry><box><size>0.6 0.6 0.5</size></box></geometry>
+          <material><ambient>0.8 0.7 0.1 1</ambient><diffuse>0.9 0.8 0.1 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- 屋内比較用の壁: 0.2 x 10 x 2.0 m -->
+    <model name="reference_wall">
+      <pose>80 60 0 0 0 0</pose>
+      <link name="link">
+        <gravity>false</gravity>
+        <kinematic>true</kinematic>
+        <inertial><mass>100</mass><inertia><ixx>10</ixx><iyy>10</iyy><izz>10</izz></inertia></inertial>
+        <visual name="visual"><pose>0 0 1.0 0 0 0</pose><geometry><box><size>0.2 10 2.0</size></box></geometry>
+          <material><ambient>0.65 0.65 0.68 1</ambient><diffuse>0.75 0.75 0.78 1</diffuse></material></visual>
+      </link>
+    </model>
+  </world>
+</sdf>

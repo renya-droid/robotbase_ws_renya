@@ -1,0 +1,269 @@
+Panels:
+- Class: rviz_common/Displays
+  Name: Displays
+  Help Height: 70
+  Tree Height: 600
+  Splitter Ratio: 0.6
+  Property Tree Widget:
+    Expanded:
+    - /Global Options1
+- Class: rviz_common/Views
+  Name: Views
+  Splitter Ratio: 0.5
+  Expanded:
+  - /Current View1
+- Class: rviz_common/Time
+  Name: Time
+  SyncMode: 0
+  SyncSource: ''
+Visualization Manager:
+  Class: ''
+  Displays:
+  - Class: rviz_default_plugins/Grid
+    Name: Grid 1m
+    Enabled: true
+    Value: true
+    Cell Size: 1
+    Plane Cell Count: 40
+    Color: 120; 120; 125
+    Alpha: 0.4
+    Reference Frame: <Fixed Frame>
+    Plane: XY
+    Normal Cell Count: 0
+    Line Style:
+      Line Width: 0.03
+      Value: Lines
+    Offset:
+      X: 0
+      Y: 0
+      Z: 0
+  - Class: rviz_default_plugins/Map
+    Name: Velodyne costmap (実機global相当)
+    Enabled: true
+    Value: true
+    Topic:
+      Depth: 5
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Reliability Policy: Reliable
+      Value: /velodyne_study/costmap
+    Update Topic:
+      Depth: 5
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Reliability Policy: Reliable
+      Value: /velodyne_study/costmap_updates
+    Color Scheme: costmap
+    Alpha: 0.7
+    Draw Behind: true
+    Use Timestamp: false
+  - Class: rviz_default_plugins/RobotModel
+    Name: RobotModel
+    Enabled: true
+    Value: true
+    Description Source: Topic
+    Description Topic:
+      Depth: 5
+      Durability Policy: Transient Local
+      History Policy: Keep Last
+      Reliability Policy: Reliable
+      Value: /robot_description
+    Alpha: 0.8
+    TF Prefix: ''
+    Visual Enabled: true
+    Collision Enabled: false
+  - Class: rviz_default_plugins/MarkerArray
+    Name: リング範囲（採用=色 / 除外=灰 / 地面交点）
+    Enabled: true
+    Topic:
+      Depth: 5
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Reliability Policy: Reliable
+      Value: /velodyne_coverage_viz/rings
+    Value: true
+  - Class: rviz_default_plugins/MarkerArray
+    Name: 消去レイ（緑=有限 / 赤=+Inf 消去なし）
+    Enabled: true
+    Topic:
+      Depth: 5
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Reliability Policy: Reliable
+      Value: /velodyne_coverage_viz/clearing_rays
+    Value: true
+  - Class: rviz_default_plugins/PointCloud2
+    Name: 採用点 adopted
+    Enabled: true
+    Topic:
+      Depth: 5
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Reliability Policy: Best Effort
+      Value: /velodyne_coverage_viz/adopted_points
+    Color Transformer: FlatColor
+    Color: 50; 230; 80
+    Style: Points
+    Size (Pixels): 3
+    Size (m): 0.05
+    Alpha: 1
+    Decay Time: 0
+    Position Transformer: XYZ
+    Use Fixed Frame: true
+    Value: true
+  - Class: rviz_default_plugins/PointCloud2
+    Name: 除外点 excluded（距離上限超）
+    Enabled: true
+    Topic:
+      Depth: 5
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Reliability Policy: Best Effort
+      Value: /velodyne_coverage_viz/excluded_points
+    Color Transformer: FlatColor
+    Color: 255; 150; 30
+    Style: Points
+    Size (Pixels): 3
+    Size (m): 0.03
+    Alpha: 1
+    Decay Time: 0
+    Position Transformer: XYZ
+    Use Fixed Frame: true
+    Value: true
+  - Class: rviz_default_plugins/PointCloud2
+    Name: scan3採用の3D点
+    Enabled: true
+    Topic:
+      Depth: 5
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Reliability Policy: Best Effort
+      Value: /velodyne_coverage_viz/scan3_points
+    Color Transformer: FlatColor
+    Color: 255; 255; 255
+    Style: Points
+    Size (Pixels): 3
+    Size (m): 0.07
+    Alpha: 1
+    Decay Time: 0
+    Position Transformer: XYZ
+    Use Fixed Frame: true
+    Value: true
+  - Class: rviz_default_plugins/PointCloud2
+    Name: 全点群 /velodyne_points
+    Enabled: false
+    Topic:
+      Depth: 5
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Reliability Policy: Best Effort
+      Value: /velodyne_points
+    Color Transformer: FlatColor
+    Color: 130; 130; 140
+    Style: Points
+    Size (Pixels): 3
+    Size (m): 0.02
+    Alpha: 1
+    Decay Time: 0
+    Position Transformer: XYZ
+    Use Fixed Frame: true
+    Value: false
+  - Class: rviz_default_plugins/LaserScan
+    Name: /scan3
+    Enabled: false
+    Topic:
+      Depth: 5
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Reliability Policy: Best Effort
+      Value: /scan3
+    Color Transformer: FlatColor
+    Color: 255; 255; 0
+    Style: Flat Squares
+    Size (m): 0.06
+    Size (Pixels): 3
+    Alpha: 1
+    Decay Time: 0
+    Position Transformer: XYZ
+    Use Fixed Frame: true
+    Value: false
+  - Class: rviz_default_plugins/LaserScan
+    Name: 消去候補 clear_candidate（参考）
+    Enabled: false
+    Topic:
+      Depth: 5
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Reliability Policy: Best Effort
+      Value: /velodyne_coverage_viz/clear_candidate
+    Color Transformer: FlatColor
+    Color: 0; 200; 255
+    Style: Flat Squares
+    Size (m): 0.04
+    Size (Pixels): 3
+    Alpha: 1
+    Decay Time: 0
+    Position Transformer: XYZ
+    Use Fixed Frame: true
+    Value: false
+  - Class: rviz_default_plugins/MarkerArray
+    Name: 障害物の真値
+    Enabled: true
+    Topic:
+      Depth: 5
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Reliability Policy: Reliable
+      Value: /velodyne_study/ground_truth
+    Value: true
+  - Class: rviz_default_plugins/Marker
+    Name: 残留コスト（真値外の致死セル）
+    Enabled: true
+    Value: true
+    Topic:
+      Depth: 5
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Reliability Policy: Reliable
+      Value: /velodyne_study/residual_cells
+  Enabled: true
+  Global Options:
+    Background Color: 35; 35; 40
+    Fixed Frame: robot/odom
+    Frame Rate: 30
+  Name: root
+  Tools:
+  - Class: rviz_default_plugins/Interact
+    Hide Inactive Objects: true
+  - Class: rviz_default_plugins/MoveCamera
+  - Class: rviz_default_plugins/Measure
+    Line color: 128; 128; 0
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Name: Current View
+      Distance: 16.0
+      Focal Point:
+        X: 4.0
+        Y: 0.0
+        Z: 0.0
+      Pitch: 0.75
+      Yaw: 3.6
+      Target Frame: <Fixed Frame>
+      Near Clip Distance: 0.01
+      Value: Orbit (rviz)
+    Saved: null
+Window Geometry:
+  Height: 900
+  Width: 1500
+  X: 60
+  Y: 60
+  Displays:
+    collapsed: false
+  Views:
+    collapsed: false
+  Time:
+    collapsed: false
+  Hide Left Dock: false
+  Hide Right Dock: false
