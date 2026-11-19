@@ -207,12 +207,42 @@ def waypoint_arrival_threshold(
     return default_threshold
 
 
+def hokuyo_disabled_at(waypoints, reached_index: int) -> bool:
+    """Use list order, disabling after the marker and restoring at its endpoint."""
+    return any(
+        waypoint.hokuyo_disable_for > 0
+        and index <= reached_index < min(
+            index + waypoint.hokuyo_disable_for, len(waypoints) - 1)
+        for index, waypoint in enumerate(waypoints)
+    )
+
+
+def hokuyo_switch_indices(waypoints) -> set:
+    """Return actual on/off boundaries, merging overlapping exclusion intervals."""
+    events = {}
+    for index, waypoint in enumerate(waypoints):
+        end = min(index + waypoint.hokuyo_disable_for, len(waypoints) - 1)
+        if end > index:
+            events[index] = events.get(index, 0) + 1
+            events[end] = events.get(end, 0) - 1
+    boundaries = set()
+    active = 0
+    for index, delta in sorted(events.items()):
+        next_active = active + delta
+        if bool(active) != bool(next_active):
+            boundaries.add(index)
+        active = next_active
+    return boundaries
+
+
 def navigation_segment_end(waypoints, start_index: int, navigation_only: bool = False) -> int:
     """Include the first task/stop waypoint as this continuous section's endpoint."""
+    hokuyo_boundaries = hokuyo_switch_indices(waypoints)
     for index in range(start_index, len(waypoints)):
         waypoint = waypoints[index]
         if (waypoint.stop or waypoint.wait_time > 0.0 or waypoint.change_map or waypoint.elevator
-                or waypoint_uses_person_search(waypoint, navigation_only)):
+                or waypoint_uses_person_search(waypoint, navigation_only)
+                or index in hokuyo_boundaries):
             return index
     return len(waypoints) - 1
 
@@ -336,6 +366,9 @@ class WaypointFollower(ElevatorTaskLink, Node):
                 f'got {requested_index}')
 
         self.index = requested_index - 1
+        self.hokuyo_reached_index = self.index - 1
+        self.hokuyo_disable_publisher = self.create_publisher(
+            Bool, '/waypoint_follow/hokuyo_disable', 1)
         self.navigation_mode = str(self.get_parameter('navigation_mode').value)
         if self.navigation_mode not in ('through_poses', 'to_pose'):
             raise ValueError('navigation_mode must be through_poses or to_pose')
@@ -458,6 +491,23 @@ class WaypointFollower(ElevatorTaskLink, Node):
                 Bool, '/person_search/arrival_received',
                 self._person_search_ack_callback, response_qos)
 
+    def _publish_hokuyo_state(self) -> None:
+        """Renew a short, volatile lease; silence restores sensing inside the layer."""
+        publisher = getattr(self, 'hokuyo_disable_publisher', None)
+        if publisher is None:
+            return
+        disabled = (
+            not self._is_shutting_down() and not self.finished
+            and not self.manual_paused and not self.person_search_faulted
+            and getattr(self, 'map_switch', None) is None
+            and getattr(self, 'elevator_task', None) is None
+            and hokuyo_disabled_at(self.waypoints, self.hokuyo_reached_index))
+        message = Bool(data=disabled)
+        if disabled:
+            self._commit_mission(publisher.publish, message)
+        else:
+            publisher.publish(message)
+
     def start(self) -> None:
         """Wait for Nav2 and dispatch the first waypoint."""
         while rclpy.ok() and not self._is_shutting_down():
@@ -572,6 +622,7 @@ class WaypointFollower(ElevatorTaskLink, Node):
         self._publish_safety_zero()
 
     def _send_current_goal(self, *, extend_after: Optional[int] = None) -> bool:
+        self._publish_hokuyo_state()
         if any((
                 self._is_shutting_down(),
                 self.finished,
@@ -634,7 +685,9 @@ class WaypointFollower(ElevatorTaskLink, Node):
                             start_index=self.index if through else None,
                             end_index=end_index if through else None,
                             allow_early_extension=allow_early_extension,
-                            verify_endpoint_on_success=extend_after is not None)
+                            verify_endpoint_on_success=(
+                                extend_after is not None
+                                or end_index in hokuyo_switch_indices(self.waypoints)))
         record.goal_id.uuid = list(uuid4().bytes)
         send = self.action_client.send_goal_async
 
@@ -702,7 +755,9 @@ class WaypointFollower(ElevatorTaskLink, Node):
         if not 1 <= remaining <= count:
             return
         next_index = record.end_index + 1 - remaining
-        if next_index > self.index and self._commit_state(index=next_index):
+        if next_index > self.index and self._commit_state(
+                index=next_index, hokuyo_reached_index=next_index - 1):
+            self._publish_hokuyo_state()
             self.get_logger().info(
                 f'[WP:{self.waypoints[self.index].number}] next unpassed waypoint '
                 f'(Nav2 remaining={remaining})')
@@ -828,7 +883,9 @@ class WaypointFollower(ElevatorTaskLink, Node):
                 try:
                     transform = self.tf_buffer.lookup_transform(
                         self.map_frame, self.base_frame, rclpy.time.Time())
-                    endpoint = self.waypoints[record.end_index]
+                    endpoint_index = (record.end_index if record.end_index is not None
+                                      else self.index)
+                    endpoint = self.waypoints[endpoint_index]
                     endpoint_distance = math.hypot(
                         endpoint.x - transform.transform.translation.x,
                         endpoint.y - transform.transform.translation.y)
@@ -836,7 +893,7 @@ class WaypointFollower(ElevatorTaskLink, Node):
                     endpoint_distance = math.inf
                 if endpoint_distance > self.precise_threshold:
                     self.get_logger().warning(
-                        'Nav2 succeeded the updated section before reaching its endpoint; '
+                        'Nav2 succeeded before reaching the goal endpoint; '
                         f'distance={endpoint_distance:.2f} m. Retrying unpassed waypoints')
                     if self._commit_state(goal_handle=None, goal_result_future=None):
                         self._send_current_goal()
@@ -856,6 +913,7 @@ class WaypointFollower(ElevatorTaskLink, Node):
                 f'Nav2 returned status {wrapped_result.status}', serial, unconfirmed=True)
 
     def _timer_callback(self) -> None:
+        self._publish_hokuyo_state()
         if self._is_shutting_down():
             return
         if getattr(self, 'elevator_task', None) is not None:
@@ -942,6 +1000,9 @@ class WaypointFollower(ElevatorTaskLink, Node):
         threshold = waypoint_arrival_threshold(
             waypoint, self.default_threshold, self.precise_threshold,
             self.navigation_only)
+        if self.index in hokuyo_switch_indices(self.waypoints):
+            # Ordinary intermediate switching must not consume a sensor boundary early.
+            threshold = min(threshold, self.precise_threshold)
         if distance <= threshold:
             self.get_logger().info(
                 f'[WP:{waypoint.number}] threshold reached at {distance:.2f} m')
@@ -955,6 +1016,9 @@ class WaypointFollower(ElevatorTaskLink, Node):
     def _arrive_at_waypoint(self, exact_arrival: bool) -> None:
         if self._is_shutting_down():
             return
+        if not self._commit_state(hokuyo_reached_index=self.index):
+            return
+        self._publish_hokuyo_state()
         waypoint = self.waypoints[self.index]
         is_last = self.index == len(self.waypoints) - 1
         wait_seconds = waypoint.wait_time
@@ -1234,7 +1298,8 @@ class WaypointFollower(ElevatorTaskLink, Node):
         elif (state['stage'] == 'localizing' and state['pose_confirmed']
                 and monotonic() >= state['ready_at']):
             if not self._commit_state(
-                    waypoints=state['waypoints'], index=0, goal_serial=self.goal_serial + 1,
+                    waypoints=state['waypoints'], index=0, hokuyo_reached_index=-1,
+                    goal_serial=self.goal_serial + 1,
                     goal_handle=None, goal_result_future=None, single_goal_recovery=False,
                     waiting_until=None, waiting_finishes_route=False):
                 return
@@ -1504,7 +1569,8 @@ class WaypointFollower(ElevatorTaskLink, Node):
     def _advance(self) -> None:
         if self._is_shutting_down():
             return
-        if not self._commit_state(index=self.index + 1, goal_handle=None,
+        if not self._commit_state(index=self.index + 1, hokuyo_reached_index=self.index,
+                                  goal_handle=None,
                                   single_goal_recovery=False):
             return
         self._send_current_goal()
@@ -1513,7 +1579,8 @@ class WaypointFollower(ElevatorTaskLink, Node):
         if self._is_shutting_down():
             return
         if self.loop:
-            if not self._commit_state(index=0, goal_handle=None, single_goal_recovery=False):
+            if not self._commit_state(index=0, hokuyo_reached_index=-1,
+                                      goal_handle=None, single_goal_recovery=False):
                 return
             self.get_logger().info('Waypoint loop completed; returning to waypoint 1')
             self._send_current_goal()
@@ -1605,6 +1672,7 @@ class WaypointFollower(ElevatorTaskLink, Node):
         self.request_shutdown('cleanup')
         self.shutdown_state = 'STOPPING'
         self.finished = True
+        self._cleanup_publish(self._publish_hokuyo_state)
         self.goal_serial += 1
         self._invalidate_cancel_transition()
         had_active_arrival = self._invalidate_person_search_session(publish_arrival=False)

@@ -1,0 +1,7 @@
+<library path="hokuyo_obstacle_layer">
+  <class name="robotbase_costmap_plugins::HokuyoObstacleLayer"
+         type="robotbase_costmap_plugins::HokuyoObstacleLayer"
+         base_class_type="nav2_costmap_2d::Layer">
+    <description>Hokuyo obstacle layer with a short waypoint exclusion lease.</description>
+  </class>
+</library>

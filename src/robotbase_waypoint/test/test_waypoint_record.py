@@ -18,6 +18,7 @@ def _recorder(latest_pose, last_position):
     recorder.output_file = '/tmp/route.yaml'
     recorder.enter_to_record = False
     recorder.pause_waypoint_requested = False
+    recorder.hokuyo_waypoint_requested = False
     recorder.pause_waypoint_topic = '/waypoint_record/pause'
     recorder._stdin_fd = None
     recorder._stdin_attributes = None
@@ -126,3 +127,40 @@ def test_pause_key_records_ten_second_stop_while_continuous(monkeypatch):
         '/tmp/route.yaml', 1.0, 2.0, 0.0,
         {'stop': True, 'wait_time': 10.0},
     )]
+
+
+def test_hokuyo_request_records_immediately_and_survives_tf_failure(monkeypatch, tmp_path):
+    recorder = _recorder(None, (1.0, 2.0))
+    recorder.output_file = str(tmp_path / 'route.yaml')
+    recorder.map_frame = 'map'
+    recorder.base_frame = 'robot/base_footprint'
+    recorder.distance_threshold = 2.0
+    recorder._read_record_command = lambda: None
+    recorder.get_logger = lambda: SimpleNamespace(
+        info=lambda *_: None, warning=lambda *a, **k: None)
+
+    def unavailable(*_):
+        raise waypoint_record.TransformException('no TF')
+
+    recorder.tf_buffer = SimpleNamespace(lookup_transform=unavailable)
+    recorder._hokuyo_waypoint_callback(SimpleNamespace())
+    recorder._timer_callback()
+    assert recorder.hokuyo_waypoint_requested
+    recorder.tf_buffer.lookup_transform = lambda *_: SimpleNamespace(transform=SimpleNamespace(
+        translation=SimpleNamespace(x=1.0, y=2.0),
+        rotation=SimpleNamespace(w=1.0, x=0.0, y=0.0, z=0.0)))
+    recorder._timer_callback()
+    assert not recorder.hokuyo_waypoint_requested
+    from robotbase_waypoint.waypoint_io import load_waypoints
+    waypoints = load_waypoints(recorder.output_file)
+    assert len(waypoints) == 1
+    assert waypoints[0].hokuyo_disable_for == 2
+    assert not waypoints[0].stop
+
+
+def test_hokuyo_key_is_read_without_enter(monkeypatch):
+    recorder = _recorder(None, None)
+    recorder._stdin_fd = 7
+    monkeypatch.setattr(waypoint_record.select, 'select', lambda *_: ([None], [], []))
+    monkeypatch.setattr(waypoint_record.os, 'read', lambda *_: b'h')
+    assert recorder._read_record_command() == 'hokuyo'

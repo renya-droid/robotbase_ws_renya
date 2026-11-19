@@ -44,7 +44,10 @@ class ElevatorTaskLink:
         if task['stage'] == 'fault' or self._is_shutting_down():
             return
         now = monotonic()
-        if now - task['began'] > self.elevator_timeout_sec:
+        elapsed = now - task['began'] - task.get('preboard_wait_total', 0.)
+        if task.get('preboard_wait_since') is not None:
+            elapsed -= now - task['preboard_wait_since']
+        if elapsed > self.elevator_timeout_sec:
             self._elevator_fault('Elevator cycle timed out')
             return
         if task['stage'] == 'waiting_service':
@@ -96,7 +99,17 @@ class ElevatorTaskLink:
         if task['session'] is not None and task['session'] != session:
             self._elevator_fault('Elevator node restarted during cycle')
             return
-        task.update(session=session, sequence=sequence, last_state_at=monotonic())
+        now = monotonic()
+        task.update(session=session, sequence=sequence, last_state_at=now)
+        # Arrival/next-car waiting is unbounded while correlated state stays live.
+        # Keep the 4 s state deadline and the active journey's time budget.
+        preboard = (state.get('phase') in ('WAIT_START', 'WAIT_INITIAL_OPEN',
+                                          'WAIT_SKIP_CLOSE', 'WAIT_SKIP_OPEN')
+                    and state.get('finished') is False and state.get('nav_unresolved') is False)
+        if preboard and task.get('preboard_wait_since') is None:
+            task['preboard_wait_since'] = now
+        elif not preboard and task.get('preboard_wait_since') is not None:
+            task['preboard_wait_total'] = task.get('preboard_wait_total', 0.) + now-task.pop('preboard_wait_since')
         result = state.get('waypoint_cycle_result', '')
         if isinstance(result, str) and result.startswith('NG_'):
             self._elevator_fault(f'Elevator cycle failed: {result}')
@@ -106,6 +119,10 @@ class ElevatorTaskLink:
                 and state.get('phase') == 'FINISHED' and state.get('nav_unresolved') is False
                 and isinstance(safety, dict) and safety.get('doorway_region') == 'OUTSIDE'
                 and state.get('normal_profile_ready') is True):
+            if state.get('map_switched') is True:
+                if self._commit_state(elevator_task=None, finished=True):
+                    self.get_logger().info('Elevator exit completed on a new map; select a route for this map')
+                return
             if not self._commit_state(elevator_task=None):
                 return
             self.get_logger().info('Elevator exit completed; continuing waypoints')

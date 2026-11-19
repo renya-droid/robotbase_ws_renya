@@ -34,6 +34,24 @@ def test_append_pause_waypoint(tmp_path: Path):
     assert 'wait_time: 10.0' in text
 
 
+def test_hokuyo_interval_survives_append_and_uses_optional_field(tmp_path):
+    path = str(tmp_path / 'route.yaml')
+    append_waypoint(path, 0, 0, 0, hokuyo_disable_for=2)
+    append_waypoint(path, 1, 0, 0)
+    loaded = load_waypoints(path)
+    assert [wp.hokuyo_disable_for for wp in loaded] == [2, 0]
+    assert Path(path).read_text().count('hokuyo_disable_for:') == 1
+
+
+@pytest.mark.parametrize('value', ['true', '-1', '2.5', '"2"', 'null'])
+def test_rejects_invalid_hokuyo_interval(tmp_path, value):
+    path = tmp_path / 'invalid.yaml'
+    path.write_text('waypoints:\n- x: 0\n  y: 0\n  angle_radians: 0\n'
+                    f'  hokuyo_disable_for: {value}\n')
+    with pytest.raises(ValueError, match='hokuyo_disable_for'):
+        load_waypoints(str(path))
+
+
 def test_rejects_missing_pose_field(tmp_path: Path):
     waypoint_file = tmp_path / 'invalid.yaml'
     waypoint_file.write_text(

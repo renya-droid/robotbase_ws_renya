@@ -40,3 +40,4 @@ waypoints:
   x: 2.0
   y: 10.15
   angle_radians: 2.787
+  elevator: true

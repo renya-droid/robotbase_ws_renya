@@ -222,6 +222,28 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /waypoint_markers
       Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: Elevator door and cabin
+      Namespaces: {}
+      Topic:
+        Depth: 1
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /elevator_geometry_markers
+      Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: Elevator map preview
+      Namespaces: {}
+      Topic:
+        Depth: 1
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /elevator_geometry_preview_markers
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48

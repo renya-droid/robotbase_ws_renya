@@ -92,6 +92,14 @@ def test_cycle_request_sent_once_and_waits_without_zero_or_latched_stop(monkeypa
     assert f.advances==['next']
 
 
+def test_new_map_completion_ends_departure_route_even_when_looping(monkeypatch):
+    f,_=running(monkeypatch)
+    f._elevator_state(packet(map_switched=True))
+    assert f.finished and f.elevator_task is None and not f.advances
+    f._elevator_state(packet(map_switched=True,state_sequence=2))
+    assert not f.advances
+
+
 @pytest.mark.parametrize('changes', [dict(waypoint_cycle_id='old-id'),dict(waypoint_cycle_result=''),
     dict(finished=False),dict(phase='WAIT_CLOSE'),dict(nav_unresolved=True),
     dict(safety=dict(doorway_region='INSIDE')),dict(normal_profile_ready=False),dict(stamp_ros=80.)])

@@ -173,6 +173,33 @@ def test_timer_switches_normal_intermediate_waypoint_continuously():
     assert calls == ['advance']
 
 
+def test_hokuyo_boundaries_ignore_large_intermediate_switch_distance():
+    """Both the start and restoration point require proximity, even with YAML overrides."""
+    points = [make_waypoint(number=i + 1, x=float(i + 1), threshold=5.0,
+                            hokuyo_disable_for=2 if i == 0 else 0) for i in range(4)]
+    for index in (0, 2):
+        follower = make_timer_follower(points)
+        follower.index = index
+        follower.default_threshold = 6.0
+        translation = SimpleNamespace(x=points[index].x - 0.8, y=0.0)
+        follower.tf_buffer.lookup_transform = lambda *_: SimpleNamespace(
+            transform=SimpleNamespace(translation=translation))
+        calls = []
+        follower._advance = lambda: calls.append('advance')
+        follower._timer_callback()
+        assert calls == []
+        translation.x = points[index].x - 0.3
+        follower._timer_callback()
+        assert calls == ['advance']
+    # The interior of the exclusion interval retains normal continuous switching.
+    follower = make_timer_follower(points)
+    follower.index = 1
+    calls = []
+    follower._advance = lambda: calls.append('advance')
+    follower._timer_callback()
+    assert calls == ['advance']
+
+
 def test_timer_routes_stop_and_wait_waypoints_to_stopping_arrival():
     """Stop and wait markers retain the cancel-and-hold arrival path."""
     for marker in (

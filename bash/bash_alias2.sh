@@ -81,6 +81,10 @@ alias koko_record_rosbag_sim='koko_sim_env && bash "${_KOKO_WS}"/bash/startup_ba
 # TAB: ユーティリティ
 # GROUP: ユーティリティ
 
+# 顔UI（タッチ反応・音声・実機/cmd_vel連動、Qで終了）
+alias koko_face='bash "${_KOKO_WS}/bash/startup_bash/koko_face.sh"'
+alias koko_face2='bash "${_KOKO_WS}/bash/startup_bash/koko_face2.sh"'
+
 alias koko_install_packages='sudo apt update && sudo apt install xterm -y && \
 sudo apt install ros-jazzy-rqt-tf-tree -y && \
 sudo apt install ros-jazzy-foxglove-bridge -y && \
@@ -156,3 +160,4 @@ alias koko_pub_memo='koko_env && bash "${_KOKO_WS}"/bash/startup_bash/pub_memo.s
 # # マップ切り替え（プログラム呼び出し用、引数に地図名を指定）
 # # 例: koko_change_map_simple 1202-15f
 # alias change_map_simple='koko_env && bash "${_KOKO_WS}"/bash/startup_bash/change_map_simple.sh'
+alias kanshi='unset ROS_LOCALHOST_ONLY; export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET; bash ~/robotbase_ws_renya/bash/start_launcher2.sh'

@@ -1,0 +1,39 @@
+{
+  "source": "/home/koko-chan-nuc/kuwa_ws2/records/20261115_165330",
+  "start_jst": "2026-11-15 16:57:20",
+  "end_jst": "2026-11-15 16:58:40",
+  "counts": {
+    "/tf": 3194,
+    "/tf_static": 1,
+    "/amcl_pose": 137,
+    "/replay/robot": 137,
+    "/replay/trajectory": 137,
+    "/imu": 8054,
+    "/map": 1,
+    "/odom": 2796,
+    "/scan3": 794,
+    "/elevator_imu_monitor/state": 161,
+    "/replay/imu_state": 161,
+    "/replay/imu_vertical_acceleration": 161,
+    "/elevator_door_state": 798,
+    "/elevator_entry_state": 82,
+    "/replay/phase": 82,
+    "/replay/current_goal": 82,
+    "/elevator_safety_events": 96,
+    "/elevator_status": 70,
+    "/replay/elevator_geometry": 80,
+    "/replay/waypoints": 80
+  },
+  "reconstructed_topics": [
+    "/replay/elevator_geometry",
+    "/replay/robot",
+    "/replay/trajectory",
+    "/replay/current_goal",
+    "/replay/waypoints",
+    "/replay/phase",
+    "/replay/imu_state",
+    "/replay/imu_vertical_acceleration"
+  ],
+  "geometry_config": "/home/koko-chan-nuc/kuwa_ws2/config/entry.local.yaml",
+  "source_mcap_sha256": "2d88a6a7093802dcb63337c350bed34d97d8c3909bef1589ccada91f1a050755"
+}

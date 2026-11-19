@@ -10,7 +10,7 @@ install(
 )
 
 install(
-  PROGRAMS scripts/hokuyo_no_return_filter.py
+  PROGRAMS scripts/hokuyo_no_return_filter.py scripts/elevator_geometry_preview.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

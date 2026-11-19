@@ -1,0 +1,101 @@
+{
+  "configById": {
+    "3D!success": {
+      "title": "成功回：地図・LiDAR・かご／ドア・車体・軌跡",
+      "foxglovePanelTitle": "成功回：地図・LiDAR・かご／ドア・車体・軌跡",
+      "fixedFrame": "map",
+      "followTf": "map",
+      "followMode": "follow-pose",
+      "cameraState": {
+        "distance": 9,
+        "perspective": false,
+        "phi": 0,
+        "thetaOffset": 0,
+        "targetOffset": [
+          0.9,
+          10.6,
+          0
+        ]
+      },
+      "topics": {
+        "/map": {
+          "visible": true,
+          "colorMode": "map",
+          "drawBehind": true,
+          "alpha": 0.85
+        },
+        "/scan3": {
+          "visible": true,
+          "pointSize": 3,
+          "colorMode": "flat",
+          "flatColor": "#ff3030",
+          "pointShape": "circle"
+        },
+        "/replay/elevator_geometry": {
+          "visible": true
+        },
+        "/replay/robot": {
+          "visible": true
+        },
+        "/replay/trajectory": {
+          "visible": true
+        },
+        "/replay/current_goal": {
+          "visible": true
+        },
+        "/replay/waypoints": {
+          "visible": true
+        }
+      }
+    },
+    "RawMessages!phase": {
+      "topicPath": "/replay/phase",
+      "title": "制御状態（実記録から抽出）",
+      "foxglovePanelTitle": "制御状態（実記録から抽出）"
+    },
+    "Plot!imu": {
+      "title": "IMU鉛直加速度：平滑化・基準差分",
+      "foxglovePanelTitle": "IMU鉛直加速度：平滑化・基準差分",
+      "paths": [
+        {
+          "value": "/replay/imu_vertical_acceleration.data",
+          "enabled": true,
+          "label": "鉛直加速度 m/s²",
+          "timestampMethod": "receiveTime"
+        }
+      ],
+      "showLegend": true,
+      "isSynced": true,
+      "xAxisVal": "timestamp",
+      "timeRange": "all"
+    },
+    "RawMessages!door": {
+      "topicPath": "/elevator_door_state",
+      "title": "ドア観測（実記録）",
+      "foxglovePanelTitle": "ドア観測（実記録）"
+    }
+  },
+  "globalVariables": {},
+  "userNodes": {},
+  "linkedGlobalVariables": [],
+  "playbackConfig": {
+    "speed": 1,
+    "messageOrder": "receiveTime"
+  },
+  "layout": {
+    "direction": "row",
+    "first": "3D!success",
+    "second": {
+      "direction": "column",
+      "first": "RawMessages!phase",
+      "second": {
+        "direction": "column",
+        "first": "Plot!imu",
+        "second": "RawMessages!door",
+        "splitPercentage": 70
+      },
+      "splitPercentage": 25
+    },
+    "splitPercentage": 68
+  }
+}

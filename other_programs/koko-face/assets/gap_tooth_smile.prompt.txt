@@ -1,0 +1,2 @@
+Generated with built-in image_gen; references: bearded_face_happy.gif and bearded_face_smile.gif.
+Prompt: Transparent PNG sprite of a gently curved upper row of six warm white cartoon teeth, with one central incisor missing and a transparent gap. Clean flat shapes, rounded corners, thin dark brown dividing lines, matching the reference faces. Teeth only; no lips, gums, face, background or shadow. Preserve the existing face animations by rendering the sprite inside smiling mouths.

@@ -40,6 +40,8 @@ public:
     reset_publisher_ = create_publisher<std_msgs::msg::Empty>(reset_topic, 10);
     pause_waypoint_publisher_ =
       create_publisher<std_msgs::msg::Empty>(pause_waypoint_topic, 10);
+    hokuyo_waypoint_publisher_ =
+      create_publisher<std_msgs::msg::Empty>("/waypoint_record/hokuyo_disable", 10);
     initial_pose_publisher_ =
       create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("/initialpose", 10);
 
@@ -54,6 +56,7 @@ public:
     RCLCPP_INFO(get_logger(), "s: zero velocity and yield to Nav2");
     RCLCPP_INFO(get_logger(), "q/e: emergency stop / release");
     RCLCPP_INFO(get_logger(), "p: save 10-second pause waypoint");
+    RCLCPP_INFO(get_logger(), "h: record Hokuyo exclusion until two waypoints ahead");
     RCLCPP_INFO(get_logger(), "r: reset pose   Ctrl-C: quit");
   }
 
@@ -83,6 +86,14 @@ public:
             std::printf("\n>>> WAYPOINT RECORDER IS NOT RUNNING <<<\n");
           } else {
             std::printf("\n>>> 10-SECOND PAUSE WAYPOINT REQUESTED <<<\n");
+          }
+          break;
+        case 'h':
+          hokuyo_waypoint_publisher_->publish(std_msgs::msg::Empty());
+          if (hokuyo_waypoint_publisher_->get_subscription_count() == 0) {
+            std::printf("\n>>> WAYPOINT RECORDER IS NOT RUNNING <<<\n");
+          } else {
+            std::printf("\n>>> HOKUYO EXCLUSION WAYPOINT REQUESTED (NEXT 2 WAYPOINTS) <<<\n");
           }
           break;
         case 'w':
@@ -213,6 +224,7 @@ private:
   rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr stop_publisher_;
   rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr reset_publisher_;
   rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr pause_waypoint_publisher_;
+  rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr hokuyo_waypoint_publisher_;
   rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr
     initial_pose_publisher_;
   rclcpp::TimerBase::SharedPtr timer_;

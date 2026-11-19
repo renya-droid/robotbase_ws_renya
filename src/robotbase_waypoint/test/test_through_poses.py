@@ -98,7 +98,7 @@ def follower():
         publish=lambda msg: node.events.append(('zero', msg.linear.x)))
     node.sent = []
 
-    def send(goal, *, goal_uuid, feedback_callback):
+    def send(goal, *, goal_uuid, feedback_callback=None):
         future = Future()
         node.sent.append(SimpleNamespace(goal=goal, future=future, goal_id=goal_uuid,
                                          feedback=feedback_callback))
@@ -134,6 +134,72 @@ def test_sections_include_stop_and_person_endpoints_and_respect_navigation_only(
     assert navigation_segment_end(points, 2) == 3
     assert navigation_segment_end(points, 4) == 4
     assert navigation_segment_end(points, 2, navigation_only=True) == 4
+
+
+def test_hokuyo_start_and_end_are_protected_from_early_extension(follower):
+    """A large horizon switch cannot preempt the actual sensor boundary."""
+    follower.waypoints = [wp(i) for i in range(1, 7)]
+    follower.waypoints[1] = replace(follower.waypoints[1], hokuyo_disable_for=2)
+    follower.hokuyo_reached_index = -1
+    states = []
+    follower.hokuyo_disable_publisher = SimpleNamespace(
+        publish=lambda msg: states.append(msg.data))
+    follower.section_switch_distance = 100.0
+    assert navigation_segment_end(follower.waypoints, 0, True) == 1
+    assert navigation_segment_end(follower.waypoints, 2, True) == 3
+    follower._send_current_goal()
+    handle = accept(follower.sent[0])
+    feedback(follower.sent[0], 1)
+    follower.position = (3.0, 0.0)  # 1 m before the start marker at x=4.
+    follower._timer_callback()
+    assert len(follower.sent) == 1
+    assert not follower.goal_records[follower.goal_serial].allow_early_extension
+    assert states[-1] is False
+    # Even an early Nav2 success cannot activate the exclusion remotely.
+    finish(handle)
+    assert follower.index == 1
+    assert states[-1] is False
+    handle = accept(follower.sent[-1])
+    follower.position = (4.0, 0.0)
+    finish(handle)
+    assert follower.index == 2
+    assert states[-1] is True
+    assert follower.goal_records[follower.goal_serial].end_index == 3
+    handle = accept(follower.sent[-1])
+    feedback(follower.sent[-1], 1)
+    follower.position = (7.0, 0.0)  # 1 m before restoration at x=8.
+    follower._timer_callback()
+    assert states[-1] is True
+    assert not follower.goal_records[follower.goal_serial].allow_early_extension
+    follower.position = (8.0, 0.0)
+    finish(handle)
+    assert follower.index == 4
+    assert states[-1] is False
+
+
+def test_to_pose_early_success_cannot_consume_hokuyo_boundaries(follower):
+    """Validate sensor boundaries against TF even if a preempted action succeeds early."""
+    follower.navigation_mode = 'to_pose'
+    follower.waypoints = [wp(i) for i in range(1, 7)]
+    follower.waypoints[1] = replace(follower.waypoints[1], hokuyo_disable_for=2)
+    states = []
+    follower.hokuyo_disable_publisher = SimpleNamespace(
+        publish=lambda msg: states.append(msg.data))
+    for index, before in ((1, False), (3, True)):
+        follower.index = index
+        follower.hokuyo_reached_index = index - 1
+        endpoint = follower.waypoints[index]
+        follower.position = (endpoint.x - 1.0, endpoint.y)
+        follower._send_current_goal()
+        handle = accept(follower.sent[-1])
+        finish(handle)
+        assert follower.index == index
+        assert states[-1] is before
+        handle = accept(follower.sent[-1])
+        follower.position = (endpoint.x, endpoint.y)
+        finish(handle)
+        assert follower.index == index + 1
+        assert states[-1] is not before
 
 
 def test_straight_section_stays_continuous_and_hairpin_is_split():

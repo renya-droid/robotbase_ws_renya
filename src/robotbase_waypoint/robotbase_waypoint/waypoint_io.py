@@ -23,6 +23,7 @@ class Waypoint:
     person_area: bool = False
     change_map: str = ''
     elevator: bool = False
+    hokuyo_disable_for: int = 0
 
 
 def _as_waypoint(raw: Dict[str, Any], index: int) -> Waypoint:
@@ -57,6 +58,10 @@ def _as_waypoint(raw: Dict[str, Any], index: int) -> Waypoint:
     stop = raw.get('stop', False)
     if not isinstance(stop, bool):
         raise ValueError(f'waypoints[{index}].stop must be true or false')
+    hokuyo_disable_for = raw.get('hokuyo_disable_for', 0)
+    if type(hokuyo_disable_for) is not int or hokuyo_disable_for < 0:
+        raise ValueError(
+            f'waypoints[{index}].hokuyo_disable_for must be a non-negative integer')
     values = {}
     for key, default in (
             ('x', None), ('y', None), ('angle_radians', None),
@@ -83,6 +88,7 @@ def _as_waypoint(raw: Dict[str, Any], index: int) -> Waypoint:
             person_area=person_area,
             change_map=change_map,
             elevator=elevator,
+            hokuyo_disable_for=hokuyo_disable_for,
         )
     except (TypeError, ValueError, OverflowError) as error:
         raise ValueError(f'waypoints[{index}].number: {error}') from error
@@ -121,6 +127,8 @@ def waypoint_to_dict(waypoint: Waypoint) -> Dict[str, Any]:
         result.pop('elevator')
     if not result['change_map']:
         result.pop('change_map')
+    if not result['hokuyo_disable_for']:
+        result.pop('hokuyo_disable_for')
     return result
 
 
@@ -140,7 +148,8 @@ def write_waypoints(file_path: str, waypoints: Iterable[Waypoint]) -> None:
 
 def append_waypoint(
         file_path: str, x: float, y: float, yaw: float, *,
-        stop: bool = False, wait_time: float = 0.0) -> Waypoint:
+        stop: bool = False, wait_time: float = 0.0,
+        hokuyo_disable_for: int = 0) -> Waypoint:
     """Append one pose and continue numbering from the existing file."""
     path = Path(os.path.expanduser(file_path)).resolve()
     if path.exists():
@@ -155,6 +164,7 @@ def append_waypoint(
         angle_radians=float(yaw),
         stop=bool(stop),
         wait_time=float(wait_time),
+        hokuyo_disable_for=hokuyo_disable_for,
     )
     write_waypoints(str(path), [*existing, waypoint])
     return waypoint

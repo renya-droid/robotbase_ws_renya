@@ -1,0 +1,27 @@
+format_version: '1.0'
+waypoints:
+- number: 1
+  x: -6.65
+  y: 1.3
+  angle_radians: -1.654
+- number: 2
+  x: -6.65
+  y: -0.15
+  angle_radians: -1.527
+  hokuyo_disable_for: 2
+- number: 3
+  x: -6.7
+  y: -2.0
+  angle_radians: -1.611
+- number: 4
+  x: -6.8
+  y: -3.65
+  angle_radians: -1.681
+- number: 5
+  x: -6.9
+  y: -5.5
+  angle_radians: -1.631
+- number: 6
+  x: -7.05
+  y: -7.15
+  angle_radians: -1.571

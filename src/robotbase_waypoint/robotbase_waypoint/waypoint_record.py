@@ -18,6 +18,7 @@ from .waypoint_io import append_waypoint
 
 PAUSE_WAYPOINT_KEY = 'p'
 PAUSE_WAYPOINT_SECONDS = 10.0
+HOKUYO_WAYPOINT_KEY = 'h'
 
 
 def quaternion_to_yaw(rotation) -> float:
@@ -65,6 +66,10 @@ class WaypointRecorder(Node):
         self.pause_waypoint_subscription = self.create_subscription(
             Empty, self.pause_waypoint_topic,
             self._pause_waypoint_callback, 10)
+        self.hokuyo_waypoint_requested = False
+        self.hokuyo_waypoint_subscription = self.create_subscription(
+            Empty, '/waypoint_record/hokuyo_disable',
+            self._hokuyo_waypoint_callback, 10)
         self._stdin_fd = None
         self._stdin_attributes = None
         if (self.continuous or self.enter_to_record) and sys.stdin.isatty():
@@ -85,6 +90,12 @@ class WaypointRecorder(Node):
             self.get_logger().info(
                 f"Press '{PAUSE_WAYPOINT_KEY}' to save a waypoint with a "
                 f'{PAUSE_WAYPOINT_SECONDS:.0f}-second pause')
+            self.get_logger().info(
+                "Press 'h' to disable Hokuyo costs from here until two waypoints ahead")
+
+    def _hokuyo_waypoint_callback(self, _message: Empty) -> None:
+        """Queue a recorded Hokuyo exclusion interval, without changing live sensors."""
+        self.hokuyo_waypoint_requested = True
 
     def _pause_waypoint_callback(self, _message: Empty) -> None:
         """Queue a pause waypoint requested from the keyop terminal."""
@@ -114,6 +125,8 @@ class WaypointRecorder(Node):
             key = line.strip().lower()
         if key == PAUSE_WAYPOINT_KEY:
             return 'pause'
+        if key == HOKUYO_WAYPOINT_KEY:
+            return 'hokuyo'
         if self.enter_to_record and key == '':
             return 'record'
         return None
@@ -122,8 +135,12 @@ class WaypointRecorder(Node):
         command = self._read_record_command()
         if command == 'pause':
             self.pause_waypoint_requested = True
+        if command == 'hokuyo':
+            self.hokuyo_waypoint_requested = True
         if self.pause_waypoint_requested:
             command = 'pause'
+        elif self.hokuyo_waypoint_requested:
+            command = 'hokuyo'
         if self.enter_to_record and command is None:
             return
 
@@ -138,7 +155,8 @@ class WaypointRecorder(Node):
         translation = transform.transform.translation
         yaw = quaternion_to_yaw(transform.transform.rotation)
         self.latest_pose = (translation.x, translation.y, yaw)
-        if command != 'pause' and self.continuous and self.last_position is not None:
+        if (command not in ('pause', 'hokuyo') and self.continuous
+                and self.last_position is not None):
             distance = math.hypot(
                 translation.x - self.last_position[0],
                 translation.y - self.last_position[1])
@@ -151,12 +169,18 @@ class WaypointRecorder(Node):
                 'stop': True,
                 'wait_time': PAUSE_WAYPOINT_SECONDS,
             }
+        if self.hokuyo_waypoint_requested:
+            append_options['hokuyo_disable_for'] = 2
         waypoint = append_waypoint(
             self.output_file, translation.x, translation.y, yaw,
             **append_options)
         self.last_position = (translation.x, translation.y)
         if command == 'pause':
             self.pause_waypoint_requested = False
+        if self.hokuyo_waypoint_requested:
+            self.hokuyo_waypoint_requested = False
+            self.get_logger().info(
+                f'[WP:{waypoint.number}] Hokuyo exclusion saved: until two waypoints ahead')
         pause_note = (
             f' pause={PAUSE_WAYPOINT_SECONDS:.0f}s'
             if command == 'pause' else '')

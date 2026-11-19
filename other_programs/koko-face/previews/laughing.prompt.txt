@@ -1,0 +1,5 @@
+Tool: built-in image_gen
+Reference: ../assets/bearded_face_happy.gif
+Trial expression: 大笑い (laughing)
+
+Use case: identity-preserve. Edit target: reference image of Koko robot face. Make ONE new expression 'laughing heartily / 大笑い' for this exact existing cartoon robot face. Preserve the reference identity, exact dark brown bushy eyebrow shapes and handlebar moustache and beard silhouette, peach nose, flat vector-like raster illustration, pure black background, central positioning and generous black margins, 16:9 horizontal canvas and reference face scale. Change expression only: eyes squeezed closed into friendly upward arches, eyebrows raised slightly, wide laughing mouth below moustache, warm ivory upper teeth with ONE clearly missing upper front tooth (visible black gap), small pink tongue. Friendly funny old man laughing, readable simple shapes, no additional objects, no text, no limbs, no cheeks/skin outline, no lighting or 3D. Mouth and eye placement align with original face. Single full face image, not a grid or sheet. Black background opaque.
