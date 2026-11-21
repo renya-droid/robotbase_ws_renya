@@ -1,10 +1,14 @@
 """Correlated elevator task; waypoint navigation stays idle during handoff."""
 import json
 import math
+from pathlib import Path
 from time import monotonic
 
 from std_msgs.msg import String
 from std_srvs.srv import Trigger
+
+from .waypoint_io import load_waypoints
+from .waypoint_visualize import route_markers
 
 
 class ElevatorTaskLink:
@@ -17,9 +21,23 @@ class ElevatorTaskLink:
         if hasattr(self, 'elevator_client'):
             return
         self.declare_parameter('elevator_timeout_sec', 300.0)
+        self.declare_parameter('elevator_arrival_map_file', '')
+        self.declare_parameter('elevator_arrival_waypoint_file', '')
         self.elevator_timeout_sec = float(self.get_parameter('elevator_timeout_sec').value)
         if not math.isfinite(self.elevator_timeout_sec) or self.elevator_timeout_sec <= 0:
             raise ValueError('elevator_timeout_sec must be positive and finite')
+        map_file = str(self.get_parameter('elevator_arrival_map_file').value)
+        waypoint_file = str(self.get_parameter('elevator_arrival_waypoint_file').value)
+        if bool(map_file) != bool(waypoint_file):
+            raise ValueError('Both elevator arrival map and waypoint file are required')
+        self.elevator_arrival_map_file = Path(map_file).expanduser().resolve() if map_file else None
+        self.elevator_arrival_waypoints = None
+        if self.elevator_arrival_map_file is not None:
+            if not self.elevator_arrival_map_file.is_file():
+                raise FileNotFoundError(self.elevator_arrival_map_file)
+            self.elevator_arrival_waypoints = load_waypoints(waypoint_file)
+            if any(w.elevator or w.change_map or w.person_area for w in self.elevator_arrival_waypoints):
+                raise ValueError('Arrival waypoints must be ordinary navigation points')
         self.elevator_client = self.create_client(Trigger, '/elevator_cycle_start')
         self.elevator_cancel_publisher = self.create_publisher(String, '/elevator_manual_command', 10)
         self.elevator_state_subscription = self.create_subscription(
@@ -117,9 +135,22 @@ class ElevatorTaskLink:
         safety = state.get('safety', {})
         if (result == 'GOAL_REACHED' and state.get('finished') is True
                 and state.get('phase') == 'FINISHED' and state.get('nav_unresolved') is False
-                and isinstance(safety, dict) and safety.get('doorway_region') == 'OUTSIDE'
+                and isinstance(safety, dict)
+                # The reported door region still uses departure-map geometry after a map switch.
+                and (state.get('map_switched') is True
+                     or safety.get('doorway_region') == 'OUTSIDE')
                 and state.get('normal_profile_ready') is True):
             if state.get('map_switched') is True:
+                if self.elevator_arrival_waypoints is not None:
+                    if (not state.get('exit_map_yaml_path')
+                            or Path(state['exit_map_yaml_path']).resolve() != self.elevator_arrival_map_file
+                            or state.get('shutdown_requested') is not False
+                            or safety.get('stop_latched') is not False
+                            or safety.get('cancel_in_progress') is not False):
+                        self._elevator_fault('Arrival map or safety state does not match the selected route')
+                        return
+                    self._resume_on_arrival_map()
+                    return
                 if self._commit_state(elevator_task=None, finished=True):
                     self.get_logger().info('Elevator exit completed on a new map; select a route for this map')
                 return
@@ -130,6 +161,32 @@ class ElevatorTaskLink:
                 self._complete_or_loop()
             else:
                 self._advance()
+
+    def _resume_on_arrival_map(self):
+        if any(not record.resolved for record in self.goal_records.values()):
+            self._elevator_fault('Old waypoint goal has not terminated')
+            return
+        try:
+            markers = route_markers(self.elevator_arrival_waypoints, self.map_frame)
+        except Exception as error:
+            self._elevator_fault(f'Arrival route markers failed: {error}')
+            return
+        if not self._commit_state(
+                elevator_task=None, waypoints=self.elevator_arrival_waypoints,
+                index=0, hokuyo_reached_index=-1, loop=False,
+                goal_serial=self.goal_serial + 1, goal_handle=None,
+                goal_result_future=None, single_goal_recovery=False,
+                waiting_until=None, waiting_finishes_route=False):
+            return
+        if not self._commit_mission(setattr, self.route_markers, 'message', markers):
+            return
+        if not self._commit_mission(self.route_markers.publish):
+            return
+        if not self._publish_stop(False):
+            self._elevator_fault('Could not release waypoint stop after map handoff')
+            return
+        self.get_logger().info('Elevator destination map ready; starting arrival waypoints')
+        self._send_current_goal()
 
     def _elevator_fault(self, reason):
         if self._is_shutting_down():

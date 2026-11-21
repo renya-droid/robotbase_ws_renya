@@ -1,5 +1,6 @@
 from concurrent.futures import Future
 import json
+from pathlib import Path
 from types import SimpleNamespace as NS
 
 import pytest
@@ -12,6 +13,7 @@ from robotbase_waypoint.waypoint_io import Waypoint, load_waypoints, write_waypo
 class Follower(ElevatorTaskLink):
     def __init__(self):
         self.elevator_task = None
+        self.elevator_arrival_waypoints = None
         self.goal_records = {}
         self.finished = False
         self.shutting_down = False
@@ -75,7 +77,8 @@ def running(monkeypatch):
 def packet(**changes):
     data=dict(waypoint_cycle_id='new-id',state_sequence=1,stamp_ros=100.,session_id='session',
               waypoint_cycle_result='GOAL_REACHED',finished=True,phase='FINISHED',
-              nav_unresolved=False,normal_profile_ready=True,safety=dict(doorway_region='OUTSIDE'))
+              nav_unresolved=False,normal_profile_ready=True,shutdown_requested=False,
+              safety=dict(doorway_region='OUTSIDE'))
     data.update(changes)
     return NS(data=json.dumps(data))
 
@@ -98,6 +101,37 @@ def test_new_map_completion_ends_departure_route_even_when_looping(monkeypatch):
     assert f.finished and f.elevator_task is None and not f.advances
     f._elevator_state(packet(map_switched=True,state_sequence=2))
     assert not f.advances
+
+
+def test_new_map_completion_starts_only_the_configured_arrival_route(monkeypatch):
+    f, _ = running(monkeypatch)
+    f.elevator_arrival_map_file = Path('/tmp/1121.yaml')
+    f.elevator_arrival_waypoints = [Waypoint(1, -13.45, 10.2, -1.849)]
+    f.map_frame = 'map'
+    f.goal_serial = 0
+    f.route_markers = NS(message=None, publish=lambda: f.advances.append('markers'))
+    f._send_current_goal = lambda: f.advances.append('arrival_goal')
+    f._elevator_state(packet(
+        map_switched=True, exit_map_yaml_path='/tmp/1121.yaml',
+        safety=dict(doorway_region='INSIDE', stop_latched=False,
+                    cancel_in_progress=False)))
+    assert f.elevator_task is None and not f.finished
+    assert f.waypoints == f.elevator_arrival_waypoints and f.index == 0
+    assert f.advances == ['markers', 'arrival_goal']
+
+
+def test_new_map_completion_rejects_wrong_map_or_stop(monkeypatch):
+    for path, locked, shutdown in (('/tmp/wrong.yaml', False, False),
+                                  ('/tmp/1121.yaml', True, False),
+                                  ('/tmp/1121.yaml', False, True)):
+        f, _ = running(monkeypatch)
+        f.elevator_arrival_map_file = Path('/tmp/1121.yaml')
+        f.elevator_arrival_waypoints = [Waypoint(1, -13.45, 10.2, -1.849)]
+        f._elevator_state(packet(
+            map_switched=True, exit_map_yaml_path=path, shutdown_requested=shutdown,
+            safety=dict(doorway_region='OUTSIDE', stop_latched=locked,
+                        cancel_in_progress=False)))
+        assert f.finished and not f.advances
 
 
 @pytest.mark.parametrize('changes', [dict(waypoint_cycle_id='old-id'),dict(waypoint_cycle_result=''),

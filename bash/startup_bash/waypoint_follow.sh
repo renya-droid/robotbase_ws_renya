@@ -54,6 +54,17 @@ if ! [[ "${selection}" =~ ^[0-9]+$ ]] || \
     exit 1
 fi
 waypoint_file="${waypoint_files[$((selection - 1))]}"
+arrival_args=()
+if [ "$(basename "${waypoint_file}")" = "1018.yaml" ]; then
+    arrival_map_file="${workspace_root}/maps_waypoints/maps/1121.yaml"
+    arrival_waypoint_file="${waypoints_dir}/1121way.yaml"
+    if [ ! -f "${arrival_map_file}" ] || [ ! -f "${arrival_waypoint_file}" ]; then
+        echo "エレベーター到着側の1121地図または経路がありません" >&2
+        exit 1
+    fi
+    arrival_args=(-p "elevator_arrival_map_file:=${arrival_map_file}"
+                  -p "elevator_arrival_waypoint_file:=${arrival_waypoint_file}")
+fi
 
 read -r -p "開始番号 [1]: " start_index
 start_index="${start_index:-1}"
@@ -101,6 +112,9 @@ if [[ "${loop_answer:-}" =~ ^[yY]$ ]]; then
 fi
 
 echo "ウェイポイント: ${waypoint_file}"
+if [ "${#arrival_args[@]}" -gt 0 ]; then
+    echo "エレベーター退室後: ${arrival_map_file} / ${arrival_waypoint_file}"
+fi
 echo "開始番号: ${start_index}, loop: ${loop_value}"
 if [ "$navigation_mode" = through_poses ]; then
     echo "走行方式: NavigateThroughPoses（区間上限20 m、通常区間の切替距離: ${threshold} m）"
@@ -141,6 +155,7 @@ exec "${waypoint_executable}" --ros-args \
     -p navigation_mode:="${navigation_mode}" \
     -p use_sim_time:="${use_sim_time}" \
     -p waypoint_file:="${waypoint_file}" \
+    "${arrival_args[@]}" \
     -p start_index:="${start_index}" \
     "${threshold_args[@]}" \
     -p loop:="${loop_value}" \
