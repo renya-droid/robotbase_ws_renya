@@ -126,6 +126,9 @@ alias koko_launcher2='bash "${_KOKO_WS}/bash/start_launcher2.sh"'
 # TAB: リアル実験
 # GROUP: リアル実験
 
+# 地図ごとのエレベーター座標をGUIで登録・選択する
+alias koko_elevator_map_profiles='/usr/bin/python3 "${_KOKO_WS}/other_programs/sirius_launcher/elevator_profile_editor.py"'
+
 # 実機用の速度指令優先順位制御（シミュレータではkoko_sim内で起動済み）
 alias koko_twist_mux='koko_src && ros2 launch robotbase_bringup twist_mux.launch.py'
 

@@ -25,7 +25,7 @@ class ButterflyTest(unittest.TestCase):
         self.window.close()
 
     def test_keys_select_distinct_expressions_despite_shared_base_asset(self):
-        for key, state in zip((Qt.Key_5, Qt.Key_6, Qt.Key_7, Qt.Key_8, Qt.Key_9), EXTRA_EXPRESSIONS):
+        for key, state in zip((Qt.Key_5, Qt.Key_6, Qt.Key_0, Qt.Key_8, Qt.Key_9), EXTRA_EXPRESSIONS):
             self.window.keyPressEvent(QKeyEvent(QEvent.KeyPress, key, Qt.NoModifier))
             self.assertEqual(self.window.current_state, state)
             self.assertEqual(self.window.face.motion_sample()['expression'], state)

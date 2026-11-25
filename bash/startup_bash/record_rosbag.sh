@@ -164,6 +164,16 @@ input_filename() {
     echo "  - /map, /plan, /optimal_trajectory (地図・経路)"
     echo "  - /cmd_vel_teleop"
     echo "  - /global_costmap/costmap, /local_costmap/costmap, /local_costmap/published_footprint (コストマップ・フットプリント)"
+    echo "  - /elevator_entry_state, /elevator_status (入退室状態)"
+    echo "  - /elevator_door_state, /elevator_imu_monitor/state (ドア・昇降)"
+    echo "  - /elevator_safety_events, /elevator_safety_stop (安全監視)"
+    echo "  - /elevator_candidate_diagnostics, /elevator_geometry_markers (進入候補・可視化)"
+    echo "  - /elevator_score_markers, /elevator_evidence_markers (スコア・根拠)"
+    echo "  - /elevator_navigation_goal, /elevator_map_switch_done, /elevator_experiment_result (目標・地図切替・結果)"
+    echo "  - /elevator_entry_start, /elevator_manual_command, /elevator_floor_confirmation (操作・床確認)"
+    echo "  - /elevator_arrival_door_state, /elevator_exit_preview (到着側ドア・退出)"
+    echo "  - /elevator_entry_decision, /elevator_motion_distance, /elevator_observation_diagnostics (判定根拠)"
+    echo "  - /elevator_motion_context, /elevator_sweep_evaluation, /cmd_vel_stop (安全診断)"
     echo ""
     echo "※ /velodyne_points (3D点群) は除外されます"
     echo "※ ROS 2サービスも記録します（--all-services）"
@@ -280,6 +290,30 @@ start_recording() {
         /local_costmap/published_footprint \
         /roboteq/odom \
         /cmd_vel_teleop \
+        /elevator_entry_state \
+        /elevator_status \
+        /elevator_door_state \
+        /elevator_imu_monitor/state \
+        /elevator_safety_events \
+        /elevator_safety_stop \
+        /elevator_candidate_diagnostics \
+        /elevator_geometry_markers \
+        /elevator_score_markers \
+        /elevator_evidence_markers \
+        /elevator_navigation_goal \
+        /elevator_map_switch_done \
+        /elevator_experiment_result \
+        /elevator_entry_start \
+        /elevator_arrival_door_state \
+        /elevator_floor_confirmation \
+        /elevator_manual_command \
+        /cmd_vel_stop \
+        /elevator_exit_preview \
+        /elevator_entry_decision \
+        /elevator_motion_distance \
+        /elevator_observation_diagnostics \
+        /elevator_motion_context \
+        /elevator_sweep_evaluation \
         /joint_states &
     
     ROSBAG_PID=$!

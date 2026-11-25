@@ -1143,6 +1143,19 @@ class FaceWindow(QMainWindow):
         super().resizeEvent(event)
         self._scale_movie()
 
+    def play_birthday_greeting(self):
+        """Play the birthday clip only when its dedicated key is pressed."""
+        if self.speech_active or not self.voice.try_play('birthday'):
+            return
+        self.face.note_interaction()
+        self.face.play.stop()
+        self.face.split_play.stop()
+        self.stop_butterfly(restore=False)
+        self.tooth_reaction_started = None
+        self.idle_origin_state = self.idle_phase = None
+        self._show_reaction('radiant')
+        self.face.say('お誕生日おめでとう！', 3.)
+
     def motion_received(self, moving):
         if moving:
             self.face.note_interaction()
@@ -1184,13 +1197,18 @@ class FaceWindow(QMainWindow):
                 self.recall_butterfly()
             event.accept()
             return
+        if event.key() == Qt.Key_7:
+            if not event.isAutoRepeat():
+                self.play_birthday_greeting()
+            event.accept()
+            return
         self.face.split_play.stop()
         self.face.play.stop()
         self.stop_butterfly()
         self.face.note_interaction()
         expressions = {Qt.Key_1: 'crying', Qt.Key_2: 'shy', Qt.Key_3: 'astonished',
                        Qt.Key_4: 'radiant', Qt.Key_5: 'curious', Qt.Key_6: 'excited',
-                       Qt.Key_7: 'pout', Qt.Key_8: 'relieved', Qt.Key_9: 'dizzy'}
+                       Qt.Key_0: 'pout', Qt.Key_8: 'relieved', Qt.Key_9: 'dizzy'}
         if event.key() in expressions:
             self.show_state(expressions[event.key()])
             return

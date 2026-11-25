@@ -38,6 +38,33 @@ def geometry(config):
     return [(left, right), cabin+[cabin[0]]]
 
 
+def config_for_map(active_map, current_path):
+    """Show a preview only when exactly one saved profile owns the map."""
+    if not active_map:
+        return None
+    active = Path(active_map).expanduser().resolve()
+    paths = [current_path]
+    if current_path.parent.name == 'config':
+        paths.extend(sorted((current_path.parent / 'profiles').glob('*/entry.local.yaml')))
+    matches = []
+    for path in paths:
+        if not path.is_file():
+            continue
+        if path != current_path:
+            site = path.parent / 'site.yaml'
+            if not site.is_file():
+                continue
+            readiness = yaml.safe_load(site.read_text()) or {}
+            if not (readiness.get('measurements_reviewed') is True or
+                    readiness.get('mock_geometry_reviewed') is True):
+                continue
+        config = yaml.safe_load(path.read_text())
+        expected = config['elevator_entry_map_diff']['ros__parameters'].get('map_yaml_path')
+        if expected and Path(expected).expanduser().resolve() == active:
+            matches.append(config)
+    return matches[0] if len(matches) == 1 else None
+
+
 class Preview(Node):
     def __init__(self):
         super().__init__('elevator_geometry_preview')
@@ -63,9 +90,8 @@ class Preview(Node):
                 try:
                     reply = pending.result()
                     active = reply.values[0].string_value
-                    config = yaml.safe_load(self.path.read_text())
-                    expected = config['elevator_entry_map_diff']['ros__parameters']['map_yaml_path']
-                    if not active or Path(active).expanduser().resolve() != Path(expected).expanduser().resolve():
+                    config = config_for_map(active, self.path)
+                    if config is None:
                         self.clear()
                         return
                     markers = []

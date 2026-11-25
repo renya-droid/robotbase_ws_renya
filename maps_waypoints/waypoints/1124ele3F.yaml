@@ -1,0 +1,7 @@
+format_version: '1.0'
+waypoints:
+- number: 1
+  x: 0.017
+  y: -0.126
+  angle_radians: 3.141593
+  elevator: true

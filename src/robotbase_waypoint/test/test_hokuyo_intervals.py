@@ -24,8 +24,11 @@ def follower():
     node.hokuyo_reached_index = 0
     node.finished = node.manual_paused = node.person_search_faulted = False
     node.states = []
+    node.cues = []
     node.hokuyo_disable_publisher = SimpleNamespace(
         publish=lambda msg: node.states.append(msg.data))
+    node.hokuyo_voice = SimpleNamespace(
+        play=lambda disabled: node.cues.append(disabled), check=lambda: None)
     node.get_logger = lambda: SimpleNamespace(info=lambda *_: None)
     return node
 
@@ -53,6 +56,7 @@ def test_to_pose_advance_activates_marker_and_restores_after_two_points():
     node._advance()
     node._advance()
     assert node.states == [False, True, True, False]
+    assert node.cues == [True, False]
 
 
 def test_through_feedback_uses_remaining_goals_and_rejects_stale_feedback():
@@ -63,6 +67,7 @@ def test_through_feedback_uses_remaining_goals_and_rejects_stale_feedback():
         node._goal_feedback(SimpleNamespace(feedback=SimpleNamespace(
             number_of_poses_remaining=remaining)), 3)
     assert node.states == [True, True, False]
+    assert node.cues == [True, False]
     node._goal_feedback(SimpleNamespace(feedback=SimpleNamespace(
         number_of_poses_remaining=3)), 2)
     assert node.states == [True, True, False]
@@ -77,6 +82,7 @@ def test_endpoint_restores_before_waiting_and_loop_restarts_with_hokuyo_enabled(
     node._publish_hokuyo_state()
     node._arrive_at_waypoint(exact_arrival=True)
     assert node.states == [True, False]
+    assert node.cues == [True, False]
     node.loop = True
     node._send_current_goal = node._publish_hokuyo_state
     node._complete_or_loop()
@@ -97,3 +103,4 @@ def test_interruption_restores_hokuyo(condition):
         setattr(node, condition, True)
     node._publish_hokuyo_state()
     assert node.states == [True, False]
+    assert node.cues == [True, False]

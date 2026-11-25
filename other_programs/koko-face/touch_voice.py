@@ -9,7 +9,7 @@ import wave
 from pathlib import Path
 from PyQt5.QtCore import QObject, QProcess, QTimer, pyqtSignal
 
-SPECIAL_CUES = ('cavity', 'licking', 'tooth_drop', 'shy', 'crying', 'radiant')
+SPECIAL_CUES = ('cavity', 'licking', 'tooth_drop', 'shy', 'crying', 'radiant', 'birthday')
 
 def audio_envelope(path):
     """Read 20ms RMS windows from PCM16 audio, normalized per utterance."""
@@ -82,7 +82,7 @@ class TouchVoice(QObject):
             return False
         if cue is None and random.random() >= self.probability:
             return False
-        path, self.envelope = random.choice(clips)
+        path, self.envelope = clips[0] if cue else random.choice(clips)
         self.process.start(self.player, ['-q', str(path)])
         return True
 

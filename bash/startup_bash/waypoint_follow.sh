@@ -55,11 +55,22 @@ if ! [[ "${selection}" =~ ^[0-9]+$ ]] || \
 fi
 waypoint_file="${waypoint_files[$((selection - 1))]}"
 arrival_args=()
-if [ "$(basename "${waypoint_file}")" = "1018.yaml" ]; then
+arrival_map_file=""
+arrival_waypoint_file=""
+case "$(basename "${waypoint_file}")" in
+  1018.yaml)
     arrival_map_file="${workspace_root}/maps_waypoints/maps/1121.yaml"
     arrival_waypoint_file="${waypoints_dir}/1121way.yaml"
+    ;;
+  1124ele3F.yaml)
+    arrival_map_file="${workspace_root}/maps_waypoints/maps/1124ele.yaml"
+    arrival_waypoint_file="${waypoints_dir}/1124ele.yaml"
+    echo "操作 GUI の環境設定は 1124ele3F_to_1124ele を選択してください。"
+    ;;
+esac
+if [ -n "${arrival_map_file}" ]; then
     if [ ! -f "${arrival_map_file}" ] || [ ! -f "${arrival_waypoint_file}" ]; then
-        echo "エレベーター到着側の1121地図または経路がありません" >&2
+        echo "エレベーター到着側の地図または経路がありません: ${arrival_map_file} / ${arrival_waypoint_file}" >&2
         exit 1
     fi
     arrival_args=(-p "elevator_arrival_map_file:=${arrival_map_file}"

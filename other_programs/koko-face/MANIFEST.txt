@@ -37,6 +37,7 @@ assets/hand_open.png
 assets/hand_open.prompt.txt
 assets/human_tongue.png
 assets/human_tongue.prompt.txt
+assets/voice/birthday.wav
 assets/voice/cavity.wav
 assets/voice/crying.wav
 assets/voice/hello.wav

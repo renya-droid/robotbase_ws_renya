@@ -29,6 +29,28 @@ def test_invalid_geometry_rejected():
         preview.geometry(c)
 
 
+def test_preview_selects_unique_profile_for_active_map(tmp_path):
+    root = tmp_path / 'config'
+    root.mkdir()
+    current = root / 'entry.local.yaml'
+    current.write_text(yaml.safe_dump(config(tmp_path / 'original.yaml')))
+    profile = root / 'profiles' / 'new_map' / 'entry.local.yaml'
+    profile.parent.mkdir(parents=True)
+    chosen = config(tmp_path / 'new.yaml')
+    chosen['elevator_entry_map_diff']['ros__parameters']['door_left_x'] = 9.0
+    profile.write_text(yaml.safe_dump(chosen))
+    (profile.parent / 'site.yaml').write_text('measurements_reviewed: true\n')
+    selected = preview.config_for_map(str(tmp_path / 'new.yaml'), current)
+    assert selected['elevator_entry_map_diff']['ros__parameters']['door_left_x'] == 9.0
+    duplicate = root / 'profiles' / 'duplicate' / 'entry.local.yaml'
+    duplicate.parent.mkdir(parents=True)
+    duplicate.write_text(yaml.safe_dump(chosen))
+    (duplicate.parent / 'site.yaml').write_text('measurements_reviewed: true\n')
+    assert preview.config_for_map(str(tmp_path / 'new.yaml'), current) is None
+    (duplicate.parent / 'site.yaml').write_text('measurements_reviewed: false\n')
+    assert preview.config_for_map(str(tmp_path / 'new.yaml'), current) is not None
+
+
 @pytest.mark.parametrize('matching', [True, False])
 def test_preview_only_on_configured_map(tmp_path, matching):
     cfg = tmp_path/'entry.yaml'

@@ -4,6 +4,8 @@ import unittest
 from unittest.mock import Mock, patch
 
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
+from PyQt5.QtCore import QEvent, Qt
+from PyQt5.QtGui import QKeyEvent
 from robot_face_display import QApplication, FaceWindow, DEFAULT_FACES, ASSET_DIRECTORY
 from touch_voice import TouchVoice
 
@@ -51,6 +53,18 @@ class VoiceRoutingTest(unittest.TestCase):
     def test_other_touch_requests_random_audio(self):
         self.window.handle_touch(.39, .52)
         self.window.voice.try_play.assert_called_once_with()
+
+    def test_birthday_key_plays_only_its_cue(self):
+        self.window.keyPressEvent(QKeyEvent(QEvent.KeyPress, Qt.Key_7, Qt.NoModifier))
+        self.window.voice.try_play.assert_called_once_with('birthday')
+        self.assertEqual(self.window.current_state, 'radiant')
+        self.assertEqual(self.window.face.bubble_text, 'お誕生日おめでとう！')
+        self.window.keyPressEvent(QKeyEvent(QEvent.KeyPress, Qt.Key_7,
+                                          Qt.NoModifier, '7', True, 1))
+        self.window.voice.try_play.assert_called_once_with('birthday')
+        self.window.set_speaking(True)
+        self.window.keyPressEvent(QKeyEvent(QEvent.KeyPress, Qt.Key_7, Qt.NoModifier))
+        self.window.voice.try_play.assert_called_once_with('birthday')
 
     def test_head_pat_is_happy_and_nose_touch_is_surprised(self):
         self.window.handle_touch(.50, .20)
@@ -133,7 +147,7 @@ class VoiceRoutingTest(unittest.TestCase):
         voice.player = '/mock/aplay'
         try:
             with patch.object(voice.process, 'start') as start:
-                for cue in ('cavity', 'licking', 'tooth_drop', 'shy', 'crying', 'radiant'):
+                for cue in ('cavity', 'licking', 'tooth_drop', 'shy', 'crying', 'radiant', 'birthday'):
                     voice.last_finished = float('inf')  # special cues bypass cooldown
                     self.assertTrue(voice.try_play(cue))
                     self.assertTrue(start.call_args.args[1][1].endswith(cue + '.wav'))

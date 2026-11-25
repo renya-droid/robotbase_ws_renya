@@ -25,6 +25,7 @@ from std_srvs.srv import SetBool
 from tf2_ros import Buffer, TransformException, TransformListener
 
 from .elevator_task import ElevatorTaskLink
+from .hokuyo_voice import HokuyoVoice
 from .waypoint_io import load_waypoints
 from .waypoint_visualize import route_markers, RouteMarkerPublisher
 
@@ -369,6 +370,8 @@ class WaypointFollower(ElevatorTaskLink, Node):
         self.hokuyo_reached_index = self.index - 1
         self.hokuyo_disable_publisher = self.create_publisher(
             Bool, '/waypoint_follow/hokuyo_disable', 1)
+        self.hokuyo_announced_disabled = False
+        self.hokuyo_voice = HokuyoVoice(self.get_logger())
         self.navigation_mode = str(self.get_parameter('navigation_mode').value)
         if self.navigation_mode not in ('through_poses', 'to_pose'):
             raise ValueError('navigation_mode must be through_poses or to_pose')
@@ -496,6 +499,9 @@ class WaypointFollower(ElevatorTaskLink, Node):
         publisher = getattr(self, 'hokuyo_disable_publisher', None)
         if publisher is None:
             return
+        voice = getattr(self, 'hokuyo_voice', None)
+        if voice is not None:
+            voice.check()
         disabled = (
             not self._is_shutting_down() and not self.finished
             and not self.manual_paused and not self.person_search_faulted
@@ -504,9 +510,16 @@ class WaypointFollower(ElevatorTaskLink, Node):
             and hokuyo_disabled_at(self.waypoints, self.hokuyo_reached_index))
         message = Bool(data=disabled)
         if disabled:
-            self._commit_mission(publisher.publish, message)
+            published = self._commit_mission(publisher.publish, message)
         else:
             publisher.publish(message)
+            published = True
+        if published and disabled != getattr(self, 'hokuyo_announced_disabled', False):
+            self.hokuyo_announced_disabled = disabled
+            self.get_logger().info(
+                f'Hokuyo costmap {"disabled" if disabled else "enabled"}')
+            if voice is not None:
+                voice.play(disabled)
 
     def start(self) -> None:
         """Wait for Nav2 and dispatch the first waypoint."""
