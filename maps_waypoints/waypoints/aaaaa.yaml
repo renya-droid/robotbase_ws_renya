@@ -1,0 +1,23 @@
+format_version: '1.0'
+waypoints:
+- number: 1
+  x: -7.05
+  y: -1.9
+  angle_radians: -1.571
+- number: 2
+  x: -7.05
+  y: -5.65
+  angle_radians: -1.593
+- number: 3
+  x: -7.0
+  y: -10.85
+  angle_radians: -1.571
+- number: 4
+  x: -7.9
+  y: -14.45
+  angle_radians: 3.142
+- number: 5
+  x: -12.45
+  y: -14.45
+  angle_radians: 3.11
+  change_map: 15F-0824

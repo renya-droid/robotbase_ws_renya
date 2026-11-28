@@ -1,0 +1,362 @@
+{
+  "bag": "/home/koko-chan-nuc/rosbag2_data/1128_4",
+  "bag_sha256": "f882b9110a70c71dc4ea701e68cf17a09cc4f8771913c18934bddc8fb852b78a",
+  "method": "Observe door-plane returns disappearing and reappearing at 200-215 s. Use a fixed map-to-odom reference at 190 s for the short cycle; transform sensor extrinsics including 0.196 m Hokuyo offset. Fit closed plane at 170-200 s; measure opposing inner surfaces in first 0.02-0.30 m behind door at 202-208 s, using inward 10/90 percentiles. This is an observed clear-width estimate, not a confidence interval.",
+  "door_frame_map_reference_seconds": 190,
+  "door_frame_origin_map_m": [
+    226.9990373925659,
+    13.061
+  ],
+  "door_normal_yaw_radians": -0.08004740303058593,
+  "observed_opening_width": {
+    "scan3": {
+      "samples": 12,
+      "minimum_m": 0.942093625813857,
+      "median_m": 0.9499004827093087,
+      "maximum_m": 0.956898062737517
+    },
+    "hokuyo": {
+      "samples": 14,
+      "minimum_m": 0.9227786207107975,
+      "median_m": 0.9355678632580614,
+      "maximum_m": 0.937819684101423
+    }
+  },
+  "opening_samples": [
+    {
+      "sensor": "scan3",
+      "seconds": 202.1780354976654,
+      "lower_m": -0.48590867414320293,
+      "upper_m": 0.4641067324416235,
+      "width_m": 0.9500154065848264,
+      "upper_returns": 14,
+      "lower_returns": 13
+    },
+    {
+      "sensor": "scan3",
+      "seconds": 202.68238973617554,
+      "lower_m": -0.48881388330517356,
+      "upper_m": 0.45986161540709786,
+      "width_m": 0.9486754987122714,
+      "upper_returns": 14,
+      "lower_returns": 13
+    },
+    {
+      "sensor": "scan3",
+      "seconds": 203.18669152259827,
+      "lower_m": -0.4776086679851122,
+      "upper_m": 0.4644849578287448,
+      "width_m": 0.942093625813857,
+      "upper_returns": 14,
+      "lower_returns": 12
+    },
+    {
+      "sensor": "scan3",
+      "seconds": 203.69101476669312,
+      "lower_m": -0.48284490638318606,
+      "upper_m": 0.4649712305700885,
+      "width_m": 0.9478161369532745,
+      "upper_returns": 13,
+      "lower_returns": 13
+    },
+    {
+      "sensor": "scan3",
+      "seconds": 204.19536972045898,
+      "lower_m": -0.48887542933782513,
+      "upper_m": 0.4644304338202156,
+      "width_m": 0.9533058631580407,
+      "upper_returns": 14,
+      "lower_returns": 13
+    },
+    {
+      "sensor": "scan3",
+      "seconds": 204.6999101638794,
+      "lower_m": -0.49069428794048225,
+      "upper_m": 0.4662037747970347,
+      "width_m": 0.956898062737517,
+      "upper_returns": 13,
+      "lower_returns": 13
+    },
+    {
+      "sensor": "scan3",
+      "seconds": 205.20401811599731,
+      "lower_m": -0.49090127372636017,
+      "upper_m": 0.46315479904917883,
+      "width_m": 0.9540560727755389,
+      "upper_returns": 13,
+      "lower_returns": 13
+    },
+    {
+      "sensor": "scan3",
+      "seconds": 205.7084195613861,
+      "lower_m": -0.4823879014107321,
+      "upper_m": 0.4609278805337622,
+      "width_m": 0.9433157819444944,
+      "upper_returns": 14,
+      "lower_returns": 14
+    },
+    {
+      "sensor": "scan3",
+      "seconds": 206.21267747879028,
+      "lower_m": -0.4888828218646659,
+      "upper_m": 0.4657413671402709,
+      "width_m": 0.9546241890049368,
+      "upper_returns": 13,
+      "lower_returns": 12
+    },
+    {
+      "sensor": "scan3",
+      "seconds": 206.71701526641846,
+      "lower_m": -0.4833611387318999,
+      "upper_m": 0.4632796655758765,
+      "width_m": 0.9466408043077764,
+      "upper_returns": 14,
+      "lower_returns": 13
+    },
+    {
+      "sensor": "scan3",
+      "seconds": 207.2213773727417,
+      "lower_m": -0.4897361903486273,
+      "upper_m": 0.46455769593659,
+      "width_m": 0.9542938862852173,
+      "upper_returns": 14,
+      "lower_returns": 13
+    },
+    {
+      "sensor": "scan3",
+      "seconds": 207.7256555557251,
+      "lower_m": -0.4885860412818726,
+      "upper_m": 0.46119951755191835,
+      "width_m": 0.9497855588337909,
+      "upper_returns": 14,
+      "lower_returns": 13
+    },
+    {
+      "sensor": "hokuyo",
+      "seconds": 202.056569814682,
+      "lower_m": -0.48537077380153626,
+      "upper_m": 0.43740784690926127,
+      "width_m": 0.9227786207107975,
+      "upper_returns": 29,
+      "lower_returns": 31
+    },
+    {
+      "sensor": "hokuyo",
+      "seconds": 202.50802302360535,
+      "lower_m": -0.4969915014563483,
+      "upper_m": 0.4388389658763999,
+      "width_m": 0.9358304673327482,
+      "upper_returns": 29,
+      "lower_returns": 28
+    },
+    {
+      "sensor": "hokuyo",
+      "seconds": 202.95939898490906,
+      "lower_m": -0.4990195820095906,
+      "upper_m": 0.4377081212306033,
+      "width_m": 0.9367277032401939,
+      "upper_returns": 30,
+      "lower_returns": 28
+    },
+    {
+      "sensor": "hokuyo",
+      "seconds": 203.41111159324646,
+      "lower_m": -0.4962904045869162,
+      "upper_m": 0.4383896463036067,
+      "width_m": 0.9346800508905229,
+      "upper_returns": 30,
+      "lower_returns": 30
+    },
+    {
+      "sensor": "hokuyo",
+      "seconds": 203.86267638206482,
+      "lower_m": -0.49740218474071834,
+      "upper_m": 0.43831858423645415,
+      "width_m": 0.9357207689771725,
+      "upper_returns": 30,
+      "lower_returns": 29
+    },
+    {
+      "sensor": "hokuyo",
+      "seconds": 204.3142032623291,
+      "lower_m": -0.49890337678215707,
+      "upper_m": 0.4377797839027359,
+      "width_m": 0.936683160684893,
+      "upper_returns": 30,
+      "lower_returns": 29
+    },
+    {
+      "sensor": "hokuyo",
+      "seconds": 204.7657356262207,
+      "lower_m": -0.494960131462125,
+      "upper_m": 0.43818614349339463,
+      "width_m": 0.9331462749555196,
+      "upper_returns": 30,
+      "lower_returns": 28
+    },
+    {
+      "sensor": "hokuyo",
+      "seconds": 205.2175509929657,
+      "lower_m": -0.4965361841247551,
+      "upper_m": 0.4379049131756564,
+      "width_m": 0.9344410973004115,
+      "upper_returns": 31,
+      "lower_returns": 29
+    },
+    {
+      "sensor": "hokuyo",
+      "seconds": 205.6685860157013,
+      "lower_m": -0.4997019122918409,
+      "upper_m": 0.43645147241569093,
+      "width_m": 0.9361533847075318,
+      "upper_returns": 30,
+      "lower_returns": 29
+    },
+    {
+      "sensor": "hokuyo",
+      "seconds": 206.12036037445068,
+      "lower_m": -0.499620329576746,
+      "upper_m": 0.43776029382889614,
+      "width_m": 0.9373806234056421,
+      "upper_returns": 30,
+      "lower_returns": 29
+    },
+    {
+      "sensor": "hokuyo",
+      "seconds": 206.57173347473145,
+      "lower_m": -0.496896893973673,
+      "upper_m": 0.4385180635652773,
+      "width_m": 0.9354149575389503,
+      "upper_returns": 29,
+      "lower_returns": 29
+    },
+    {
+      "sensor": "hokuyo",
+      "seconds": 207.0232973098755,
+      "lower_m": -0.49980849155893026,
+      "upper_m": 0.4380111925424927,
+      "width_m": 0.937819684101423,
+      "upper_returns": 31,
+      "lower_returns": 29
+    },
+    {
+      "sensor": "hokuyo",
+      "seconds": 207.47472524642944,
+      "lower_m": -0.49803345373077973,
+      "upper_m": 0.4369396409379926,
+      "width_m": 0.9349730946687723,
+      "upper_returns": 29,
+      "lower_returns": 28
+    },
+    {
+      "sensor": "hokuyo",
+      "seconds": 207.92638993263245,
+      "lower_m": -0.49674466929596955,
+      "upper_m": 0.4373219499193101,
+      "width_m": 0.9340666192152797,
+      "upper_returns": 31,
+      "lower_returns": 29
+    }
+  ],
+  "conservative_opening_width_m": 0.92,
+  "body_model": {
+    "assessment_width_m": 0.68,
+    "assessment_front_m": 0.425,
+    "assessment_rear_m": 0.475,
+    "configured_elevator_length_m": 0.6,
+    "urdf_visual_length_m": 0.9,
+    "source_paths": [
+      "params/real/nav2.yaml",
+      "src/robotbase_bringup/urdf/robotbase.urdf"
+    ],
+    "note": "Use configured 0.68 m safety width and longer 0.90 m URDF body length; actual physical envelope is not measured by this analysis."
+  },
+  "sweep": {
+    "transverse_center_m": -0.025,
+    "depth_centers_m": [
+      -0.6,
+      1.7
+    ],
+    "depth_step_m": 0.01,
+    "observation_window_seconds": [
+      202,
+      208
+    ],
+    "results": [
+      {
+        "angle_degrees": 0,
+        "projected_width_m": 0.68,
+        "minimum_distance_to_observed_returns_m": 0.10003412925987959,
+        "poses_with_returns_inside": 0
+      },
+      {
+        "angle_degrees": 5,
+        "projected_width_m": 0.7558525631752794,
+        "minimum_distance_to_observed_returns_m": 0.05994074519847539,
+        "poses_with_returns_inside": 0
+      },
+      {
+        "angle_degrees": 10,
+        "projected_width_m": 0.8259526319485389,
+        "minimum_distance_to_observed_returns_m": 0.023065203787581763,
+        "poses_with_returns_inside": 0
+      },
+      {
+        "angle_degrees": 15,
+        "projected_width_m": 0.8897667024688352,
+        "minimum_distance_to_observed_returns_m": 0.0,
+        "poses_with_returns_inside": 7
+      },
+      {
+        "angle_degrees": 17,
+        "projected_width_m": 0.9134217683053272,
+        "minimum_distance_to_observed_returns_m": 0.0,
+        "poses_with_returns_inside": 31
+      },
+      {
+        "angle_degrees": 23,
+        "projected_width_m": 0.9776013159880059,
+        "minimum_distance_to_observed_returns_m": 0.0,
+        "poses_with_returns_inside": 97
+      }
+    ],
+    "note": "Distances are to recorded returns at the two lidar heights; unseen volumes and live changes are not validated."
+  },
+  "handoff_pose_examples": [
+    {
+      "stamp_ros": 1795848562.0232456,
+      "seconds": 167.8835005760193,
+      "map_pose": [
+        226.1636248871949,
+        13.12925456981583,
+        0.32230616406371004
+      ],
+      "angle_to_fitted_door_normal_degrees": 23.053161266536957,
+      "projected_width_m": 0.97812304326642
+    },
+    {
+      "stamp_ros": 1795848562.4267247,
+      "seconds": 168.28697967529297,
+      "map_pose": [
+        226.15797721795457,
+        13.125178532007538,
+        0.21376854710435075
+      ],
+      "angle_to_fitted_door_normal_degrees": 16.83441389635812,
+      "projected_width_m": 0.911505161592647
+    },
+    {
+      "stamp_ros": 1795848563.0320086,
+      "seconds": 168.89226365089417,
+      "map_pose": [
+        226.16052666568393,
+        13.13302089791165,
+        0.22285221004448863
+      ],
+      "angle_to_fitted_door_normal_degrees": 17.35486944534742,
+      "projected_width_m": 0.9175035543321461
+    }
+  ],
+  "conclusion": "Geometric passage exists when fully open, aligned with door normal, and centered. Recorded handoff angles leave little or no clearance when the longer body model is considered. This does not validate automatic entry execution.",
+  "production_configuration_changed": false
+}

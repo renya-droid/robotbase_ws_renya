@@ -244,6 +244,27 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /elevator_geometry_preview_markers
       Value: true
+    - Class: rviz_default_plugins/PoseWithCovariance
+      Enabled: true
+      Name: AMCL robot position
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
+        Value: /amcl_pose
+      Value: true
+    - Class: rviz_default_plugins/Pose
+      Enabled: true
+      Name: Elevator exit target
+      Color: 255; 100; 255
+      Topic:
+        Depth: 1
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /elevator_exit_preview
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48

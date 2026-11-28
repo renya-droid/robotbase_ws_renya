@@ -1,0 +1,10 @@
+# 中之島: ATC4 → ATC6。ドアは細い通路の左端。地図画像から読取、現地実測未確認。
+robot_workspace: ~/robotbase_ws_renya
+ros_domain_id: 54
+destination_floor: ''
+measurements_reviewed: false
+mux_config: ~/robotbase_ws_renya/params/real/twist_mux.yaml
+require_human_destination: true
+departure_waypoint_file: null
+departure_wait_waypoint_number: null
+arrival_waypoint_file: null

@@ -14,6 +14,7 @@ from ament_index_python.packages import get_package_share_directory
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, Twist
 from nav2_msgs.action import NavigateThroughPoses, NavigateToPose
 from nav2_msgs.srv import LoadMap
+from nav_msgs.msg import OccupancyGrid
 import rclpy
 from rclpy.action import ActionClient
 from rclpy.duration import Duration
@@ -26,6 +27,8 @@ from tf2_ros import Buffer, TransformException, TransformListener
 
 from .elevator_task import ElevatorTaskLink
 from .hokuyo_voice import HokuyoVoice
+from .map_switch_keepout import (
+    destination_keepout_enabled, destination_keepout_mask, mask_grid_matches)
 from .waypoint_io import load_waypoints
 from .waypoint_visualize import route_markers, RouteMarkerPublisher
 
@@ -354,6 +357,12 @@ class WaypointFollower(ElevatorTaskLink, Node):
                 raise ValueError('map switch timeout and settle seconds must be positive')
         self.map_switch = None
         self.map_client = self.create_client(LoadMap, '/map_server/load_map')
+        self.mask_client = self.create_client(LoadMap, '/filter_mask_server/load_map')
+        self.latest_mask_grid = None
+        self.mask_subscription = self.create_subscription(
+            OccupancyGrid, '/keepout_filter_mask', self._map_switch_mask,
+            QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
+                       durability=DurabilityPolicy.TRANSIENT_LOCAL))
         self.initial_pose_publisher = self.create_publisher(
             PoseWithCovarianceStamped, '/initialpose', 10)
         self.amcl_pose_subscription = self.create_subscription(
@@ -698,9 +707,7 @@ class WaypointFollower(ElevatorTaskLink, Node):
                             start_index=self.index if through else None,
                             end_index=end_index if through else None,
                             allow_early_extension=allow_early_extension,
-                            verify_endpoint_on_success=(
-                                extend_after is not None
-                                or end_index in hokuyo_switch_indices(self.waypoints)))
+                            verify_endpoint_on_success=True)
         record.goal_id.uuid = list(uuid4().bytes)
         send = self.action_client.send_goal_async
 
@@ -1225,8 +1232,6 @@ class WaypointFollower(ElevatorTaskLink, Node):
         self._begin_holding_stop()
         try:
             names = set(self.get_node_names())
-            if 'filter_mask_server' in names:
-                raise ValueError('Keepout is active; restart Nav2 with the destination map')
             if 'amcl' not in names or 'slam_toolbox' in names:
                 raise ValueError('Map switching requires AMCL localization (not SLAM/static)')
             map_path = self.maps_dir / f'{name}.yaml'
@@ -1234,11 +1239,20 @@ class WaypointFollower(ElevatorTaskLink, Node):
                 raise FileNotFoundError(f'Map file not found: {map_path}')
             waypoints = load_waypoints(str(self.waypoints_dir / f'{name}.yaml'))
             validate_person_search_route(waypoints, 1, self.loop, self.navigation_only)
+            mask_path = mask_geometry = None
+            if 'filter_mask_server' in names:
+                if 'costmap_filter_info_server' not in names:
+                    raise ValueError('Keepout info server is missing')
+                mask_path, mask_geometry = destination_keepout_mask(map_path)
+            elif destination_keepout_enabled(map_path):
+                raise ValueError('Destination Keepout requires restarting Nav2 with that map')
             if not self._commit_state(map_switch={
                     'stage': 'ready', 'name': name, 'path': map_path,
                     'waypoints': waypoints, 'started': monotonic(),
                     'ready_at': monotonic() + SHUTDOWN_ZERO_SETTLE_SEC,
-                    'future': None, 'pose_confirmed': False}):
+                    'future': None, 'pose_confirmed': False,
+                    'mask_path': mask_path, 'mask_geometry': mask_geometry,
+                    'mask_stamp': None}):
                 return
             self.get_logger().info(f'Stopped at map boundary; switching to {name}')
         except Exception as error:  # noqa: BLE001
@@ -1272,19 +1286,43 @@ class WaypointFollower(ElevatorTaskLink, Node):
                 return
             if any(not record.resolved for record in self.goal_records.values()):
                 return
-            if not self.map_client.service_is_ready():
+            client = self.mask_client if state['mask_path'] else self.map_client
+            if not client.service_is_ready():
                 return
             request = LoadMap.Request()
-            request.map_url = str(state['path'])
+            request.map_url = str(state['mask_path'] or state['path'])
 
             def dispatch():
-                state['stage'] = 'loading'
-                state['future'] = self.map_client.call_async(request)
+                state['stage'] = 'mask_loading' if state['mask_path'] else 'loading'
+                state['future'] = client.call_async(request)
 
             try:
                 self._commit_mission(dispatch)
             except Exception as error:  # noqa: BLE001
                 self._map_switch_failed(str(error))
+        elif state['stage'] == 'mask_loading':
+            if not state['future'].done():
+                return
+            try:
+                result = state['future'].result()
+                if result.result != LoadMap.Response.RESULT_SUCCESS:
+                    raise RuntimeError(f'Keepout LoadMap returned result={result.result}')
+                if not mask_grid_matches(result.map, state['mask_geometry']):
+                    raise ValueError('Keepout server returned a mask with wrong geometry')
+                stamp = result.map.header.stamp
+                state['mask_stamp'] = (stamp.sec, stamp.nanosec)
+                state['stage'] = 'mask_confirming'
+            except Exception as error:  # noqa: BLE001
+                self._map_switch_failed(str(error))
+        elif state['stage'] == 'mask_confirming':
+            grid = self.latest_mask_grid
+            stamp = grid.header.stamp if grid is not None else None
+            if (stamp is None or (stamp.sec, stamp.nanosec) != state['mask_stamp']
+                    or not mask_grid_matches(grid, state['mask_geometry'])):
+                return
+            state['mask_path'] = None
+            state['ready_at'] = monotonic() + self.map_switch_settle_sec
+            state['stage'] = 'ready'
         elif state['stage'] == 'loading':
             if not state['future'].done():
                 return
@@ -1331,6 +1369,11 @@ class WaypointFollower(ElevatorTaskLink, Node):
                 return
             self.get_logger().info(f"Map {state['name']} ready; restarting at waypoint 1")
             self._send_current_goal()
+
+    def _map_switch_mask(self, message) -> None:
+        """Wait for the new mask publication before loading the destination map."""
+        if not self._is_shutting_down():
+            self.latest_mask_grid = message
 
     def _map_switch_amcl_pose(self, message) -> None:
         """Require a fresh AMCL estimate near the destination's first waypoint."""

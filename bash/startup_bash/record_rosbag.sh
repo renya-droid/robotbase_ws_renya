@@ -166,6 +166,7 @@ input_filename() {
     echo "  - /global_costmap/costmap, /local_costmap/costmap, /local_costmap/published_footprint (コストマップ・フットプリント)"
     echo "  - /elevator_entry_state, /elevator_status (入退室状態)"
     echo "  - /elevator_door_state, /elevator_imu_monitor/state (ドア・昇降)"
+    echo "  - /elevator_bank/door_ev1..5 (5基それぞれのドア判定)"
     echo "  - /elevator_safety_events, /elevator_safety_stop (安全監視)"
     echo "  - /elevator_candidate_diagnostics, /elevator_geometry_markers (進入候補・可視化)"
     echo "  - /elevator_score_markers, /elevator_evidence_markers (スコア・根拠)"
@@ -293,6 +294,11 @@ start_recording() {
         /elevator_entry_state \
         /elevator_status \
         /elevator_door_state \
+        /elevator_bank/door_ev1 \
+        /elevator_bank/door_ev2 \
+        /elevator_bank/door_ev3 \
+        /elevator_bank/door_ev4 \
+        /elevator_bank/door_ev5 \
         /elevator_imu_monitor/state \
         /elevator_safety_events \
         /elevator_safety_stop \

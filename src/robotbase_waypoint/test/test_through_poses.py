@@ -451,6 +451,7 @@ def test_section_success_waits_then_starts_next_section(follower):
     follower.waypoints = [wp(1), wp(2, wait_time=3.0), wp(3), wp(4)]
     follower._send_current_goal()
     handle = accept(follower.sent[0])
+    follower.position = (4., 0.)
     finish(handle)
     assert follower.index == 1
     assert follower.holding_stop
@@ -498,6 +499,7 @@ def test_person_search_is_started_at_section_end_and_blocks_next_section(followe
     follower.waypoints = [wp(1), wp(2, person_area=True), wp(3)]
     follower._start_person_search = lambda: follower.events.append(('search', follower.index))
     follower._send_current_goal()
+    follower.position = (4., 0.)
     finish(accept(follower.sent[0]))
     assert follower.index == 1
     assert ('search', 1) in follower.events

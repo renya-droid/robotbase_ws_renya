@@ -80,3 +80,39 @@ def test_invalid_through_switch_distance_is_rejected(workspace, threshold):
                             text=True, capture_output=True)
     assert result.returncode == 1
     assert 'ARG:' not in result.stdout
+
+
+def atc_routes(workspace, departure='atc4'):
+    root = workspace.parents[2]
+    routes = root / 'maps_waypoints/waypoints'
+    (routes / 'route.yaml').unlink()
+    for name in (departure, 'atc6'):
+        (routes / f'{name}.yaml').write_text('waypoints: []\n')
+    maps = root / 'maps_waypoints/maps'
+    maps.mkdir()
+    (maps / 'atc6.yaml').write_text('image: atc6.pgm\n')
+    return root
+
+
+@pytest.mark.parametrize('choice', ['1', '2'])
+@pytest.mark.parametrize('departure,start', [('atc1', 253), ('atc4', 146)])
+def test_atc_routes_pass_arrival_route_to_follower(workspace, monkeypatch, choice, departure, start):
+    root = atc_routes(workspace, departure)
+    monkeypatch.delenv('ELEVATOR_PROFILE', raising=False)
+    result = subprocess.run(['bash', str(workspace)], input=f'1\n{start}\n{choice}\n\nn\n',
+                            text=True, capture_output=True)
+    assert result.returncode == 0, result.stderr
+    assert f'ARG:elevator_arrival_map_file:={root}/maps_waypoints/maps/atc6.yaml' in result.stdout
+    assert f'ARG:elevator_arrival_waypoint_file:={root}/maps_waypoints/waypoints/atc6.yaml' in result.stdout
+    assert f'ARG:waypoint_file:={root}/maps_waypoints/waypoints/{departure}.yaml' in result.stdout
+    assert f'ARG:start_index:={start}' in result.stdout
+
+
+@pytest.mark.parametrize('departure', ['atc1', 'atc4'])
+def test_atc_routes_reject_mismatched_elevator_profile(workspace, monkeypatch, departure):
+    atc_routes(workspace, departure)
+    monkeypatch.setenv('ELEVATOR_PROFILE', 'current')
+    result = subprocess.run(['bash', str(workspace)], input='1\n', text=True, capture_output=True)
+    assert result.returncode == 2
+    assert 'nakanoshima' in result.stderr
+    assert 'ARG:' not in result.stdout

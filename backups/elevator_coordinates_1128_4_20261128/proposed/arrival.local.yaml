@@ -1,0 +1,43 @@
+arrival_geometry:
+  door_left_x: 2.006
+  door_left_y: 0.374
+  door_right_x: 2.006
+  door_right_y: -0.426
+  elevator_inside_sign: 1.0
+  use_door_based_elevator: true
+  use_elevator_polygon: true
+  elevator_polygon_x:
+  - 2.006
+  - 3.206
+  - 3.606
+  - 4.006
+  - 4.356
+  - 4.356
+  - 3.956
+  - 3.606
+  - 3.206
+  - 2.006
+  elevator_polygon_y:
+  - 0.374
+  - 0.474
+  - 0.674
+  - 0.674
+  - 0.324
+  - -0.276
+  - -0.626
+  - -0.626
+  - -0.426
+  - -0.426
+  elevator_x_min: 2.006
+  elevator_x_max: 4.356
+  elevator_y_min: -0.626
+  elevator_y_max: 0.674
+  elevator_local_x_min: -0.7
+  elevator_local_x_max: 0.6
+  elevator_local_y_min: 0.0
+  elevator_local_y_max: 2.35
+  door_front_local_x_min: -0.4
+  door_front_local_x_max: 0.4
+  door_front_local_y_min: 0.0
+  door_front_local_y_max: 0.6
+  map_yaml_path: /home/koko-chan-nuc/robotbase_ws_renya/maps_waypoints/maps/atc6.yaml

@@ -1,12 +1,16 @@
 """Map boundaries stop navigation until both map loading and localization succeed."""
 
 from concurrent.futures import Future
+import json
 from types import SimpleNamespace
 
+from PIL import Image
 from geometry_msgs.msg import PoseWithCovarianceStamped
+from nav_msgs.msg import OccupancyGrid
 from nav2_msgs.srv import LoadMap
 import pytest
 from rclpy.time import Time
+import yaml
 
 from robotbase_waypoint import waypoint_follow as module
 from robotbase_waypoint.waypoint_follow import (
@@ -61,11 +65,50 @@ def follower(tmp_path, monkeypatch):
     node.route_markers = SimpleNamespace(
         message=None, publish=lambda: node.events.append(('markers', None)))
     node.load_future = Future()
+    node.mask_future = Future()
+    node.latest_mask_grid = None
     node.map_client = SimpleNamespace(
         service_is_ready=lambda: True,
         call_async=lambda request: (
             node.events.append(('load', request.map_url)) or node.load_future))
+    node.mask_client = SimpleNamespace(
+        service_is_ready=lambda: True,
+        call_async=lambda request: (
+            node.events.append(('mask_load', request.map_url)) or node.mask_future))
     return node
+
+
+def enable_destination_keepout(node):
+    """Create a matching saved mask as the launch file would expect."""
+    node.get_node_names = lambda: [
+        'amcl', 'map_server', 'filter_mask_server', 'costmap_filter_info_server']
+    map_path = node.maps_dir / 'next.yaml'
+    Image.new('L', (2, 2), 255).save(node.maps_dir / 'next.pgm')
+    meta = dict(image='next.pgm', mode='trinary', resolution=0.05,
+                origin=[-1.0, -2.0, 0.0], negate=0,
+                occupied_thresh=0.65, free_thresh=0.25)
+    map_path.write_text(yaml.safe_dump(meta))
+    out = node.maps_dir / '.keepout' / 'next'
+    out.mkdir(parents=True)
+    Image.new('L', (2, 2), 255).save(out / 'mask.png')
+    (out / 'mask.yaml').write_text(yaml.safe_dump({**meta, 'image': 'mask.png'}))
+    (out / 'settings.json').write_text(json.dumps(dict(
+        source_map=str(map_path), enabled=True, shapes=[], operations=[],
+        map_metadata=dict(resolution=0.05, origin=[-1.0, -2.0, 0.0],
+                          size=[2, 2]))))
+
+
+def destination_mask_message():
+    grid = OccupancyGrid()
+    grid.header.frame_id = 'map'
+    grid.header.stamp = Time(seconds=11).to_msg()
+    grid.info.width = grid.info.height = 2
+    grid.info.resolution = 0.05
+    grid.info.origin.position.x = -1.0
+    grid.info.origin.position.y = -2.0
+    grid.info.origin.orientation.w = 1.0
+    grid.data = [0] * 4
+    return grid
 
 
 def start_loading(node, monkeypatch):
@@ -130,6 +173,57 @@ def test_preflight_failure_never_calls_map_service(follower, problem):
     assert follower.finished and follower.holding_stop
     assert follower.map_switch['stage'] == 'fault'
     assert not any(event[0] == 'load' for event in follower.events)
+
+
+def test_keepout_switch_loads_mask_before_map_and_waits_for_publication(
+        follower, monkeypatch):
+    enable_destination_keepout(follower)
+    start_loading(follower, monkeypatch)
+    assert follower.map_switch['stage'] == 'mask_loading'
+    assert [event for event, _ in follower.events if event.endswith('load')] == ['mask_load']
+    grid = destination_mask_message()
+    follower.mask_future.set_result(LoadMap.Response(result=0, map=grid))
+    follower._continue_map_switch()
+    assert follower.map_switch['stage'] == 'mask_confirming'
+    follower._continue_map_switch()
+    assert not any(event == 'load' for event, _ in follower.events)
+    follower._map_switch_mask(grid)
+    follower._continue_map_switch()
+    assert follower.map_switch['stage'] == 'ready'
+    monkeypatch.setattr(module, 'monotonic', lambda: 104.0)
+    follower._continue_map_switch()
+    assert follower.map_switch['stage'] == 'loading'
+    assert [event for event, _ in follower.events if event.endswith('load')] == [
+        'mask_load', 'load']
+    assert not any(event == 'goal' for event, _ in follower.events)
+
+
+def test_wrong_destination_mask_stops_before_changing_main_map(follower, monkeypatch):
+    enable_destination_keepout(follower)
+    start_loading(follower, monkeypatch)
+    grid = destination_mask_message()
+    grid.info.origin.position.x = 10.0
+    follower.mask_future.set_result(LoadMap.Response(result=0, map=grid))
+    follower._continue_map_switch()
+    assert follower.map_switch['stage'] == 'fault'
+    assert follower.holding_stop and follower.finished
+    assert not any(event == 'load' for event, _ in follower.events)
+
+
+def test_destination_keepout_cannot_be_enabled_without_filter_server(follower):
+    enable_destination_keepout(follower)
+    follower.get_node_names = lambda: ['amcl', 'map_server']
+    follower._start_map_switch()
+    assert follower.map_switch['stage'] == 'fault'
+    assert not any(event == 'load' for event, _ in follower.events)
+
+
+def test_missing_destination_mask_stops_before_any_load(follower):
+    follower.get_node_names = lambda: [
+        'amcl', 'map_server', 'filter_mask_server', 'costmap_filter_info_server']
+    follower._start_map_switch()
+    assert follower.map_switch['stage'] == 'fault'
+    assert not any(event.endswith('load') for event, _ in follower.events)
 
 
 def test_load_failure_keeps_original_route_and_holds_stop(follower, monkeypatch):

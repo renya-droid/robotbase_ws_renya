@@ -1,0 +1,8 @@
+# 1018 map copy for proposed 13F. Physical floor geometry must be confirmed before activation.
+free_thresh: 0.25
+image: 1018_13F.pgm
+mode: trinary
+negate: 0
+occupied_thresh: 0.65
+origin: [-14.325, -34.925, 0]
+resolution: 0.05

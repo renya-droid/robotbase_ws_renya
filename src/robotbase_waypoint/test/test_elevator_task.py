@@ -5,7 +5,7 @@ from types import SimpleNamespace as NS
 
 import pytest
 
-from robotbase_waypoint.elevator_task import ElevatorTaskLink
+from robotbase_waypoint.elevator_task import ElevatorTaskLink, arrival_route_with_destination
 from robotbase_waypoint.waypoint_follow import navigation_segment_end, waypoint_arrival_threshold
 from robotbase_waypoint.waypoint_io import Waypoint, load_waypoints, write_waypoints
 
@@ -17,6 +17,9 @@ class Follower(ElevatorTaskLink):
         self.goal_records = {}
         self.finished = False
         self.shutting_down = False
+        self.shutdown_reasons = []
+        self.elevator_bank_arrivals = {}
+        self.elevator_bank_selected = None
         self.holding_stop = False
         self.waypoints = [Waypoint(1, 0., 0., 0., elevator=True), Waypoint(2, 1., 0., 0.)]
         self.index = 0
@@ -25,6 +28,11 @@ class Follower(ElevatorTaskLink):
         self.reply = Future()
         self.elevator_client = NS(service_is_ready=lambda: True, call_async=self.request)
         self.elevator_cancel_publisher = NS(publish=lambda m: self.messages.append(m.data))
+
+    def request_shutdown(self, reason):
+        assert self.elevator_task is None
+        self.shutdown_reasons.append(reason)
+        self.shutting_down = True
 
     def request(self, _):
         self.requests.append('request')
@@ -99,6 +107,7 @@ def test_new_map_completion_ends_departure_route_even_when_looping(monkeypatch):
     f,_=running(monkeypatch)
     f._elevator_state(packet(map_switched=True))
     assert f.finished and f.elevator_task is None and not f.advances
+    assert f.shutdown_reasons == ['elevator map handoff complete']
     f._elevator_state(packet(map_switched=True,state_sequence=2))
     assert not f.advances
 
@@ -113,7 +122,7 @@ def test_new_map_completion_starts_only_the_configured_arrival_route(monkeypatch
     f._send_current_goal = lambda: f.advances.append('arrival_goal')
     f._elevator_state(packet(
         map_switched=True, exit_map_yaml_path='/tmp/1121.yaml',
-        safety=dict(doorway_region='INSIDE', stop_latched=False,
+        safety=dict(doorway_region='OUTSIDE', stop_latched=False,
                     cancel_in_progress=False)))
     assert f.elevator_task is None and not f.finished
     assert f.waypoints == f.elevator_arrival_waypoints and f.index == 0
@@ -181,3 +190,64 @@ def test_invalid_task_combination_rejected(tmp_path,extra):
     p=tmp_path/'bad.yaml'
     p.write_text('waypoints:\n  - x: 0\n    y: 0\n    angle_radians: 0\n    '+extra+'\n')
     with pytest.raises(ValueError):load_waypoints(str(p))
+
+
+def test_bank_completion_starts_selected_route_once(monkeypatch):
+    f, _ = running(monkeypatch)
+    f.elevator_arrival_map_file = Path('/tmp/1121.yaml')
+    route = [Waypoint(1, 4., 5., 0.)]
+    f.elevator_bank_arrivals = {1: (Path('/tmp/ev1.yaml'), [Waypoint(1, 1., 1., 0.)]),
+                                2: (Path('/tmp/ev2.yaml'), route)}
+    f.map_frame = 'map'
+    f.goal_serial = 0
+    f.route_markers = NS(message=None, publish=lambda: f.advances.append('markers'))
+    f._send_current_goal = lambda: f.advances.append('arrival_goal')
+    completed = packet(map_switched=True, exit_map_yaml_path='/tmp/1121.yaml',
+                       bank={'selected_id': 2, 'arrival_waypoint_file': '/tmp/ev2.yaml'},
+                       safety={'doorway_region': 'OUTSIDE', 'stop_latched': False,
+                               'cancel_in_progress': False})
+    f._elevator_state(completed)
+    f._elevator_state(completed)
+    assert f.waypoints == route and f.advances == ['markers', 'arrival_goal']
+    assert f.elevator_task is None
+
+
+def test_bank_wrong_route_or_inside_does_not_start(monkeypatch):
+    for route_file, region in (('/tmp/ev1.yaml', 'OUTSIDE'), ('/tmp/ev2.yaml', 'INSIDE')):
+        f, _ = running(monkeypatch)
+        f.elevator_arrival_map_file = Path('/tmp/1121.yaml')
+        f.elevator_bank_arrivals = {2: (Path('/tmp/ev2.yaml'), [Waypoint(1, 4., 5., 0.)])}
+        f._elevator_state(packet(map_switched=True, exit_map_yaml_path='/tmp/1121.yaml',
+            bank={'selected_id': 2, 'arrival_waypoint_file': route_file},
+            safety={'doorway_region': region, 'stop_latched': False,
+                    'cancel_in_progress': False}))
+        assert not f.advances
+
+
+def test_bank_selected_cabin_continues_to_trip_destination_once(monkeypatch):
+    f, _ = running(monkeypatch)
+    f.elevator_arrival_map_file = Path('/tmp/1018_13F.yaml')
+    f.elevator_arrival_destination = (9.0, -2.0, 1.5)
+    f.elevator_bank_arrivals = {
+        1: (Path('/tmp/cabin_1.yaml'), [Waypoint(1, 1., 1., 0.)]),
+        2: (Path('/tmp/cabin_2.yaml'), [Waypoint(1, 4., 5., 0.)]),
+    }
+    f.map_frame = 'map'
+    f.goal_serial = 0
+    f.route_markers = NS(message=None, publish=lambda: f.advances.append('markers'))
+    f._send_current_goal = lambda: f.advances.append('arrival_goal')
+    completed = packet(map_switched=True, exit_map_yaml_path='/tmp/1018_13F.yaml',
+        bank={'selected_id': 2, 'arrival_waypoint_file': '/tmp/cabin_2.yaml'},
+        safety={'doorway_region': 'OUTSIDE', 'stop_latched': False,
+                'cancel_in_progress': False})
+    f._elevator_state(completed)
+    f._elevator_state(completed)
+    assert f.waypoints == [Waypoint(1, 4., 5., 0.), Waypoint(2, 9., -2., 1.5)]
+    assert f.advances == ['markers', 'arrival_goal']
+
+
+@pytest.mark.parametrize('destination', [(float('nan'), 0., 0.), (1., 2.),
+                                          (True, 1., 0.), (1., float('inf'), 0.)])
+def test_invalid_trip_destination_rejected(destination):
+    with pytest.raises(ValueError):
+        arrival_route_with_destination([Waypoint(1, 4., 5., 0.)], destination)

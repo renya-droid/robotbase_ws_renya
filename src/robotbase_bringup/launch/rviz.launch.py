@@ -72,4 +72,9 @@ def generate_launch_description():
         OpaqueFunction(
             function=_persistent_rviz_node,
             kwargs={'template_path': rviz_template}),
+        Node(
+            package='robotbase_bringup', executable='elevator_geometry_preview.py',
+            name='elevator_geometry_preview', output='screen',
+            condition=IfCondition(PythonExpression(["'", use_sim_time, "' != 'true'"])),
+        ),
     ])

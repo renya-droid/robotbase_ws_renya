@@ -286,7 +286,7 @@ class ElevatorProfileEditor(QMainWindow):
         self.status.style().polish(self.status)
 
     def mark_dirty(self, _text=''):
-        if self.selector.currentText() == 'current':
+        if self.selector.currentText() == 'current' or not self.save_button.isEnabled():
             return
         self.reviewed.setChecked(False)
         self.set_status('未保存の変更があります。両方の地図と座標を確認してから保存してください。', 'warning')
@@ -310,7 +310,8 @@ class ElevatorProfileEditor(QMainWindow):
                 detail_keys = (*LOCAL, *FRONT, *(ENTRY_EXTRA if side == 'departure' else ()))
                 self.detail_toggles[side].setChecked(any(values.get(key) is None for key in detail_keys))
             self.reviewed.setChecked(config['site.yaml'].get('measurements_reviewed') is True)
-            readonly = name == 'current'
+            bank_mode = config['site.yaml'].get('elevator_mode') == 'bank'
+            readonly = name == 'current' or bank_mode
             self.save_button.setEnabled(not readonly)
             self.reviewed.setEnabled(not readonly)
             for widget in (*self.map_edits.values(),
@@ -318,9 +319,14 @@ class ElevatorProfileEditor(QMainWindow):
                 widget.setReadOnly(readonly)
             for button in self.map_buttons.values():
                 button.setEnabled(not readonly)
-            self.set_status('current は参照専用です。新しい地図には上の「複製」を押してください。'
-                            if readonly else f'編集中: {name}。保存後、kuwa_ws2 の操作 GUI で同じ名前を選択します。',
-                            'info')
+            if bank_mode:
+                self.set_status('複数基設定はこの1基用画面では保存できません。各号機の座標は kuwa_ws2/config/profiles/'
+                                + name + '/bank.yaml と arrival_*.yaml にあります。実測未確認の間、制御起動はできません。',
+                                'warning')
+            else:
+                self.set_status('current は参照専用です。新しい地図には上の「複製」を押してください。'
+                                if readonly else f'編集中: {name}。保存後、kuwa_ws2 の操作 GUI で同じ名前を選択します。',
+                                'info')
         except (OSError, ValueError, KeyError, TypeError, yaml.YAMLError) as exc:
             self.set_status(str(exc), 'error')
 
@@ -369,6 +375,7 @@ class ElevatorProfileEditor(QMainWindow):
 
     def check(self):
         name = self.selector.currentText()
+        bank_mode = read_profile(self.root, name)['site.yaml'].get('elevator_mode') == 'bank'
         script = self.root / 'tools/configure.py'
         if not script.is_file():
             self.set_status(f'設定チェックがありません: {script}', 'warning')
@@ -391,7 +398,10 @@ class ElevatorProfileEditor(QMainWindow):
             output = bytes(process.readAllStandardOutput()).decode(errors='replace').strip()
             if sequence == self.check_sequence and self.selector.currentText() == name:
                 if code == 0:
-                    self.set_status(f'設定チェックOK。kuwa_ws2 の操作 GUI で「{name}」を選択してください。', 'success')
+                    if bank_mode:
+                        self.set_status('5基の座標案チェックOK。実測未確認のため制御起動はできません。', 'warning')
+                    else:
+                        self.set_status(f'設定チェックOK。kuwa_ws2 の操作 GUI で「{name}」を選択してください。', 'success')
                 else:
                     self.set_status('設定チェック未完了: ' + (output or f'終了コード {code}'), 'warning')
             if self.check_process is process:
@@ -403,7 +413,7 @@ class ElevatorProfileEditor(QMainWindow):
             lambda _error: self.set_status('設定チェックを起動できません: ' +
                                            process.errorString(), 'error')
             if sequence == self.check_sequence and self.selector.currentText() == name else None)
-        process.start('/usr/bin/python3', [str(script), 'check'])
+        process.start('/usr/bin/python3', [str(script), 'draft-check' if bank_mode else 'check'])
 
 
 def main():

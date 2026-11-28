@@ -1,0 +1,7 @@
+free_thresh: 0.25
+image: atc6.pgm
+mode: trinary
+negate: 0
+occupied_thresh: 0.65
+origin: [-35.800000000000004, -76.2, 0]
+resolution: 0.05

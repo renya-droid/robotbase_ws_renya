@@ -54,6 +54,9 @@ def create_profile(root, name, source='current'):
     if name == 'current' or not re.fullmatch(r'[A-Za-z0-9_-]+', name):
         raise ValueError('新しい環境名を英数字・_・-で指定してください')
     source_dir = profile_dir(root, source)
+    source_site = yaml.safe_load((source_dir / 'site.yaml').read_text())
+    if source_site.get('elevator_mode') == 'bank':
+        raise ValueError('複数基設定はこの1基用画面から複製できません。current を選んで複製してください')
     contents = {filename: (source_dir / filename).read_bytes() for filename in FILES}
     site = yaml.safe_load(contents['site.yaml'])
     for key in ('ros_domain_id', 'robot_workspace', 'mux_config'):
@@ -195,6 +198,8 @@ def save_profile(root, name, departure_map, arrival_map, departure_fields,
         raise ValueError('エレベーター制御ノードが起動中です。停止後に保存してください')
     folder = profile_dir(root, name)
     config = read_profile(root, name)
+    if config['site.yaml'].get('elevator_mode') == 'bank':
+        raise ValueError('複数基設定は各号機の bank.yaml と arrival_*.yaml で管理します。この1基用画面から保存できません')
     departure = _geometry(departure_fields, '出発側')
     for key in ENTRY_EXTRA:
         departure[key] = _number(departure_fields.get(key), f'出発側 {key}')
